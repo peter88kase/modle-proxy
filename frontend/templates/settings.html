@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}系统配置 · 接入测试平台{% endblock %}
+
+{% block content %}
+<div class="page-head" data-testid="t-settings-root">
+  <div>
+    <h1>系统配置</h1>
+    <p class="sub">敏感配置由服务端环境变量管理，页面仅展示状态并提供少量运行参数调整。</p>
+  </div>
+  <div class="actions">
+    <span class="badge neutral" id="settings-version" data-testid="t-settings-status-version">—</span>
+    <button class="btn btn-sm" id="reload-settings" type="button" data-testid="t-settings-btn-refresh">刷新状态</button>
+  </div>
+</div>
+
+{# 加载失败提示区：静态锚点，脚本可区分“加载失败”与“没有数据”（规格 §6.2.1） #}
+<div class="alert danger hidden" id="settings-error" role="alert" data-testid="t-settings-error"></div>
+
+<div class="grid-2">
+  <section class="panel">
+    <div class="panel-head"><h2>运行参数</h2><span class="meta">RUNTIME</span></div>
+    <div class="panel-body">
+      <form id="runtime-form" data-testid="t-settings-form">
+        <div class="field">
+          <label class="label" for="test-repeat">验收套件默认重复次数</label>
+          <input type="number" id="test-repeat" class="mono" min="1" max="5" value="3" data-testid="t-settings-input-test-repeat">
+          <p class="hint">对应标准第一章“连续发送 3 次”的要求，可在单次运行前调整。</p>
+        </div>
+        <div class="field">
+          <label class="label" for="default-prompt">默认测试提示词</label>
+          <textarea id="default-prompt" class="mono" rows="2" data-testid="t-settings-input-default-prompt"></textarea>
+          <p class="hint">应为固定、简短、结果可直接判断的提示词。</p>
+        </div>
+        <button class="btn btn-primary" type="submit" data-testid="t-settings-btn-save">保存运行参数</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>服务端限制</h2><span class="meta">ENV · 只读</span></div>
+    <div class="panel-body">
+      <dl class="kv" id="env-list" data-testid="t-settings-table-env">
+        <dt>—</dt><dd>加载中…</dd>
+      </dl>
+      <p class="hint mt-8">以上数值来自服务端环境变量，修改后需重启服务生效。</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Shell 工作进程</h2><span class="meta">ISOLATION</span></div>
+    <div class="panel-body">
+      <dl class="kv" id="shell-list" data-testid="t-settings-table-shell">
+        <dt>—</dt><dd>加载中…</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>账号与会话</h2><span class="meta">ACCOUNT</span></div>
+    <div class="panel-body">
+      <dl class="kv" id="count-list" data-testid="t-settings-table-counts">
+        <dt>—</dt><dd>加载中…</dd>
+      </dl>
+      <div class="divider"></div>
+      <form id="password-form" data-testid="t-settings-form-password">
+        <div class="field">
+          <label class="label" for="cur-password">当前密码</label>
+          <input type="password" id="cur-password" autocomplete="current-password" data-testid="t-settings-input-current-password">
+        </div>
+        <div class="field">
+          <label class="label" for="new-password">新密码</label>
+          <input type="password" id="new-password" autocomplete="new-password" data-testid="t-settings-input-new-password">
+          <p class="hint">至少 12 位；修改后其他会话立即失效。</p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn" type="submit" data-testid="t-settings-btn-save-password">修改密码</button>
+          <button class="btn" type="button" id="revoke-sessions" data-testid="t-settings-btn-revoke-sessions">注销其他会话</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<section class="panel mt-16">
+  <div class="panel-head"><h2>最近审计</h2><span class="meta">AUDIT</span></div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>时间</th><th>账号</th><th>动作</th><th>来源 IP</th></tr></thead>
+      <tbody id="audit-body" data-testid="t-settings-table-audit-body"><tr><td colspan="4" class="table-empty" data-testid="t-settings-empty-audit">加载中…</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel mt-16">
+  <div class="panel-head">
+    <h2>供应商配置</h2>
+    <span class="meta">ADMIN · 不含凭证</span>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>标识</th><th>名称</th><th>适配器</th><th>直连地址</th><th>转发地址</th><th>认证</th><th>状态</th><th></th></tr>
+      </thead>
+      <tbody id="provider-body" data-testid="t-settings-table-provider-body"><tr><td colspan="8" class="table-empty" data-testid="t-settings-empty-provider">加载中…</td></tr></tbody>
+    </table>
+  </div>
+  <div class="panel-body">
+    <form id="provider-form" autocomplete="off" data-testid="t-settings-form-provider">
+      <div class="row-3">
+        <div class="field">
+          <label class="label" for="p-id">标识 <span class="req">*</span></label>
+          <input type="text" id="p-id" class="mono" placeholder="acme-gateway" data-testid="t-settings-input-provider-id">
+        </div>
+        <div class="field">
+          <label class="label" for="p-name">名称 <span class="req">*</span></label>
+          <input type="text" id="p-name" placeholder="ACME 网关" data-testid="t-settings-input-provider-name">
+        </div>
+        <div class="field">
+          <label class="label" for="p-adapter">适配器</label>
+          <select id="p-adapter" data-testid="t-settings-select-provider-adapter"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="label" for="p-direct">上游直连地址</label>
+          <input type="text" id="p-direct" class="mono" placeholder="https://api.example.com/v1" data-testid="t-settings-input-provider-direct">
+        </div>
+        <div class="field">
+          <label class="label" for="p-forward">转发链路地址</label>
+          <input type="text" id="p-forward" class="mono" placeholder="https://fluxlane.example.com/v1" data-testid="t-settings-input-provider-forward">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="label" for="p-auth">认证方式</label>
+          <select id="p-auth" data-testid="t-settings-select-provider-auth"></select>
+        </div>
+        <div class="field">
+          <label class="label" for="p-model">默认模型 ID</label>
+          <input type="text" id="p-model" class="mono" placeholder="可留空" data-testid="t-settings-input-provider-model">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="label" for="p-version-mode">版本号位置</label>
+          <select id="p-version-mode" data-testid="t-settings-select-provider-version-mode">
+            <option value="header">HTTP header（Anthropic 直连 / bedrock-mantle）</option>
+            <option value="body">请求体（Bedrock invoke_model 网关）</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label" for="p-api-version">版本号</label>
+          <input type="text" id="p-api-version" class="mono" placeholder="留空用默认：header 2023-06-01 / body bedrock-2023-05-31" data-testid="t-settings-input-provider-api-version">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="p-notes">备注</label>
+        <input type="text" id="p-notes" placeholder="协议差异、渠道说明等" data-testid="t-settings-input-provider-notes">
+      </div>
+      <div class="field">
+        <label class="check"><input type="checkbox" id="p-enabled" checked data-testid="t-settings-check-provider-enabled"> 启用该供应商</label>
+      </div>
+      <div class="flex gap-8">
+        <button class="btn btn-primary" type="submit" data-testid="t-settings-btn-save-provider">保存供应商</button>
+        <button class="btn" type="button" id="p-reset" data-testid="t-settings-btn-reset-provider">清空表单</button>
+        <button class="btn btn-danger" type="button" id="p-delete" data-testid="t-settings-btn-delete-provider">删除当前供应商</button>
+      </div>
+      <p class="hint mt-8">此页面只保存地址与协议元数据；AK/SK 与 API Key 一律不落库。</p>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/settings.js"></script>
+{% endblock %}

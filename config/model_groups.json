@@ -1,0 +1,124 @@
+{
+  "_note": "模型组：给「批量验收」用的选择清单。**这不是白名单**——平台不限制只能测这些 ID，也不保证供应商一定提供。实际可用性以 provider 的 /models 接口或供应商文档为准。",
+  "_source": "2026-10 核对：Anthropic 官方 model-deprecations + release-notes、OpenAI models 目录、Gemini API models、各厂商文档；并用某聚合网关的 /v1/models 实测交叉验证（89 个 ID）。",
+  "_prefix_warning": "下面用的是**官方标准 ID（不带厂商前缀）**。部分网关要求带前缀，例如某些聚合网关上实际是 `z-ai/glm-5.3`、`deepseek/deepseek-v4-pro`、`qwen/qwen3.8-max`。换供应商时以对方 /models 返回为准。",
+  "_how_to_verify": "配好 provider 后点「获取列表」拉真实清单；或 GET {base}/v1/models。列表里没有的 ID 不代表不能用（Anthropic 协议模型通常不在 models 接口里）。",
+  "groups": [
+    {
+      "id": "claude",
+      "label": "Claude（Anthropic）",
+      "adapter": "anthropic",
+      "_retired": "claude-3-7-sonnet（2026-02-19）、claude-3-5-haiku（2026-02-19）、claude-3-haiku（2026-04-20）、claude-sonnet-4/opus-4（2026-06-15）、claude-opus-4-1（2026-08-05）——都已退役，填了会报 model not found",
+      "_note": "Opus 5.5 起「思考」无法关闭，`thinking:{\"type\":\"disabled\"}` 会 400；用 effort 参数控制深度。",
+      "models": [
+        "claude-opus-5-5",
+        "claude-sonnet-5-5",
+        "claude-fable-5-1",
+        "claude-fable-5",
+        "claude-opus-5",
+        "claude-sonnet-5",
+        "claude-opus-4-8",
+        "claude-opus-4-6",
+        "claude-sonnet-4-6",
+        "claude-haiku-4-5-20251001"
+      ]
+    },
+    {
+      "id": "gpt",
+      "label": "GPT（OpenAI）",
+      "adapter": "openai",
+      "_note": "GPT-6 分三档：Astra（旗舰）> Sol（编码/智能体）> Luna（大批量）。5.6 系列仍在售。",
+      "models": [
+        "gpt-6.1-sol",
+        "gpt-6-astra",
+        "gpt-6-sol",
+        "gpt-6-luna",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+        "gpt-5.6-luna",
+        "gpt-5.5"
+      ]
+    },
+    {
+      "id": "gemini",
+      "label": "Gemini（Google）",
+      "adapter": "gemini",
+      "_note": "Gemini 4 目前只有 Argon 一个模型（2026-10-13 GA）；Pro/Flash 仍停在 3.x 线。",
+      "models": [
+        "gemini-4-argon",
+        "gemini-3.8-flash",
+        "gemini-3.7-flash",
+        "gemini-3.1-pro-preview",
+        "gemini-2.5-pro"
+      ]
+    },
+    {
+      "id": "deepseek",
+      "label": "DeepSeek",
+      "adapter": "openai",
+      "_note": "V4 世代为主；网关上前缀写法是 `deepseek/deepseek-v4-pro`。",
+      "models": [
+        "deepseek-v4-pro",
+        "deepseek-v4-flash",
+        "deepseek-v4.1-flash",
+        "deepseek-chat"
+      ]
+    },
+    {
+      "id": "glm",
+      "label": "GLM（智谱）",
+      "adapter": "openai",
+      "_note": "网关上前缀写法是 `z-ai/glm-5.3`。",
+      "models": [
+        "glm-5.3",
+        "glm-5.3-flash",
+        "glm-5.2",
+        "glm-4.6"
+      ]
+    },
+    {
+      "id": "qwen",
+      "label": "Qwen（通义千问）",
+      "adapter": "openai",
+      "_note": "网关上前缀写法是 `qwen/qwen3.8-max`。",
+      "models": [
+        "qwen3.8-max",
+        "qwen3.8-flash",
+        "qwen3.7-plus",
+        "qwen3-max"
+      ]
+    },
+    {
+      "id": "kimi",
+      "label": "Kimi（Moonshot）",
+      "adapter": "openai",
+      "_note": "kimi-k2.6 已下架，用 k3。",
+      "models": [
+        "kimi-k3",
+        "moonshotai/kimi-k3",
+        "moonshotai/kimi-k2.7-code"
+      ]
+    },
+    {
+      "id": "minimax",
+      "label": "MiniMax",
+      "adapter": "openai",
+      "models": [
+        "minimax-m3",
+        "minimax/minimax-m3",
+        "minimax/minimax-m3.1-flash"
+      ]
+    },
+    {
+      "id": "doubao",
+      "label": "豆包 Doubao（字节）",
+      "adapter": "openai",
+      "models": [
+        "doubao-seed-2.0-pro",
+        "doubao-seed-2.0-mini",
+        "bytedance/doubao-seed-2-1-pro",
+        "bytedance/doubao-seed-2-1-turbo"
+      ]
+    }
+  ]
+}

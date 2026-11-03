@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · 接入测试平台{% endblock %}
+{% block content %}
+{# 可脚本锚点规范：docs/12-testability-spec.md §6.2.1（t-{page}-{component}[-{role}]） #}
+<div class="page-head" data-testid="t-error-root">
+  <div>
+    <h1 data-testid="t-error-code">{{ code }}</h1>
+    <p class="sub" data-testid="t-error-message">{{ message }}</p>
+  </div>
+  <div class="actions"><a class="btn" href="/" data-testid="t-error-btn-home">返回首页</a></div>
+</div>
+<div class="panel">
+  <div class="panel-body">
+    <p class="small muted" data-testid="t-error-hint">如果该情况反复出现，请联系平台管理员并附上当前时间与访问路径。</p>
+  </div>
+</div>
+{% endblock %}

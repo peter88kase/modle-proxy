@@ -1,0 +1,619 @@
+{
+  "schema": "assertions/v1（docs/12 §1.3.2 子集，供 B0.5 直接入库）",
+  "assertion_schema_version": "v1",
+  "source": {
+    "document": "新供应商引入测试标准1020.docx",
+    "sha256": "293ead824df8bf6217ba193f0a8508ef847749896b09ece9e63cb16469892299",
+    "extracted_at": "2026-10-22",
+    "derived_from": "config/hard_assertions.json 的 5 个独立判据（9 条硬断言去重后）",
+    "spec": "docs/12-testability-spec.md §1.3.2 / §1.3.2.1 / §1.3.2.2"
+  },
+  "group": {
+    "name": "Claude 兼容上游硬断言",
+    "size": 5,
+    "codes": [
+      "CLAUDE-REG-01",
+      "CLAUDE-REG-02",
+      "CLAUDE-REG-03",
+      "CLAUDE-REG-04",
+      "CH3-REG-01"
+    ],
+    "same_as_merged": [
+      "CH3-REG-02",
+      "CH3-REG-03",
+      "CH3-REG-04",
+      "CH3-REG-05"
+    ],
+    "pass_rule": "5/5 全通过才不阻断；任一 FAIL 进入对应 BLOCK 规则",
+    "applicability": "仅 anthropic-messages（Claude 兼容上游）适用；其他渠道 not_applicable，理由固定「非 Claude 兼容上游，该组硬断言不适用」"
+  },
+  "signal_dependency": {
+    "note": "config/signals.json 尚未建立（B1 交付物 ①）。以下路径取自 docs/12 §1.3.2 示例所用的信号命名空间，B1 建 signals.json 时必须逐条声明，否则 assertions 无法解析。",
+    "required_paths": [
+      "usage.cache_write",
+      "usage.cache_read",
+      "usage.output_tokens",
+      "http.status",
+      "body.text",
+      "body.text_normalized",
+      "harness.prefix_tokens",
+      "harness.prefix_sha256"
+    ],
+    "sourcing_constraint": "harness.prefix_tokens 必须由首轮 usage.cache_write（同源计数）提供，不得用独立 tokenizer 另行统计——否则分子分母口径不同，ratio 系统性偏移（原文 p158「字节数不能直接视为 token 数」、p204「阈值应依据可缓存前缀和模型计数口径确定」）。"
+  },
+  "assertions": [
+    {
+      "id": "HARD-A1",
+      "judgement": "① 首次写入规模相符",
+      "text": "首轮请求的缓存写入量应与本次提交的可缓存前缀规模相符，落在 0.70~1.30 倍区间内",
+      "covers_checkpoints": [
+        "CH3-REG-01"
+      ],
+      "shares_execution_with": "CACHE-01",
+      "belongs_to_block": "BLOCK-03",
+      "reads": [
+        "usage.cache_write",
+        "harness.prefix_tokens"
+      ],
+      "logic": "all",
+      "checks": [
+        {
+          "op": "ratio_within",
+          "num": "usage.cache_write",
+          "den": "harness.prefix_tokens",
+          "low": 0.7,
+          "high": 1.3,
+          "tolerance": {
+            "rel": 0.05
+          },
+          "missing": "blocked"
+        }
+      ],
+      "fail_message": "首轮缓存写入 {usage.cache_write} tokens，可缓存前缀 {harness.prefix_tokens} tokens，比例 {ratio} 超出 [0.70, 1.30]：写入规模与上下文规模不符",
+      "evidence": [
+        "usage.cache_write",
+        "usage.cache_read",
+        "harness.prefix_tokens",
+        "harness.prefix_sha256"
+      ],
+      "missing_rationale": "Anthropic 渠道不返回 cache_creation_input_tokens 属「缺证据」而非「写入不符」，故 missing=blocked 而非 fail（原文 p162「首次请求不一定显示独立缓存写入字段，须按机制判定」）。",
+      "thresholds": [
+        {
+          "metric": "cache_write_ratio",
+          "value": {
+            "low": 0.7,
+            "high": 1.3
+          },
+          "unit": "ratio",
+          "basis": "provisional_platform_default — 原文未给数值；p204 要求用现有脚本的读取下限/重写上限，但 anthropic_channel_accept_test.go 源码不在本仓库，无法引用真实常量名",
+          "source": "provisional_pending_upstream_script",
+          "configurable": true
+        }
+      ],
+      "plan_ref": "write_then_read",
+      "executor_ready": {
+        "derived": true,
+        "computed_from": "plan_ref 是否已在 backend/plans.py 注册 ∧ assertions 非空 ∧ reads 所需信号已在 signals.json 声明",
+        "formula": "ready = (plan_ref ∈ registered_templates) AND (len(assertions) > 0) AND (all(reads) ⊆ signals)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "not_ready",
+        "snapshot_explains": "backend/plans.py 当前不存在，11 个 plan 模板无一注册 → 所有断言 executor_ready = not_ready",
+        "on_not_ready": "该项必须落 blocked(executor_not_ready)，**不得落 pass**。「计划是 L2」不等于「已能执行」——B0.5 全量写 automation_level 时若不同步重算本字段，执行器未实现的项会显示 pass，那是整轮在堵的假绿换了个维度复现。",
+        "write_time_rule": "任何写入 automation_level 的迁移脚本必须同时重算本字段，不得沿用旧快照"
+      },
+      "value_present": {
+        "derived_in": "config",
+        "formula": "present(v) = v ∈ enum(blocker_reason)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "all_present",
+        "note": "本断言不直接引用 blocker_reason；此字段为满足五类齐备而登记，值由同一枚举表计算"
+      },
+      "applicability": {
+        "derived_in": "config",
+        "formula": "applicable = (channel_protocol == anthropic-messages)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "conditional",
+        "not_applicable_reason_fixed": "非 Claude 兼容上游，该组硬断言不适用"
+      },
+      "has_evidence": {
+        "derived_in": "runtime",
+        "note": "运行时状态，config 仅登记契约；伪造快照值会掩盖「运行时未实现」"
+      }
+    },
+    {
+      "id": "HARD-A2",
+      "judgement": "② 二次读取命中且足量",
+      "text": "首轮写入后，相同请求应读取已有缓存，且读取量不低于可复用前缀的 80%",
+      "covers_checkpoints": [
+        "CLAUDE-REG-01",
+        "CH3-REG-02"
+      ],
+      "shares_execution_with": "CACHE-02",
+      "belongs_to_block": "BLOCK-03",
+      "reads": [
+        "usage.cache_read",
+        "harness.prefix_tokens"
+      ],
+      "logic": "all",
+      "checks": [
+        {
+          "path": "usage.cache_read",
+          "op": "gt",
+          "value": 0,
+          "tolerance": 0,
+          "missing": "blocked"
+        },
+        {
+          "op": "ratio_within",
+          "num": "usage.cache_read",
+          "den": "harness.prefix_tokens",
+          "low": 0.8,
+          "high": 1.05,
+          "tolerance": {
+            "rel": 0.05
+          },
+          "missing": "blocked"
+        }
+      ],
+      "fail_message": "二次请求缓存读取 {usage.cache_read} tokens，占可复用前缀 {harness.prefix_tokens} tokens 的 {ratio}，低于下限 0.80：缓存未命中或读取量明显不足",
+      "evidence": [
+        "usage.cache_read",
+        "usage.cache_write",
+        "harness.prefix_tokens",
+        "harness.prefix_sha256"
+      ],
+      "missing_rationale": "渠道不返回 cache_read 字段时无法判命中，记 blocked（原文 3.2 p153 允许用后台用量或账单作为可关联证据替代）。",
+      "thresholds": [
+        {
+          "metric": "cache_read_ratio",
+          "value": {
+            "low": 0.8,
+            "high": 1.05
+          },
+          "unit": "ratio",
+          "basis": "provisional_platform_default — 同 HARD-A1，待套件常量回填",
+          "source": "provisional_pending_upstream_script",
+          "configurable": true
+        }
+      ],
+      "note": "本条同时承载 CLAUDE-REG-01（读取已有缓存）与 CH3-REG-02（读取量达到预期、不能为零或明显不足）。两者同源，合并为一条断言，分别报告两个检查点结论。",
+      "plan_ref": "write_then_read",
+      "executor_ready": {
+        "derived": true,
+        "computed_from": "plan_ref 是否已在 backend/plans.py 注册 ∧ assertions 非空 ∧ reads 所需信号已在 signals.json 声明",
+        "formula": "ready = (plan_ref ∈ registered_templates) AND (len(assertions) > 0) AND (all(reads) ⊆ signals)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "not_ready",
+        "snapshot_explains": "backend/plans.py 当前不存在，11 个 plan 模板无一注册 → 所有断言 executor_ready = not_ready",
+        "on_not_ready": "该项必须落 blocked(executor_not_ready)，**不得落 pass**。「计划是 L2」不等于「已能执行」——B0.5 全量写 automation_level 时若不同步重算本字段，执行器未实现的项会显示 pass，那是整轮在堵的假绿换了个维度复现。",
+        "write_time_rule": "任何写入 automation_level 的迁移脚本必须同时重算本字段，不得沿用旧快照"
+      },
+      "value_present": {
+        "derived_in": "config",
+        "formula": "present(v) = v ∈ enum(blocker_reason)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "all_present",
+        "note": "本断言不直接引用 blocker_reason；此字段为满足五类齐备而登记，值由同一枚举表计算"
+      },
+      "applicability": {
+        "derived_in": "config",
+        "formula": "applicable = (channel_protocol == anthropic-messages)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "conditional",
+        "not_applicable_reason_fixed": "非 Claude 兼容上游，该组硬断言不适用"
+      },
+      "has_evidence": {
+        "derived_in": "runtime",
+        "note": "运行时状态，config 仅登记契约；伪造快照值会掩盖「运行时未实现」"
+      }
+    },
+    {
+      "id": "HARD-A3",
+      "judgement": "③ 二次不得大规模重写",
+      "text": "第二次请求不得将大部分相同上下文重新计为写入；重写比例超过 50% 视为读取被误记为写入",
+      "covers_checkpoints": [
+        "CLAUDE-REG-02",
+        "CH3-REG-03"
+      ],
+      "shares_execution_with": "CACHE-02",
+      "belongs_to_block": "BLOCK-03",
+      "reads": [
+        "usage.cache_write",
+        "harness.prefix_tokens"
+      ],
+      "logic": "all",
+      "checks": [
+        {
+          "op": "ratio_within",
+          "num": "usage.cache_write",
+          "den": "harness.prefix_tokens",
+          "low": 0.0,
+          "high": 0.5,
+          "tolerance": 0,
+          "missing": "blocked",
+          "suspicion_when": {
+            "ratio": {
+              "gte": 0.1,
+              "lt": 0.5
+            }
+          },
+          "inclusive_upper": false
+        }
+      ],
+      "suspicion_message": "二次请求重写比例 {ratio} 落在 10%~50% 灰区（写入 {usage.cache_write} / 前缀 {harness.prefix_tokens}），需供应商解释是否为读取被计为写入",
+      "fail_message": "二次请求重写比例 {ratio}（写入 {usage.cache_write} / 前缀 {harness.prefix_tokens}）超过 0.50：读取被误记为写入，会造成用户多扣费",
+      "evidence": [
+        "usage.cache_write",
+        "usage.cache_read",
+        "harness.prefix_tokens",
+        "harness.prefix_sha256"
+      ],
+      "thresholds": [
+        {
+          "metric": "cache_rewrite_ratio_suspicion_lower",
+          "value": 0.1,
+          "unit": "ratio",
+          "basis": "provisional_platform_default — 疑点下界；10% 是「值得问一句」的线，待套件 rewrite_ratio_upper_bound 回填",
+          "source": "provisional_pending_upstream_script",
+          "configurable": true
+        },
+        {
+          "metric": "cache_rewrite_ratio_pass_upper",
+          "value": 0.5,
+          "unit": "ratio",
+          "basis": "原文 p118 拒绝准入「读取被误记为写入」的语义边界：过半上下文被重写即视为「大部分相同上下文」",
+          "source": "original_text_derived",
+          "configurable": true
+        }
+      ],
+      "spec_dependency": "本条已改为「与求值顺序无关」的写法：check 的 fail 域为 (0.50, ∞)，疑点区间为 (0.10, 0.50)，两者真正不相交。因此无论规格最终采用「suspicion 先」还是「FAIL 先」，ratio=0.30 一律得 SUSPICION、ratio=0.90 一律得 FAIL、ratio=0.05 一律得 PASS。仍需要的规格修订只有一处：§1.3.2.1 的 L269 从「不得存在同指标 FAIL 路径」改为「疑点区间与 FAIL 取值域不相交 + suspicion_when 必须有上下界」。（若保留 L269 原文，本条仍会被 CI 拒绝——但那属于规则过严，不是本断言的缺陷。）",
+      "note": "疑点不得被 aggregate 折叠成 pass（§1.3.2.1）；suspicion 上转为 pending，原因前缀 `suspicion:`，报告显示「疑点（待裁定）」。",
+      "ordering_matrix": [
+        {
+          "ratio": 0.05,
+          "fail_first": "PASS",
+          "suspicion_first": "PASS",
+          "note": "未达疑点下界"
+        },
+        {
+          "ratio": 0.3,
+          "fail_first": "SUSPICION",
+          "suspicion_first": "SUSPICION",
+          "note": "灰区，两种顺序一致"
+        },
+        {
+          "ratio": 0.5,
+          "fail_first": "PASS",
+          "suspicion_first": "PASS",
+          "note": "边界值取「不超过即通过」，见 boundary_convention"
+        },
+        {
+          "ratio": 0.9,
+          "fail_first": "FAIL",
+          "suspicion_first": "FAIL",
+          "note": "超过 0.50，两种顺序一致"
+        }
+      ],
+      "boundary_convention": "ratio < 0.10 → PASS；0.10 ≤ ratio < 0.50 → SUSPICION（转 pending）；ratio ≥ 0.50 → **FAIL**。\n边界取严侧：`inclusive_upper=false` 使 pass 域为 `[0, 0.50)`、fail 域为 `[0.50, ∞)`。原文「不得大规模重复写入相同内容」——50% 已达「大规模」，不应落在免检点。\n不用 `high=0.4999`：那是把边界藏进浮点误差，后来人看不出意图。",
+      "revision": "v4：pass 上界改为 exclusive（inclusive_upper=false），使 ratio>=0.50 判 FAIL，消除 0.500 免检点；疑点下界 gte(0.10)。",
+      "disjointness_proof": "疑点区间 (0.10, 0.50) 是 pass 域 [0, 0.50] 的**子集**；fail 域被定义为 pass 域之外（ratio > 0.50）。因此 suspicion ∩ fail = ∅ 是集合关系保证的，不依赖「谁先求值」。",
+      "residual_boundary": "ratio 恰为 0.50 时落入 PASS（原文「不得将大部分…重新计为写入」，恰好一半不构成「大部分」）。这是一个单点约定，已在 boundary_convention 写明；如需更严，可把 pass_upper 下调，但那要走阈值变更留痕。",
+      "boundary_monotonicity": "0.499 → 疑点，0.500 → 阻断，0.501 → 阻断。数值越差处置越严，无倒挂。",
+      "schema_change_required": "`ratio_within` 需新增参数 `inclusive_upper`（布尔，默认 true 保持兼容）。这是操作符级 schema 扩展，需升 `assertion_schema_version`（建议 v1.1）并在 docs/12 §1.3.2 的操作符表补一列「参数」。在规格补齐前，本条按 `inclusive_upper` 已存在的语义书写，不得被静默忽略——若解析器不认该字段，必须报错而非当 true 处理，否则 0.50 会回到「免检」。",
+      "plan_ref": "write_then_read",
+      "executor_ready": {
+        "derived": true,
+        "computed_from": "plan_ref 是否已在 backend/plans.py 注册 ∧ assertions 非空 ∧ reads 所需信号已在 signals.json 声明",
+        "formula": "ready = (plan_ref ∈ registered_templates) AND (len(assertions) > 0) AND (all(reads) ⊆ signals)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "not_ready",
+        "snapshot_explains": "backend/plans.py 当前不存在，11 个 plan 模板无一注册 → 所有断言 executor_ready = not_ready",
+        "on_not_ready": "该项必须落 blocked(executor_not_ready)，**不得落 pass**。「计划是 L2」不等于「已能执行」——B0.5 全量写 automation_level 时若不同步重算本字段，执行器未实现的项会显示 pass，那是整轮在堵的假绿换了个维度复现。",
+        "write_time_rule": "任何写入 automation_level 的迁移脚本必须同时重算本字段，不得沿用旧快照"
+      },
+      "value_present": {
+        "derived_in": "config",
+        "formula": "present(v) = v ∈ enum(blocker_reason)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "all_present",
+        "note": "本断言不直接引用 blocker_reason；此字段为满足五类齐备而登记，值由同一枚举表计算"
+      },
+      "applicability": {
+        "derived_in": "config",
+        "formula": "applicable = (channel_protocol == anthropic-messages)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "conditional",
+        "not_applicable_reason_fixed": "非 Claude 兼容上游，该组硬断言不适用"
+      },
+      "has_evidence": {
+        "derived_in": "runtime",
+        "note": "运行时状态，config 仅登记契约；伪造快照值会掩盖「运行时未实现」"
+      }
+    },
+    {
+      "id": "HARD-A4",
+      "judgement": "④ system 内容完整送达",
+      "text": "字符串形式的 system 内容必须送达并被遵循：system 指定只输出固定串时，正文须严格等于该串，且上游返回 200",
+      "covers_checkpoints": [
+        "CLAUDE-REG-03",
+        "CH3-REG-04"
+      ],
+      "shares_execution_with": "CTRL-02",
+      "belongs_to_block": "BLOCK-01",
+      "reads": [
+        "http.status",
+        "body.text_normalized"
+      ],
+      "logic": "all",
+      "checks": [
+        {
+          "path": "http.status",
+          "op": "in",
+          "value": [
+            200
+          ],
+          "missing": "blocked"
+        },
+        {
+          "path": "body.text_normalized",
+          "op": "eq",
+          "value": "CLAUDE_REG_SYSTEM_OK",
+          "case_sensitive": true,
+          "missing": "blocked"
+        }
+      ],
+      "fail_message": "system 规则未被执行（HTTP {http.status}，正文 {body.text_normalized} ≠ 期望的 CLAUDE_REG_SYSTEM_OK）：字符串形式的 system 疑似被静默丢弃、截断或错误转换",
+      "evidence": [
+        "http.status",
+        "body.text",
+        "body.text_normalized",
+        "request.system_sha256"
+      ],
+      "operationalization": "「静默丢弃/截断/错误转换」本身不可直接观测，因此观测其唯一可观测后果：**200 且 system 规则未被遵循**。第一个 check 把「上游明确 4xx 拒绝」排除在「静默」之外——4xx 属明确拒绝，不是静默丢失。value 是 harness 写入 system 的固定串，属测试自身常量而非运行时信号，故用字面量合法（不需要 value_ref）。",
+      "residual_risk": "本条能证明「system 没有生效」，不能区分成因是「平台丢弃了 system」还是「模型没遵循 system」。要归因必须拿到平台发往上游的请求体快照（转发日志）。无快照时本断言只能支撑「效果不符」，不能支撑「system 被丢」这个更强的结论——报告措辞须相应放宽。",
+      "thresholds": [
+        {
+          "metric": "system_rule_exact_match",
+          "value": true,
+          "unit": "bool",
+          "basis": "原文 p118 验证目标「验证字符串形式的 system 内容确实送达」+ 拒绝准入「静默丢弃、截断或错误转换 system」",
+          "source": "original_text",
+          "configurable": false
+        }
+      ],
+      "missing_rationale": "两处都取 blocked，理由不同：① http.status 缺失 = 传输层没拿到响应（超时/连接失败），属「未送达」，不是「送达后被丢弃」；原文要求的是「送达后没有被静默丢弃/截断/转换」，未送达属缺证据。② body.text_normalized 缺失同理——没有响应就没有正文可判。**只改第一处无效**：若第二处仍为 fail，无响应时它照样 missing→FAIL，等于没修。信号存在但内容不符（200 且正文 ≠ 期望串）仍判 FAIL，这才是「system 未生效」的直接证据。空正文/无文本字段由 REQ-02、STREAM-03 判 fail，本条不重复归因。",
+      "revision": "v2：原 http.status 与 body.text_normalized 均为 missing:fail，会把网络抖动判成「system 被静默丢弃」。现两处改 blocked。",
+      "plan_ref": "mutation_pair",
+      "executor_ready": {
+        "derived": true,
+        "computed_from": "plan_ref 是否已在 backend/plans.py 注册 ∧ assertions 非空 ∧ reads 所需信号已在 signals.json 声明",
+        "formula": "ready = (plan_ref ∈ registered_templates) AND (len(assertions) > 0) AND (all(reads) ⊆ signals)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "not_ready",
+        "snapshot_explains": "backend/plans.py 当前不存在，11 个 plan 模板无一注册 → 所有断言 executor_ready = not_ready",
+        "on_not_ready": "该项必须落 blocked(executor_not_ready)，**不得落 pass**。「计划是 L2」不等于「已能执行」——B0.5 全量写 automation_level 时若不同步重算本字段，执行器未实现的项会显示 pass，那是整轮在堵的假绿换了个维度复现。",
+        "write_time_rule": "任何写入 automation_level 的迁移脚本必须同时重算本字段，不得沿用旧快照"
+      },
+      "value_present": {
+        "derived_in": "config",
+        "formula": "present(v) = v ∈ enum(blocker_reason)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "all_present",
+        "note": "本断言不直接引用 blocker_reason；此字段为满足五类齐备而登记，值由同一枚举表计算"
+      },
+      "applicability": {
+        "derived_in": "config",
+        "formula": "applicable = (channel_protocol == anthropic-messages)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "conditional",
+        "not_applicable_reason_fixed": "非 Claude 兼容上游，该组硬断言不适用"
+      },
+      "has_evidence": {
+        "derived_in": "runtime",
+        "note": "运行时状态，config 仅登记契约；伪造快照值会掩盖「运行时未实现」"
+      }
+    },
+    {
+      "id": "HARD-A5",
+      "judgement": "⑤ 流式输出用量非零",
+      "text": "已输出正文时，流式响应必须提供输出用量，且输出 token 不为零",
+      "covers_checkpoints": [
+        "CLAUDE-REG-04",
+        "CH3-REG-05"
+      ],
+      "shares_execution_with": "SSE-05",
+      "belongs_to_block": "BLOCK-04",
+      "reads": [
+        "body.text",
+        "usage.output_tokens"
+      ],
+      "logic": "all",
+      "checks": [
+        {
+          "path": "body.text",
+          "op": "len_ge",
+          "value": 1,
+          "missing": "fail"
+        },
+        {
+          "path": "usage.output_tokens",
+          "op": "gt",
+          "value": 0,
+          "tolerance": 0,
+          "missing": "fail"
+        }
+      ],
+      "fail_message": "已输出正文 {body.text_len} 字符，但输出用量为 {usage.output_tokens}（或缺失）：影响结算，按「不完整却标记成功」处理",
+      "evidence": [
+        "body.text",
+        "usage.output_tokens",
+        "stream.usage_present",
+        "stream.finish_reason"
+      ],
+      "extraction_note": "Anthropic 协议下输出用量位于 `message_delta` 事件的 `usage.output_tokens`，须由抽取器归一化到 `usage.output_tokens` 路径（原文 p94「Claude 上游必须复用现有测试中的 message_delta 输出用量断言」）。OpenAI 渠道对应 choices/usage，不在本组适用范围。",
+      "thresholds": [
+        {
+          "metric": "output_tokens_lower_bound",
+          "value": 1,
+          "unit": "tokens",
+          "basis": "原文 p118 拒绝准入「已产生正文，但输出 token 为零或缺失」——阈值即 >0，1 为最小可判值",
+          "source": "original_text",
+          "configurable": false
+        }
+      ],
+      "note": "第一个 check（正文非空）是原文「已输出正文时」这一前置条件的显式化。若正文为空，该项本应经 STREAM-03 判 fail，此处不重复归因，但保留该 check 以保证断言可独立求值。",
+      "plan_ref": "single_request",
+      "executor_ready": {
+        "derived": true,
+        "computed_from": "plan_ref 是否已在 backend/plans.py 注册 ∧ assertions 非空 ∧ reads 所需信号已在 signals.json 声明",
+        "formula": "ready = (plan_ref ∈ registered_templates) AND (len(assertions) > 0) AND (all(reads) ⊆ signals)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "not_ready",
+        "snapshot_explains": "backend/plans.py 当前不存在，11 个 plan 模板无一注册 → 所有断言 executor_ready = not_ready",
+        "on_not_ready": "该项必须落 blocked(executor_not_ready)，**不得落 pass**。「计划是 L2」不等于「已能执行」——B0.5 全量写 automation_level 时若不同步重算本字段，执行器未实现的项会显示 pass，那是整轮在堵的假绿换了个维度复现。",
+        "write_time_rule": "任何写入 automation_level 的迁移脚本必须同时重算本字段，不得沿用旧快照"
+      },
+      "value_present": {
+        "derived_in": "config",
+        "formula": "present(v) = v ∈ enum(blocker_reason)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "all_present",
+        "note": "本断言不直接引用 blocker_reason；此字段为满足五类齐备而登记，值由同一枚举表计算"
+      },
+      "applicability": {
+        "derived_in": "config",
+        "formula": "applicable = (channel_protocol == anthropic-messages)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "conditional",
+        "not_applicable_reason_fixed": "非 Claude 兼容上游，该组硬断言不适用"
+      },
+      "has_evidence": {
+        "derived_in": "runtime",
+        "note": "运行时状态，config 仅登记契约；伪造快照值会掩盖「运行时未实现」"
+      }
+    }
+  ],
+  "not_expressible": [
+    {
+      "aspect": "「静默」与「明确拒绝」的语义区分",
+      "why": "19 个操作符无法表达「没有报错地丢失」这一模态；只能通过 http.status 是否为 200 近似切分",
+      "handling": "已在 HARD-A4 用 `http.status in [200]` 做 gate：4xx 视为明确拒绝、不属本条；200 且效果缺失才判 fail",
+      "residual": "若上游以 200 + error 字段表示拒绝（部分网关如此），gate 会失效。缓解：B1 增加信号 `body.error_present` 并在 HARD-A4 追加一条 `eq body.error_present false`"
+    },
+    {
+      "aspect": "「system 被丢」与「模型没遵循」的归因",
+      "why": "两者在响应侧表现相同，操作符无法区分",
+      "handling": "断言只判效果（HARD-A4）；归因需转发体快照",
+      "downgrade": "无快照时该项在报告中的措辞须降为「system 规则未生效」，不得写「system 被丢弃」；若供应商要求按「丢弃」定性，转 L1 并索取平台转发日志"
+    },
+    {
+      "aspect": "「阈值不得跨模型套用」（p204）",
+      "why": "这是配置约束，不是单条断言能表达的判定",
+      "handling": "由 threshold_policy 的 per_model / per_protocol 覆盖能力 + `tests/test_thresholds_are_data.py` 的 AST 扫描强制，不落成 assertion"
+    },
+    {
+      "aspect": "harness.prefix_tokens 的计数口径一致性",
+      "why": "操作符无法验证「分子分母是否同源计数」",
+      "handling": "实现约束：den 必须取首轮 cache_write 同源计数（见 signal_dependency.sourcing_constraint）；建议额外建一条 harness 自检断言，不属于本组"
+    }
+  ],
+  "notes": {
+    "operator_whitelist": "本文件仅使用 ratio_within / gt / in / eq / len_ge 五个操作符，全部在 docs/12 §1.3.2 的 19 个白名单内，无 custom、无 handler、无 expr。",
+    "threshold_policy": "全部数值阈值按 value/basis/source 三件套声明；4 个 ratio 阈值为 provisional_platform_default，须在拿到 anthropic_channel_accept_test.go 后回填真实参数名，否则不得冻结（原文 p128 / p204）。",
+    "blocking_linkage": "HARD-A1/A2/A3 → BLOCK-03（缓存计量错误、重复收费或用量无法对账）；HARD-A4 → BLOCK-01（静默丢弃 system）；HARD-A5 → BLOCK-04（流式输出不完整却标记成功）。任一 FAIL 直接进入对应 BLOCK，作为上架阻断条件求值，不参与 166 项通过率分母。",
+    "pending_spec_change": "HARD-A3 的 suspicion_when 依赖 docs/12 §1.3.2.1 的修订（疑点区间与 FAIL 域不相交 + 必须有上下界）。规格未改前，本条断言不得入库；其余 4 条可先入库。"
+  },
+  "revision": "v8",
+  "snapshot_policy": "所有快照字段遵守三段规则（规格 §9.1.1）：① 加载时一律重算，字段值 = 当前计算结果；② 保留上一次的 snapshot_at + snapshot_value，仅用于发现「结论变了」；③ 判定时只读重算值，禁止读 snapshot_value。原因：「引得到」不等于「引到的东西不会变」——可达性/存在性/适用性/执行器就绪都可能过期，而过期值在 review 时读起来完全自洽。",
+  "recompute_policy": "凡字段值由其他事实派生（如 branch_reachability 由枚举成员关系算、executor_ready 由 plan_ref 注册状态算），必须在每次加载时重算；snapshot_value 只是某一时点的快照，不是配置事实。存储值必须等于重算值，不等即 config_invalid。新增派生字段时本策略自动适用，不得只给新字段单独写一遍——漏写不会报错，这正是要防的。",
+  "plan_ref_basis": "按规格 §3.1.2 的 11 个模板分配：A1/A2/A3 写后读 → write_then_read（该模板用于 CACHE-*/PREFIX-*/CTRL-*/MODE-*/TTL-*）；A4 system 两种表示对比 → mutation_pair（该模板用于 PREFIX-02/06、CTRL-02、MSG-07）；A5 单次流式请求 → single_request（其槽位含 stream）。未自造模板名：禁止 plan_ref: \"inline\" 或 plan_args.steps 直写请求序列。",
+  "snapshot_fields_registry": {
+    "source": "规格 §9.1.1 五类快照字段",
+    "fields": {
+      "branch_reachability": {
+        "class": 1,
+        "judges": "分支可达性（依赖枚举值是否存在）",
+        "invalidated_by": "枚举落地、判定式改写",
+        "derived_in": "config",
+        "formula": "dead = NOT ( (values ∪ contrast_values) ⊆ enum(blocker_reason) )",
+        "landed_at": "BLOCK-03.decision_rule[1].requires_enum.branch_reachability"
+      },
+      "value_present": {
+        "class": 2,
+        "judges": "枚举值是否存在",
+        "invalidated_by": "枚举表扩展",
+        "derived_in": "config",
+        "formula": "present(v) = v ∈ enum(blocker_reason)",
+        "landed_at": "enum_dependencies[*].required_values",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "all_present",
+        "snapshot_explains": "三个值已于规格 §2.3 落地（现 13 值）",
+        "note": "本字段此前没落——是「对称比较」断言第一次跑出来发现的。它和 branch_reachability 判的是不同的事：后者判「分支能不能执行」，前者判「值本身在不在」。枚举被删掉某个值时，value_present 先红；值在但分支条件写错时，branch_reachability 不红（因为成员关系仍成立）。"
+      },
+      "applicability": {
+        "class": 3,
+        "judges": "某项是否适用",
+        "invalidated_by": "协议升级、declared_* 参数录入",
+        "derived_in": "config",
+        "formula": "applicable = (channel_protocol == anthropic-messages)",
+        "landed_at": "assertions[*].applicability（本次补齐）",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "conditional",
+        "snapshot_explains": "仅 Claude 兼容上游适用；非该协议一律 not_applicable，理由固定",
+        "note": "此前只在 group.applicability 写了一句散文，没有逐断言字段——散文无法被对称比较看到。这条也是本次检查发现的。"
+      },
+      "executor_ready": {
+        "class": 4,
+        "judges": "L2/L1 项落 pass 还是 blocked",
+        "invalidated_by": "批次施工完成",
+        "derived_in": "config",
+        "formula": "ready = (plan_ref ∈ registered_templates) AND (len(assertions)>0) AND (all(reads) ⊆ signals)",
+        "landed_at": "assertions[*].executor_ready"
+      },
+      "has_evidence": {
+        "class": 5,
+        "judges": "证据是否已上传",
+        "invalidated_by": "上传 / 删除 / 重传",
+        "derived_in": "runtime",
+        "formula": "has = exists(evidence where item_id = this AND sha256 未失效)",
+        "landed_at": "run_items / evidence 表（不在 config）",
+        "snapshot_value": "runtime_state",
+        "note": "config 侧只能声明契约，不能伪造快照值——写一个假的 has_evidence=false 会让对称比较通过，但那个值没有任何意义，且会掩盖「运行时根本没实现这个字段」。因此本字段登记为 derived_in=runtime，其断言落在 B0.5/B6 的运行时校验，不在此处。"
+      }
+    },
+    "scope": {
+      "applies_to": "assertion-level files only",
+      "in_scope": [
+        "config/blocking_rules.json",
+        "config/assertions_claude.json",
+        "config/assertions_billing.json"
+      ],
+      "not_in_scope": [
+        "config/hard_assertions.json",
+        "config/criteria_original.json",
+        "config/automation_levels.json"
+      ],
+      "not_in_scope_reason": "hard_assertions 的 9 行是映射行不是断言；criteria_original 是原文比对清单；automation_levels 是迁移素材。三者都不产生判定，给它们填五类快照字段等于给不判定的记录编造判定状态。",
+      "in_scope_last_reviewed": "v21：blocking_rules 加入 in_scope。依据：唯一一处真实 branch_reachability 实例就在本文件（BLOCK-03 的 evidence_refused 分支）。若把它排除在作用域外，作用域内反而一条真实实例都查不到，等于「登记了字段却没人真用」——这种 registry 会在下一次检查时被当成形式主义删掉。",
+      "ci_assertion": {
+        "name": "test_snapshot_scope_agrees",
+        "expr": "三处 scope 深度相等（含 in_scope / not_in_scope / not_in_scope_reason）",
+        "why": "作用域声明若三处不一致，下一个人仍会得到假警报。他不需要相信哪一处，他只需要跑一次比较。"
+      }
+    }
+  },
+  "write_time_rule": "任何写入 automation_level / automation_level 相关字段的迁移脚本，必须同时重算该文件的全部快照字段（branch_reachability / value_present / applicability / executor_ready / has_evidence），不得沿用旧快照。理由：快照是某一时点的计算结果，不是配置事实；而「只写级别不算就绪」会让执行器未实现的项显示 pass，那是假绿换了个字段名。本规则写在此处而非只挂在单条断言上——迁移脚本作者不一定会读单条断言的元数据。",
+  "checksum_algo": "sha256(json.dumps(内容, ensure_ascii=False, sort_keys=True)) 取前 16 位十六进制；内容 = 本文件去掉 checksum 字段后的整体。与 backend/standards.py 的 _checksum() 同族（同为 sha256+前16位+sorted keys），但覆盖范围不同：那边只覆盖 items 的 as_payload()，这边覆盖整文件。**两者不可互换比较**，只能各自与自己比。",
+  "revision_is_label_not_authority": "`revision` / `revision_note` 是**人类可读的变更标签，不是机器权威**——代码里没有任何地方读它（已 grep 确认）。判断「这份数据是不是我以为的那份」只能看 checksum。这与 standards_*.json 里 `version` 成为装饰字段是同一类问题，此处明示以免重复踩。",
+  "checksum": "c829fb7c8c2809d2",
+  "revision_note": "v8：snapshot_fields_registry 补 scope 作用域声明（in_scope / not_in_scope / not_in_scope_reason）。理由：缺作用域会让下一个人对四个文件跑对称比较得到 1 个假警报，而假警报的标准处置是「补个值」——那就变成填假值。",
+  "checksum_history": [
+    {
+      "revision": "v7：write_time_rule 提到文件层（迁移脚本作者不一定读单条断言的元数据）。",
+      "checksum": "be426e3443a4f2e5",
+      "superseded_by": "v8",
+      "reason": "补快照字段作用域声明，避免四文件对称比较产生假警报。"
+    }
+  ],
+  "checksum_history_note": "只追加不重写：每次 checksum 变化都留一行「旧值 + 为什么」，因为本轮的真正问题从来不是「文件变了」，是「变了没人知道」。时间戳刻意不写在这里——手写会造出不存在的时点，该由 CI 在提交时写入；本字段只保证可追溯，不保证可定日。"
+}

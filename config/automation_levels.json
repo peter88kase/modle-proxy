@@ -1,0 +1,1703 @@
+{
+  "source": {
+    "level_from": "docs/10-machineability.md §3 逐项表（级别列）",
+    "execution_from": "config/standards_ch1.json + config/standards_ch234.json",
+    "generated_at": "2026-10-24T14:30:00+08:00",
+    "note": "级别显式写，不从 execution 推断；execution 保留仅供 diff 观察通道变化。2026-10-24：NET-04 / AUTH-06 / AUTH-08 按项目负责人确认口径升 L2（L2 116→119，L1 45→42）。"
+  },
+  "policy": {
+    "level_is_authoritative": true,
+    "execution_is_derived": "auto ⟺ L2",
+    "why_keep_execution": "新旧两份 config 对比时，能直接看出哪项的执行通道变了；不参与判定。",
+    "self_check_rule": "必须同时自检两张表：① L2/L1/L0 总量；② execution × level 交叉表。只查总量会漏掉「分组整体错位但总数不变」——例如把 manual 一律赋 L0，总量仍可能闭合，但 L1 与 L0 会整体互换。",
+    "why_two_columns": "B0.5b 把 standards 里的 execution 改写为 L2 派生的结果（auto 116 / manual 50），而分级当时记录的是 67 auto / 99 manual。两列都保留：`execution`（现行派生值，与 standards 一致，供比对）、`execution_at_grading`（分级时原值，供追溯「哪项的通道被改过」）。若只留一列，与 standards 比对时会出现 49 项伪差异，而 49 正好是 L1+L0 之外被改写的那批，很难一眼看出是\"口径变了\"而不是\"数据错了\"。"
+  },
+  "totals": {
+    "items": 166,
+    "by_level": {
+      "L2": 119,
+      "L1": 42,
+      "L0": 5
+    },
+    "cross_table": {
+      "auto": {
+        "L2": 119,
+        "L1": 0,
+        "L0": 0
+      },
+      "manual": {
+        "L2": 0,
+        "L1": 42,
+        "L0": 5
+      }
+    }
+  },
+  "items": [
+    {
+      "item_key": "ch1:AUTH-01",
+      "display_id": "AUTH-01",
+      "chapter": 1,
+      "section": "1.6 鉴权（AUTH）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:AUTH-02",
+      "display_id": "AUTH-02",
+      "chapter": 1,
+      "section": "1.6 鉴权（AUTH）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:AUTH-03",
+      "display_id": "AUTH-03",
+      "chapter": 1,
+      "section": "1.6 鉴权（AUTH）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:AUTH-04",
+      "display_id": "AUTH-04",
+      "chapter": 1,
+      "section": "1.6 鉴权（AUTH）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:AUTH-05",
+      "display_id": "AUTH-05",
+      "chapter": 1,
+      "section": "1.6 鉴权（AUTH）",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:AUTH-06",
+      "display_id": "AUTH-06",
+      "chapter": 1,
+      "section": "1.6 鉴权（AUTH）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）",
+      "level_changed_note": "2026-10-24 口径调整：判据可机器判定，由验收套件直接产出结果"
+    },
+    {
+      "item_key": "ch1:AUTH-07",
+      "display_id": "AUTH-07",
+      "chapter": 1,
+      "section": "1.6 鉴权（AUTH）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:AUTH-08",
+      "display_id": "AUTH-08",
+      "chapter": 1,
+      "section": "1.6 鉴权（AUTH）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）",
+      "level_changed_note": "2026-10-24 口径调整：判据可机器判定，由验收套件直接产出结果"
+    },
+    {
+      "item_key": "ch1:AUTH-09",
+      "display_id": "AUTH-09",
+      "chapter": 1,
+      "section": "1.6 鉴权（AUTH）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:MODEL-01",
+      "display_id": "MODEL-01",
+      "chapter": 1,
+      "section": "1.7 模型 ID 与权限边界（MODEL）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:MODEL-02",
+      "display_id": "MODEL-02",
+      "chapter": 1,
+      "section": "1.7 模型 ID 与权限边界（MODEL）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:MODEL-03",
+      "display_id": "MODEL-03",
+      "chapter": 1,
+      "section": "1.7 模型 ID 与权限边界（MODEL）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:MODEL-04",
+      "display_id": "MODEL-04",
+      "chapter": 1,
+      "section": "1.7 模型 ID 与权限边界（MODEL）",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:MODEL-05",
+      "display_id": "MODEL-05",
+      "chapter": 1,
+      "section": "1.7 模型 ID 与权限边界（MODEL）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:NET-01",
+      "display_id": "NET-01",
+      "chapter": 1,
+      "section": "1.3 端点与网络连通性（NET）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:NET-02",
+      "display_id": "NET-02",
+      "chapter": 1,
+      "section": "1.3 端点与网络连通性（NET）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:NET-03",
+      "display_id": "NET-03",
+      "chapter": 1,
+      "section": "1.3 端点与网络连通性（NET）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:NET-04",
+      "display_id": "NET-04",
+      "chapter": 1,
+      "section": "1.3 端点与网络连通性（NET）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）",
+      "level_changed_note": "2026-10-24 口径调整：判据可机器判定，由验收套件直接产出结果"
+    },
+    {
+      "item_key": "ch1:NET-05",
+      "display_id": "NET-05",
+      "chapter": 1,
+      "section": "1.3 端点与网络连通性（NET）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:REQ-01",
+      "display_id": "REQ-01",
+      "chapter": 1,
+      "section": "1.4 普通请求（REQ）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:REQ-02",
+      "display_id": "REQ-02",
+      "chapter": 1,
+      "section": "1.4 普通请求（REQ）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:REQ-03",
+      "display_id": "REQ-03",
+      "chapter": 1,
+      "section": "1.4 普通请求（REQ）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:REQ-04",
+      "display_id": "REQ-04",
+      "chapter": 1,
+      "section": "1.4 普通请求（REQ）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:REQ-05",
+      "display_id": "REQ-05",
+      "chapter": 1,
+      "section": "1.4 普通请求（REQ）",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:STREAM-01",
+      "display_id": "STREAM-01",
+      "chapter": 1,
+      "section": "1.5 流式请求（STREAM）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:STREAM-02",
+      "display_id": "STREAM-02",
+      "chapter": 1,
+      "section": "1.5 流式请求（STREAM）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:STREAM-03",
+      "display_id": "STREAM-03",
+      "chapter": 1,
+      "section": "1.5 流式请求（STREAM）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:STREAM-04",
+      "display_id": "STREAM-04",
+      "chapter": 1,
+      "section": "1.5 流式请求（STREAM）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:STREAM-05",
+      "display_id": "STREAM-05",
+      "chapter": 1,
+      "section": "1.5 流式请求（STREAM）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:TIME-01",
+      "display_id": "TIME-01",
+      "chapter": 1,
+      "section": "1.8 超时与失败返回（TIME）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:TIME-02",
+      "display_id": "TIME-02",
+      "chapter": 1,
+      "section": "1.8 超时与失败返回（TIME）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:TIME-03",
+      "display_id": "TIME-03",
+      "chapter": 1,
+      "section": "1.8 超时与失败返回（TIME）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch1:TIME-04",
+      "display_id": "TIME-04",
+      "chapter": 1,
+      "section": "1.8 超时与失败返回（TIME）",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:CONV-01",
+      "display_id": "CONV-01",
+      "chapter": 2,
+      "section": "2.11 Fluxlane 转换专项测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:CONV-02",
+      "display_id": "CONV-02",
+      "chapter": 2,
+      "section": "2.11 Fluxlane 转换专项测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:CONV-03",
+      "display_id": "CONV-03",
+      "chapter": 2,
+      "section": "2.11 Fluxlane 转换专项测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:CONV-04",
+      "display_id": "CONV-04",
+      "chapter": 2,
+      "section": "2.11 Fluxlane 转换专项测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:CTX-01",
+      "display_id": "CTX-01",
+      "chapter": 2,
+      "section": "2.4 长上下文与内容完整性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:CTX-02",
+      "display_id": "CTX-02",
+      "chapter": 2,
+      "section": "2.4 长上下文与内容完整性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:CTX-03",
+      "display_id": "CTX-03",
+      "chapter": 2,
+      "section": "2.4 长上下文与内容完整性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:CTX-04",
+      "display_id": "CTX-04",
+      "chapter": 2,
+      "section": "2.4 长上下文与内容完整性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:CTX-05",
+      "display_id": "CTX-05",
+      "chapter": 2,
+      "section": "2.4 长上下文与内容完整性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:ERR-01",
+      "display_id": "ERR-01",
+      "chapter": 2,
+      "section": "2.10 非法请求与错误响应测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:ERR-02",
+      "display_id": "ERR-02",
+      "chapter": 2,
+      "section": "2.10 非法请求与错误响应测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:ERR-03",
+      "display_id": "ERR-03",
+      "chapter": 2,
+      "section": "2.10 非法请求与错误响应测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:ERR-04",
+      "display_id": "ERR-04",
+      "chapter": 2,
+      "section": "2.10 非法请求与错误响应测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:ERR-05",
+      "display_id": "ERR-05",
+      "chapter": 2,
+      "section": "2.10 非法请求与错误响应测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:ERR-06",
+      "display_id": "ERR-06",
+      "chapter": 2,
+      "section": "2.10 非法请求与错误响应测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MEDIA-01",
+      "display_id": "MEDIA-01",
+      "chapter": 2,
+      "section": "2.7 图片及其他内容类型测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MEDIA-02",
+      "display_id": "MEDIA-02",
+      "chapter": 2,
+      "section": "2.7 图片及其他内容类型测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MEDIA-03",
+      "display_id": "MEDIA-03",
+      "chapter": 2,
+      "section": "2.7 图片及其他内容类型测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MEDIA-04",
+      "display_id": "MEDIA-04",
+      "chapter": 2,
+      "section": "2.7 图片及其他内容类型测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MEDIA-05",
+      "display_id": "MEDIA-05",
+      "chapter": 2,
+      "section": "2.7 图片及其他内容类型测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MEDIA-06",
+      "display_id": "MEDIA-06",
+      "chapter": 2,
+      "section": "2.7 图片及其他内容类型测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MEDIA-07",
+      "display_id": "MEDIA-07",
+      "chapter": 2,
+      "section": "2.7 图片及其他内容类型测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MSG-01",
+      "display_id": "MSG-01",
+      "chapter": 2,
+      "section": "2.3 基础消息与角色测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MSG-02",
+      "display_id": "MSG-02",
+      "chapter": 2,
+      "section": "2.3 基础消息与角色测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MSG-03",
+      "display_id": "MSG-03",
+      "chapter": 2,
+      "section": "2.3 基础消息与角色测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MSG-04",
+      "display_id": "MSG-04",
+      "chapter": 2,
+      "section": "2.3 基础消息与角色测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MSG-05",
+      "display_id": "MSG-05",
+      "chapter": 2,
+      "section": "2.3 基础消息与角色测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MSG-06",
+      "display_id": "MSG-06",
+      "chapter": 2,
+      "section": "2.3 基础消息与角色测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MSG-07",
+      "display_id": "MSG-07",
+      "chapter": 2,
+      "section": "2.3 基础消息与角色测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:MSG-08",
+      "display_id": "MSG-08",
+      "chapter": 2,
+      "section": "2.3 基础消息与角色测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:PARAM-01",
+      "display_id": "PARAM-01",
+      "chapter": 2,
+      "section": "2.5 请求参数兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:PARAM-02",
+      "display_id": "PARAM-02",
+      "chapter": 2,
+      "section": "2.5 请求参数兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:PARAM-03",
+      "display_id": "PARAM-03",
+      "chapter": 2,
+      "section": "2.5 请求参数兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:PARAM-04",
+      "display_id": "PARAM-04",
+      "chapter": 2,
+      "section": "2.5 请求参数兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:PARAM-05",
+      "display_id": "PARAM-05",
+      "chapter": 2,
+      "section": "2.5 请求参数兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:PARAM-06",
+      "display_id": "PARAM-06",
+      "chapter": 2,
+      "section": "2.5 请求参数兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:PARAM-07",
+      "display_id": "PARAM-07",
+      "chapter": 2,
+      "section": "2.5 请求参数兼容性测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:PARAM-08",
+      "display_id": "PARAM-08",
+      "chapter": 2,
+      "section": "2.5 请求参数兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:SSE-01",
+      "display_id": "SSE-01",
+      "chapter": 2,
+      "section": "2.9 流式协议完整性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:SSE-02",
+      "display_id": "SSE-02",
+      "chapter": 2,
+      "section": "2.9 流式协议完整性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:SSE-03",
+      "display_id": "SSE-03",
+      "chapter": 2,
+      "section": "2.9 流式协议完整性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:SSE-04",
+      "display_id": "SSE-04",
+      "chapter": 2,
+      "section": "2.9 流式协议完整性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:SSE-05",
+      "display_id": "SSE-05",
+      "chapter": 2,
+      "section": "2.9 流式协议完整性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:SSE-06",
+      "display_id": "SSE-06",
+      "chapter": 2,
+      "section": "2.9 流式协议完整性测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:SSE-07",
+      "display_id": "SSE-07",
+      "chapter": 2,
+      "section": "2.9 流式协议完整性测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:STRUCT-01",
+      "display_id": "STRUCT-01",
+      "chapter": 2,
+      "section": "2.8 结构化输出与思考参数测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:STRUCT-02",
+      "display_id": "STRUCT-02",
+      "chapter": 2,
+      "section": "2.8 结构化输出与思考参数测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:STRUCT-03",
+      "display_id": "STRUCT-03",
+      "chapter": 2,
+      "section": "2.8 结构化输出与思考参数测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:THINK-01",
+      "display_id": "THINK-01",
+      "chapter": 2,
+      "section": "2.8 结构化输出与思考参数测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:THINK-02",
+      "display_id": "THINK-02",
+      "chapter": 2,
+      "section": "2.8 结构化输出与思考参数测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:THINK-03",
+      "display_id": "THINK-03",
+      "chapter": 2,
+      "section": "2.8 结构化输出与思考参数测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:THINK-04",
+      "display_id": "THINK-04",
+      "chapter": 2,
+      "section": "2.8 结构化输出与思考参数测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:TOOL-01",
+      "display_id": "TOOL-01",
+      "chapter": 2,
+      "section": "2.6 工具调用兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:TOOL-02",
+      "display_id": "TOOL-02",
+      "chapter": 2,
+      "section": "2.6 工具调用兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:TOOL-03",
+      "display_id": "TOOL-03",
+      "chapter": 2,
+      "section": "2.6 工具调用兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:TOOL-04",
+      "display_id": "TOOL-04",
+      "chapter": 2,
+      "section": "2.6 工具调用兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:TOOL-05",
+      "display_id": "TOOL-05",
+      "chapter": 2,
+      "section": "2.6 工具调用兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:TOOL-06",
+      "display_id": "TOOL-06",
+      "chapter": 2,
+      "section": "2.6 工具调用兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:TOOL-07",
+      "display_id": "TOOL-07",
+      "chapter": 2,
+      "section": "2.6 工具调用兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch2:TOOL-08",
+      "display_id": "TOOL-08",
+      "chapter": 2,
+      "section": "2.6 工具调用兼容性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:BILL-01",
+      "display_id": "BILL-01",
+      "chapter": 3,
+      "section": "3.11 用量与计费核对",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:BILL-02",
+      "display_id": "BILL-02",
+      "chapter": 3,
+      "section": "3.11 用量与计费核对",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:BILL-03",
+      "display_id": "BILL-03",
+      "chapter": 3,
+      "section": "3.11 用量与计费核对",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:BILL-04",
+      "display_id": "BILL-04",
+      "chapter": 3,
+      "section": "3.11 用量与计费核对",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:BILL-05",
+      "display_id": "BILL-05",
+      "chapter": 3,
+      "section": "3.11 用量与计费核对",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:BILL-06",
+      "display_id": "BILL-06",
+      "chapter": 3,
+      "section": "3.11 用量与计费核对",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CACHE-01",
+      "display_id": "CACHE-01",
+      "chapter": 3,
+      "section": "3.4 基础写入与读取测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CACHE-02",
+      "display_id": "CACHE-02",
+      "chapter": 3,
+      "section": "3.4 基础写入与读取测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CACHE-03",
+      "display_id": "CACHE-03",
+      "chapter": 3,
+      "section": "3.4 基础写入与读取测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CACHE-04",
+      "display_id": "CACHE-04",
+      "chapter": 3,
+      "section": "3.4 基础写入与读取测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CACHE-05",
+      "display_id": "CACHE-05",
+      "chapter": 3,
+      "section": "3.4 基础写入与读取测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CONC-01",
+      "display_id": "CONC-01",
+      "chapter": 3,
+      "section": "3.10 并发缓存与异常请求测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CONC-02",
+      "display_id": "CONC-02",
+      "chapter": 3,
+      "section": "3.10 并发缓存与异常请求测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CTRL-01",
+      "display_id": "CTRL-01",
+      "chapter": 3,
+      "section": "3.6 显式缓存参数测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CTRL-02",
+      "display_id": "CTRL-02",
+      "chapter": 3,
+      "section": "3.6 显式缓存参数测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CTRL-03",
+      "display_id": "CTRL-03",
+      "chapter": 3,
+      "section": "3.6 显式缓存参数测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CTRL-04",
+      "display_id": "CTRL-04",
+      "chapter": 3,
+      "section": "3.6 显式缓存参数测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CTRL-05",
+      "display_id": "CTRL-05",
+      "chapter": 3,
+      "section": "3.6 显式缓存参数测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:CTRL-06",
+      "display_id": "CTRL-06",
+      "chapter": 3,
+      "section": "3.6 显式缓存参数测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:FAIL-01",
+      "display_id": "FAIL-01",
+      "chapter": 3,
+      "section": "3.10 并发缓存与异常请求测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:FAIL-02",
+      "display_id": "FAIL-02",
+      "chapter": 3,
+      "section": "3.10 并发缓存与异常请求测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:FAIL-03",
+      "display_id": "FAIL-03",
+      "chapter": 3,
+      "section": "3.10 并发缓存与异常请求测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:MODE-01",
+      "display_id": "MODE-01",
+      "chapter": 3,
+      "section": "3.9 流式与非流式缓存测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:MODE-02",
+      "display_id": "MODE-02",
+      "chapter": 3,
+      "section": "3.9 流式与非流式缓存测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:MODE-03",
+      "display_id": "MODE-03",
+      "chapter": 3,
+      "section": "3.9 流式与非流式缓存测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:MODE-04",
+      "display_id": "MODE-04",
+      "chapter": 3,
+      "section": "3.9 流式与非流式缓存测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:PREFIX-01",
+      "display_id": "PREFIX-01",
+      "chapter": 3,
+      "section": "3.5 前缀复用与变更测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:PREFIX-02",
+      "display_id": "PREFIX-02",
+      "chapter": 3,
+      "section": "3.5 前缀复用与变更测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:PREFIX-03",
+      "display_id": "PREFIX-03",
+      "chapter": 3,
+      "section": "3.5 前缀复用与变更测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:PREFIX-04",
+      "display_id": "PREFIX-04",
+      "chapter": 3,
+      "section": "3.5 前缀复用与变更测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:PREFIX-05",
+      "display_id": "PREFIX-05",
+      "chapter": 3,
+      "section": "3.5 前缀复用与变更测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:PREFIX-06",
+      "display_id": "PREFIX-06",
+      "chapter": 3,
+      "section": "3.5 前缀复用与变更测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:SCOPE-01",
+      "display_id": "SCOPE-01",
+      "chapter": 3,
+      "section": "3.8 模型、Key 与路由变化测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:SCOPE-02",
+      "display_id": "SCOPE-02",
+      "chapter": 3,
+      "section": "3.8 模型、Key 与路由变化测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:SCOPE-03",
+      "display_id": "SCOPE-03",
+      "chapter": 3,
+      "section": "3.8 模型、Key 与路由变化测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:SCOPE-04",
+      "display_id": "SCOPE-04",
+      "chapter": 3,
+      "section": "3.8 模型、Key 与路由变化测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:TTL-01",
+      "display_id": "TTL-01",
+      "chapter": 3,
+      "section": "3.7 缓存有效期测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:TTL-02",
+      "display_id": "TTL-02",
+      "chapter": 3,
+      "section": "3.7 缓存有效期测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:TTL-03",
+      "display_id": "TTL-03",
+      "chapter": 3,
+      "section": "3.7 缓存有效期测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:TTL-04",
+      "display_id": "TTL-04",
+      "chapter": 3,
+      "section": "3.7 缓存有效期测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch3:TTL-05",
+      "display_id": "TTL-05",
+      "chapter": 3,
+      "section": "3.7 缓存有效期测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CAP-01",
+      "display_id": "CAP-01",
+      "chapter": 4,
+      "section": "4.5 能力声明核验",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CAP-02",
+      "display_id": "CAP-02",
+      "chapter": 4,
+      "section": "4.5 能力声明核验",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CAP-03",
+      "display_id": "CAP-03",
+      "chapter": 4,
+      "section": "4.5 能力声明核验",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CAP-04",
+      "display_id": "CAP-04",
+      "chapter": 4,
+      "section": "4.5 能力声明核验",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CAP-05",
+      "display_id": "CAP-05",
+      "chapter": 4,
+      "section": "4.5 能力声明核验",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CAP-06",
+      "display_id": "CAP-06",
+      "chapter": 4,
+      "section": "4.5 能力声明核验",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CAP-07",
+      "display_id": "CAP-07",
+      "chapter": 4,
+      "section": "4.5 能力声明核验",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:COMP-01",
+      "display_id": "COMP-01",
+      "chapter": 4,
+      "section": "4.7 可信端点对照测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:COMP-02",
+      "display_id": "COMP-02",
+      "chapter": 4,
+      "section": "4.7 可信端点对照测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:COMP-03",
+      "display_id": "COMP-03",
+      "chapter": 4,
+      "section": "4.7 可信端点对照测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:COMP-04",
+      "display_id": "COMP-04",
+      "chapter": 4,
+      "section": "4.7 可信端点对照测试",
+      "automation_level": "L0",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CONS-01",
+      "display_id": "CONS-01",
+      "chapter": 4,
+      "section": "4.8 跨时间一致性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CONS-02",
+      "display_id": "CONS-02",
+      "chapter": 4,
+      "section": "4.8 跨时间一致性测试",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CONS-03",
+      "display_id": "CONS-03",
+      "chapter": 4,
+      "section": "4.8 跨时间一致性测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:CONS-04",
+      "display_id": "CONS-04",
+      "chapter": 4,
+      "section": "4.8 跨时间一致性测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ID-01",
+      "display_id": "ID-01",
+      "chapter": 4,
+      "section": "4.3 模型身份与版本核查",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ID-02",
+      "display_id": "ID-02",
+      "chapter": 4,
+      "section": "4.3 模型身份与版本核查",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ID-03",
+      "display_id": "ID-03",
+      "chapter": 4,
+      "section": "4.3 模型身份与版本核查",
+      "automation_level": "L0",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ID-04",
+      "display_id": "ID-04",
+      "chapter": 4,
+      "section": "4.3 模型身份与版本核查",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ID-05",
+      "display_id": "ID-05",
+      "chapter": 4,
+      "section": "4.3 模型身份与版本核查",
+      "automation_level": "L0",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ID-06",
+      "display_id": "ID-06",
+      "chapter": 4,
+      "section": "4.3 模型身份与版本核查",
+      "automation_level": "L0",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:LIMIT-01",
+      "display_id": "LIMIT-01",
+      "chapter": 4,
+      "section": "4.6 上下文长度与最大输出核验",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:LIMIT-02",
+      "display_id": "LIMIT-02",
+      "chapter": 4,
+      "section": "4.6 上下文长度与最大输出核验",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:LIMIT-03",
+      "display_id": "LIMIT-03",
+      "chapter": 4,
+      "section": "4.6 上下文长度与最大输出核验",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:LIMIT-04",
+      "display_id": "LIMIT-04",
+      "chapter": 4,
+      "section": "4.6 上下文长度与最大输出核验",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:LIMIT-05",
+      "display_id": "LIMIT-05",
+      "chapter": 4,
+      "section": "4.6 上下文长度与最大输出核验",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:LIMIT-06",
+      "display_id": "LIMIT-06",
+      "chapter": 4,
+      "section": "4.6 上下文长度与最大输出核验",
+      "automation_level": "L2",
+      "execution": "auto",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ROUTE-01",
+      "display_id": "ROUTE-01",
+      "chapter": 4,
+      "section": "4.4 模型切换与降级测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "auto",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ROUTE-02",
+      "display_id": "ROUTE-02",
+      "chapter": 4,
+      "section": "4.4 模型切换与降级测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ROUTE-03",
+      "display_id": "ROUTE-03",
+      "chapter": 4,
+      "section": "4.4 模型切换与降级测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ROUTE-04",
+      "display_id": "ROUTE-04",
+      "chapter": 4,
+      "section": "4.4 模型切换与降级测试",
+      "automation_level": "L1",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    },
+    {
+      "item_key": "ch4:ROUTE-05",
+      "display_id": "ROUTE-05",
+      "chapter": 4,
+      "section": "4.4 模型切换与降级测试",
+      "automation_level": "L0",
+      "execution": "manual",
+      "execution_at_grading": "manual",
+      "execution_rule": "auto ⟺ L2（派生，只读）"
+    }
+  ],
+  "checksum_algo": "sha256(json.dumps(内容, ensure_ascii=False, sort_keys=True)) 取前 16 位十六进制；内容 = 本文件去掉 checksum 字段后的整体。与 backend/standards.py 的 _checksum() 同族（同为 sha256+前16位+sorted keys），但覆盖范围不同：那边只覆盖 items 的 as_payload()，这边覆盖整文件。**两者不可互换比较**，只能各自与自己比。",
+  "revision_is_label_not_authority": "`revision` / `revision_note` 是**人类可读的变更标签，不是机器权威**——代码里没有任何地方读它（已 grep 确认）。判断「这份数据是不是我以为的那份」只能看 checksum。这与 standards_*.json 里 `version` 成为装饰字段是同一类问题，此处明示以免重复踩。",
+  "checksum": "3318ec600b898672"
+}

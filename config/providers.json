@@ -1,0 +1,123 @@
+[
+  {
+    "id": "openai",
+    "name": "OpenAI",
+    "adapter": "openai",
+    "direct_base_url": "https://api.openai.com/v1",
+    "forward_base_url": "",
+    "auth_style": "bearer",
+    "default_model": "",
+    "protocols": ["openai-chat"],
+    "notes": "标准 Chat Completions 协议；模型 ID 请按账号实际权限填写或在线获取。"
+  },
+  {
+    "id": "anthropic",
+    "name": "Anthropic",
+    "adapter": "anthropic",
+    "direct_base_url": "https://api.anthropic.com",
+    "forward_base_url": "",
+    "auth_style": "x-api-key",
+    "default_model": "",
+    "protocols": ["anthropic-messages"],
+    "notes": "Messages 协议，system 为顶层字段；max_tokens 必填。"
+  },
+  {
+    "id": "gemini",
+    "name": "Google Gemini",
+    "adapter": "gemini",
+    "direct_base_url": "https://generativelanguage.googleapis.com",
+    "forward_base_url": "",
+    "auth_style": "goog-api-key",
+    "default_model": "",
+    "protocols": ["gemini-generate-content"],
+    "notes": "generateContent / streamGenerateContent；密钥通过请求头传递，不进入 URL。"
+  },
+  {
+    "id": "deepseek",
+    "name": "DeepSeek",
+    "adapter": "openai",
+    "direct_base_url": "https://api.deepseek.com/v1",
+    "forward_base_url": "",
+    "auth_style": "bearer",
+    "default_model": "",
+    "protocols": ["openai-chat"],
+    "notes": "OpenAI 兼容协议。"
+  },
+  {
+    "id": "moonshot",
+    "name": "Moonshot / Kimi",
+    "adapter": "openai",
+    "direct_base_url": "https://api.moonshot.cn/v1",
+    "forward_base_url": "",
+    "auth_style": "bearer",
+    "default_model": "",
+    "protocols": ["openai-chat"],
+    "notes": "OpenAI 兼容协议。"
+  },
+  {
+    "id": "dashscope",
+    "name": "阿里云百炼（兼容模式）",
+    "adapter": "openai",
+    "direct_base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "forward_base_url": "",
+    "auth_style": "bearer",
+    "default_model": "",
+    "protocols": ["openai-chat"],
+    "notes": "DashScope 的 OpenAI 兼容入口。"
+  },
+  {
+    "id": "zhipu",
+    "name": "智谱 AI",
+    "adapter": "openai",
+    "direct_base_url": "https://open.bigmodel.cn/api/paas/v4",
+    "forward_base_url": "",
+    "auth_style": "bearer",
+    "default_model": "",
+    "protocols": ["openai-chat"],
+    "notes": "OpenAI 兼容协议。"
+  },
+  {
+    "id": "siliconflow",
+    "name": "SiliconFlow",
+    "adapter": "openai",
+    "direct_base_url": "https://api.siliconflow.cn/v1",
+    "forward_base_url": "",
+    "auth_style": "bearer",
+    "default_model": "",
+    "protocols": ["openai-chat"],
+    "notes": "聚合网关，支持在线获取模型列表。"
+  },
+  {
+    "id": "custom-openai",
+    "name": "自定义 / 代理网关（OpenAI 兼容）",
+    "adapter": "openai",
+    "direct_base_url": "",
+    "forward_base_url": "",
+    "auth_style": "bearer",
+    "default_model": "",
+    "protocols": ["openai-chat"],
+    "notes": "私有化部署、vLLM、Ollama、one-api / new-api 等；直连与转发地址需在系统配置中维护。"
+  },
+  {
+    "id": "custom-anthropic",
+    "name": "自定义 / 代理网关（Anthropic 兼容）",
+    "adapter": "anthropic",
+    "direct_base_url": "",
+    "forward_base_url": "",
+    "auth_style": "x-api-key",
+    "default_model": "",
+    "protocols": ["anthropic-messages"],
+    "notes": "Claude 兼容上游；system 完整性需结合固定回归套件核对。"
+  },
+  {
+    "id": "self-hosted",
+    "name": "自建模型服务（OpenAI 兼容）",
+    "adapter": "openai",
+    "direct_base_url": "",
+    "forward_base_url": "",
+    "auth_style": "none",
+    "default_model": "",
+    "protocols": ["openai-chat"],
+    "notes": "内网地址需要在服务端开启 ALLOW_PRIVATE_UPSTREAM 后才能测试。"
+  }
+]

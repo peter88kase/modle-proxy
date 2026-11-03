@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}接入测试平台{% endblock %}</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/">
+      <span class="brand-text">
+        <strong>模型接口测试平台</strong>
+      </span>
+    </a>
+    {# 可脚本锚点：页面级 nav 用 active 推导，见 docs/12-testability-spec.md §6.2.1 #}
+    <nav class="nav" aria-label="主导航" data-testid="t-{{ active or 'error' }}-nav">
+      <a href="/tasks" data-nav="tasks" data-testid="t-{{ active or 'error' }}-nav-link" class="{{ 'is-active' if active == 'tasks' else '' }}">自动验收</a>
+      <a href="/" data-nav="console" data-testid="t-{{ active or 'error' }}-nav-link" class="{{ 'is-active' if active == 'console' else '' }}">接口测试</a>
+      <a href="/shell" data-nav="shell" data-testid="t-{{ active or 'error' }}-nav-link" class="{{ 'is-active' if active == 'shell' else '' }}">网络诊断</a>
+      <a href="/records" data-nav="records" data-testid="t-{{ active or 'error' }}-nav-link" class="{{ 'is-active' if active == 'records' else '' }}">验收记录</a>
+      <a href="/standards" data-nav="standards" data-testid="t-{{ active or 'error' }}-nav-link" class="{{ 'is-active' if active == 'standards' else '' }}">测试标准</a>
+      <a href="/manual" data-nav="manual" data-testid="t-{{ active or 'error' }}-nav-link" class="{{ 'is-active' if active == 'manual' else '' }}">操作手册</a>
+      {% if user and user.role == 'admin' %}
+      <a href="/settings" data-nav="settings" data-testid="t-{{ active or 'error' }}-nav-link" class="{{ 'is-active' if active == 'settings' else '' }}">系统配置</a>
+      {% endif %}
+    </nav>
+    <div class="account">
+      <span class="account-name">{{ user.username if user else '' }}</span>
+      <span class="role">{{ 'ADMIN' if user and user.role == 'admin' else 'OPERATOR' }}</span>
+      <button class="btn btn-ghost btn-sm" id="logout-btn" type="button" data-testid="t-{{ active or 'error' }}-btn-logout">退出</button>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  {% block content %}{% endblock %}
+</main>
+
+{# toast 是各页的“动态提示”通道：错误文案都会出现在这里，脚本可等 t-<page>-toast 出现 #}
+<div class="toast-host" id="toast-host" aria-live="polite" data-testid="t-{{ active or 'error' }}-toast"></div>
+<script type="module" src="/static/js/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

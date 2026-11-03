@@ -1,0 +1,498 @@
+{
+  "source": {
+    "document": "新供应商引入测试标准1020.docx",
+    "sha256": "293ead824df8bf6217ba193f0a8508ef847749896b09ece9e63cb16469892299",
+    "extracted_at": "2026-10-22",
+    "extractor": "python-docx（w:p/w:tbl/oleObject 流序遍历）+ openpyxl（逐个内嵌 xlsx 解出）",
+    "note": "source_row 为 Excel 行号（表头为第 1 行）。两份表列头不同：Worksheet20 为「固定用例｜验证目标｜拒绝准入的情况」，Worksheet31 为「用例｜核对重点」，故字段分别为 original_goal + original_reject_criteria / original_goal。"
+  },
+  "naming_rule": "CLAUDE-REG-01..04 与 CH3-REG-01..05 均为平台自建检查点编号，非原文编号。原文这两处表格本身不给编号（列头为「固定用例」「用例」）。报告与接口中必须标注 source_kind=prose_checkpoint 并写明依据段落（p118 / p201），不得呈现为原文用例编号。",
+  "denominator_policy": {
+    "in_166": false,
+    "model": "独立组（两段式）",
+    "group_name": "Claude 兼容上游硬断言",
+    "group_size": 5,
+    "group_codes": [
+      "CLAUDE-REG-01",
+      "CLAUDE-REG-02",
+      "CLAUDE-REG-03",
+      "CLAUDE-REG-04",
+      "CH3-REG-01"
+    ],
+    "same_as_codes": [
+      "CH3-REG-02",
+      "CH3-REG-03",
+      "CH3-REG-04",
+      "CH3-REG-05"
+    ],
+    "records": 9,
+    "pass_rule": "5/5 全通过才不阻断；任一 fail 直接进入对应 BLOCK 规则，不得仅作扣分",
+    "conclusion_rule": "结论需两组同时满足：普通项 166 的 conclusion 达标，且本组 5/5 通过",
+    "applicability": "仅当渠道协议为 anthropic-messages（Claude 兼容上游）时适用",
+    "not_applicable_reason_fixed": "非 Claude 兼容上游，该组硬断言不适用",
+    "not_applicable_note": "该理由为固定文案，报告中原样输出；不得写「未测试」——两者含义不同（前者不适用、后者适用但没测）",
+    "report_footnote": "本组 9 项检查点，其中 4 项与 CLAUDE-REG-01~04 同源，已合并计量；CH3-REG-01 为新增量级下限；计入 5 项",
+    "effective_checkpoints_when_claude": 171,
+    "effective_checkpoints_otherwise": 166,
+    "counted": 5,
+    "counted_field": "每条带 counted（1/0），之和必须恰为 5；counted=0 的 4 条照样执行、落库、进报告，只是不进分母",
+    "item_count_must_stay": 166,
+    "item_count_note": "硬断言组不并入 items。若生成器把它们算进 items，item_count 会变 175，所有「166」「166/254」口径当场失效。"
+  },
+  "blocking_policy": "原文 p118 定性为「硬断言」、相关拒绝准入表述见 original_reject_criteria。任一计入分母的检查点 fail 应进入 blocking_rules，优先于聚合计算，不得仅作为扣分项。",
+  "items": [
+    {
+      "code": "CLAUDE-REG-01",
+      "code_kind": "platform_checkpoint_not_original_id",
+      "title": "大上下文缓存读取",
+      "original_goal": "首次写入后，相同请求应读取已有缓存",
+      "original_reject_criteria": "未命中且无法用有效期、路由变化等合理解释",
+      "source_section": "（无编号一级标题）Claude 兼容上游固定回归测试（位于 2.12 验收记录与判定之后）",
+      "source_table": "Worksheet20",
+      "source_table_file": "Microsoft_Excel_Worksheet20.xlsx",
+      "source_row": 2,
+      "proxy_of": "ch3:CACHE-02",
+      "same_as": null,
+      "relation_to_166": "独立组（计入，5 项组内分母）",
+      "why_separate": "与 CACHE-02 判据同源（二次请求应出现读取量），但执行条件不同：本项固定在 Claude 兼容上游、以 CHANNEL_ACCEPT_CTX_BYTES=240000 的上下文规模执行（p123），并按 p127 先低成本模型后拟上架模型。泛化渠道跑通 CACHE-02 推不出本项通过，故需单独计量。原文 p118 将其定性为「硬断言」，属拒绝准入依据。",
+      "assertions_hint": "第 2 次请求 usage 中 cache_read_input_tokens > 0，且与首轮 cache_creation_input_tokens 同量级（≥80%）；未命中必须能由 TTL 到期或路由变化解释，否则判 fail",
+      "shares_execution_with": "CACHE-02",
+      "assertion_ref": [
+        "HARD-A2"
+      ],
+      "chapter": 2,
+      "thresholds": [
+        {
+          "metric": "cache_read_ratio",
+          "value": {
+            "low": 0.8,
+            "high": 1.05
+          },
+          "unit": "ratio",
+          "basis": "provisional_platform_default — 原文与 docx 均未给出该数值；p204 要求「使用现有脚本的读取下限、重写上限」断言，但 anthropic_channel_accept_test.go 源码不在本仓库，无法引用真实常量名。故此值仅为拟定的可配置默认值，必须在拿到套件后回填为真实参数名，否则不得作为冻结口径。",
+          "source": "provisional_pending_upstream_script",
+          "configurable": true
+        }
+      ],
+      "counted": 1,
+      "counted_reason": "计入分组分母（5 项组内）"
+    },
+    {
+      "code": "CLAUDE-REG-02",
+      "code_kind": "platform_checkpoint_not_original_id",
+      "title": "缓存重复写入",
+      "original_goal": "第二次请求不应大规模重写相同上下文",
+      "original_reject_criteria": "读取被误记为写入，造成用户多扣费",
+      "source_section": "（无编号一级标题）Claude 兼容上游固定回归测试（位于 2.12 验收记录与判定之后）",
+      "source_table": "Worksheet20",
+      "source_table_file": "Microsoft_Excel_Worksheet20.xlsx",
+      "source_row": 3,
+      "proxy_of": "ch3:CACHE-02",
+      "same_as": null,
+      "relation_to_166": "独立组（计入，5 项组内分母）",
+      "why_separate": "对应 CACHE-02 通过标准的后半句「不得大规模重复写入相同内容」，但原文此处把后果升格为拒绝准入（「读取被误记为写入，造成用户多扣费」），并要求在 Claude 上游单独验证。CACHE-02 目前的断言只判 cached>0，未判重写量，两者口径不同。",
+      "assertions_hint": "第 2 次请求 cache_creation_input_tokens ≤ 可复用前缀的 10%；若接近或等于首轮写入量（≥50%）即判「读取被误记为写入」，fail",
+      "shares_execution_with": "CACHE-02",
+      "assertion_ref": [
+        "HARD-A3"
+      ],
+      "chapter": 2,
+      "thresholds": [
+        {
+          "metric": "cache_rewrite_ratio_suspicion_lower",
+          "value": 0.1,
+          "unit": "ratio",
+          "basis": "provisional_platform_default — 疑点下界，待套件回填",
+          "source": "provisional_pending_upstream_script",
+          "configurable": true
+        },
+        {
+          "metric": "cache_rewrite_ratio_pass_upper",
+          "value": 0.5,
+          "unit": "ratio",
+          "basis": "原文 p118 拒绝准入「读取被误记为写入」的语义边界",
+          "source": "original_text_derived",
+          "configurable": true
+        }
+      ],
+      "suspicion_band": {
+        "metric": "cache_rewrite_ratio",
+        "range": {
+          "gt": 0.1,
+          "lt": 0.5
+        },
+        "decision_table": {
+          "ratio<0.10": "PASS",
+          "0.10<ratio<0.50": "SUSPICION → pending（前缀 suspicion:）",
+          "ratio>0.50": "FAIL",
+          "ratio==0.50": "PASS"
+        },
+        "ordering_note": "check 的 fail 域为 (0.50, ∞)，疑点区间为 (0.10, 0.50)，不相交，故结论与「suspicion 先 / FAIL 先」的求值顺序无关。",
+        "spec_dependency": "仅需 §1.3.2.1 的 L269 从「不得存在同指标 FAIL 路径」改为「区间不相交 + 必须有上下界」。若保留原文，本条会被 CI 拒绝，属规则过严。"
+      },
+      "counted": 1,
+      "counted_reason": "计入分组分母（5 项组内）"
+    },
+    {
+      "code": "CLAUDE-REG-03",
+      "code_kind": "platform_checkpoint_not_original_id",
+      "title": "字符串格式 system",
+      "original_goal": "验证字符串形式的 system 内容确实送达",
+      "original_reject_criteria": "静默丢弃、截断或错误转换 system",
+      "source_section": "（无编号一级标题）Claude 兼容上游固定回归测试（位于 2.12 验收记录与判定之后）",
+      "source_table": "Worksheet20",
+      "source_table_file": "Microsoft_Excel_Worksheet20.xlsx",
+      "source_row": 4,
+      "proxy_of": "ch3:CTRL-02",
+      "same_as": null,
+      "relation_to_166": "独立组（计入，5 项组内分母）",
+      "why_separate": "对应 CTRL-02 的「system 完整保留」与 MSG-04，但范围更窄且更硬：只针对「字符串形式 system 在 Claude 上游不被丢弃/截断/错误转换」。Claude Messages 的 system 是顶层字段，字符串形式在协议转换中最易被丢弃，原文为此单设硬断言。",
+      "assertions_hint": "system 以 string 形式给出固定规则「只输出 Z」：正文去空白后严格等于 Z；为空、含解释性文字或返回默认回答即判静默丢弃，fail",
+      "shares_execution_with": "CTRL-02",
+      "assertion_ref": [
+        "HARD-A4"
+      ],
+      "chapter": 2,
+      "thresholds": [
+        {
+          "metric": "system_rule_exact_match",
+          "value": true,
+          "unit": "bool",
+          "basis": "原文 p118「验证字符串形式的 system 内容确实送达」+ 拒绝准入「静默丢弃、截断或错误转换 system」：以「system 规则是否被严格遵循」作为送达的可观测后果",
+          "source": "original_text",
+          "configurable": false
+        }
+      ],
+      "counted": 1,
+      "counted_reason": "计入分组分母（5 项组内）"
+    },
+    {
+      "code": "CLAUDE-REG-04",
+      "code_kind": "platform_checkpoint_not_original_id",
+      "title": "流式 usage",
+      "original_goal": "验证 message_delta 中的输出用量",
+      "original_reject_criteria": "已产生正文，但输出 token 为零或缺失，影响结算",
+      "source_section": "（无编号一级标题）Claude 兼容上游固定回归测试（位于 2.12 验收记录与判定之后）",
+      "source_table": "Worksheet20",
+      "source_table_file": "Microsoft_Excel_Worksheet20.xlsx",
+      "source_row": 5,
+      "proxy_of": "ch2:SSE-05",
+      "same_as": null,
+      "relation_to_166": "独立组（计入，5 项组内分母）",
+      "why_separate": "对应 SSE-05，但原文指定了字段位置：Anthropic 的 message_delta 事件（p94 亦要求「Claude 上游必须复用现有测试中的 message_delta 输出用量断言」）。与 OpenAI 在 choices/usage 上取字段的位置不同，需单独实现，不能复用同一段解析。",
+      "assertions_hint": "流式结束前 message_delta 事件中存在 usage.output_tokens 且 > 0；已输出正文但该值为 0 或缺失即判 fail",
+      "shares_execution_with": "SSE-05",
+      "assertion_ref": [
+        "HARD-A5"
+      ],
+      "chapter": 2,
+      "thresholds": [
+        {
+          "metric": "output_tokens_lower_bound",
+          "value": 1,
+          "unit": "tokens",
+          "basis": "原文 p118「已产生正文，但输出 token 为零或缺失，影响结算」——阈值为「>0」，1 即最小可判值",
+          "source": "original_text",
+          "configurable": false
+        }
+      ],
+      "counted": 1,
+      "counted_reason": "计入分组分母（5 项组内）"
+    },
+    {
+      "code": "CH3-REG-01",
+      "code_kind": "platform_checkpoint_not_original_id",
+      "title": "大上下文首次写入",
+      "original_goal": "缓存写入规模与测试上下文相符",
+      "original_reject_criteria": null,
+      "source_section": "3.12 Claude 固定回归测试",
+      "source_table": "Worksheet31",
+      "source_table_file": "Microsoft_Excel_Worksheet31.xlsx",
+      "source_row": 2,
+      "proxy_of": "ch3:CACHE-01",
+      "same_as": null,
+      "relation_to_166": "独立组（计入，5 项组内分母）",
+      "why_separate": "与 CACHE-01 判据同源（首次写入规模相符），但 Worksheet20 的四类硬断言中没有对应行，且本项要求以 CHANNEL_ACCEPT_CTX_BYTES=240000 的规模执行。属 3.12 独有检查点，无同源项可并入。",
+      "assertions_hint": "独立新前缀首轮请求 cache_creation_input_tokens > 0，且与提交的可缓存前缀规模同量级（±30%）；报 0 或量级严重不符即 fail",
+      "shares_execution_with": "CACHE-01",
+      "assertion_ref": [
+        "HARD-A1"
+      ],
+      "chapter": 3,
+      "thresholds": [
+        {
+          "metric": "cache_write_ratio",
+          "value": {
+            "low": 0.7,
+            "high": 1.3
+          },
+          "unit": "ratio",
+          "basis": "provisional_platform_default — 原文与 docx 均未给出该数值；p204 要求「使用现有脚本的读取下限、重写上限」断言，但 anthropic_channel_accept_test.go 源码不在本仓库，无法引用真实常量名。故此值仅为拟定的可配置默认值，必须在拿到套件后回填为真实参数名，否则不得作为冻结口径。",
+          "source": "provisional_pending_upstream_script",
+          "configurable": true
+        }
+      ],
+      "counted": 1,
+      "counted_reason": "计入分组分母（5 项组内）"
+    },
+    {
+      "code": "CH3-REG-02",
+      "code_kind": "platform_checkpoint_not_original_id",
+      "title": "同请求再次读取",
+      "original_goal": "缓存读取量达到预期，不能返回零或明显不足",
+      "original_reject_criteria": null,
+      "source_section": "3.12 Claude 固定回归测试",
+      "source_table": "Worksheet31",
+      "source_table_file": "Microsoft_Excel_Worksheet31.xlsx",
+      "source_row": 3,
+      "proxy_of": "ch3:CACHE-02",
+      "same_as": "CLAUDE-REG-01",
+      "relation_to_166": "同源合并（不单独计量）",
+      "why_separate": "与 CLAUDE-REG-01（Worksheet20「大上下文缓存读取」，原文「首次写入后，相同请求应读取已有缓存」）为同一要求在 3.12 的复述，仅措辞不同（本行强调「不能返回零或明显不足」= 量级要求）。判据同一、执行条件同一、且两者同属一个 Go 套件一次运行，故不另立分母。",
+      "assertions_hint": "同 CLAUDE-REG-01；本行补强量级下限：cache_read ≥ 首轮 cache_creation 的 80%",
+      "shares_execution_with": "CACHE-02",
+      "assertion_ref": [
+        "HARD-A2"
+      ],
+      "chapter": 3,
+      "thresholds": [
+        {
+          "metric": "cache_read_ratio",
+          "value": {
+            "low": 0.8,
+            "high": 1.05
+          },
+          "unit": "ratio",
+          "basis": "provisional_platform_default — 原文与 docx 均未给出该数值；p204 要求「使用现有脚本的读取下限、重写上限」断言，但 anthropic_channel_accept_test.go 源码不在本仓库，无法引用真实常量名。故此值仅为拟定的可配置默认值，必须在拿到套件后回填为真实参数名，否则不得作为冻结口径。",
+          "source": "provisional_pending_upstream_script",
+          "configurable": true
+        }
+      ],
+      "counted": 0,
+      "counted_reason": "same_as CLAUDE-REG-01，同源合并，不进分组分母；但仍执行、落库、进报告"
+    },
+    {
+      "code": "CH3-REG-03",
+      "code_kind": "platform_checkpoint_not_original_id",
+      "title": "重复写入限制",
+      "original_goal": "第二次请求不得将大部分相同上下文重新计为写入",
+      "original_reject_criteria": null,
+      "source_section": "3.12 Claude 固定回归测试",
+      "source_table": "Worksheet31",
+      "source_table_file": "Microsoft_Excel_Worksheet31.xlsx",
+      "source_row": 4,
+      "proxy_of": "ch3:CACHE-02",
+      "same_as": "CLAUDE-REG-02",
+      "relation_to_166": "同源合并（不单独计量）",
+      "why_separate": "与 CLAUDE-REG-02（Worksheet20「缓存重复写入」）为同一要求在 3.12 的复述，措辞由「不应大规模重写」变为「不得将大部分相同上下文重新计为写入」，判据一致。与 CACHE-02 的差异已在 CLAUDE-REG-02 说明，此处不重复计量。",
+      "assertions_hint": "同 CLAUDE-REG-02",
+      "shares_execution_with": "CACHE-02",
+      "assertion_ref": [
+        "HARD-A3"
+      ],
+      "chapter": 3,
+      "thresholds": [
+        {
+          "metric": "cache_rewrite_ratio_suspicion_lower",
+          "value": 0.1,
+          "unit": "ratio",
+          "basis": "provisional_platform_default — 疑点下界，待套件回填",
+          "source": "provisional_pending_upstream_script",
+          "configurable": true
+        },
+        {
+          "metric": "cache_rewrite_ratio_pass_upper",
+          "value": 0.5,
+          "unit": "ratio",
+          "basis": "原文 p118 拒绝准入「读取被误记为写入」的语义边界",
+          "source": "original_text_derived",
+          "configurable": true
+        }
+      ],
+      "suspicion_band": {
+        "metric": "cache_rewrite_ratio",
+        "range": {
+          "gt": 0.1,
+          "lt": 0.5
+        },
+        "decision_table": {
+          "ratio<0.10": "PASS",
+          "0.10<ratio<0.50": "SUSPICION → pending（前缀 suspicion:）",
+          "ratio>0.50": "FAIL",
+          "ratio==0.50": "PASS"
+        },
+        "ordering_note": "check 的 fail 域为 (0.50, ∞)，疑点区间为 (0.10, 0.50)，不相交，故结论与「suspicion 先 / FAIL 先」的求值顺序无关。",
+        "spec_dependency": "仅需 §1.3.2.1 的 L269 从「不得存在同指标 FAIL 路径」改为「区间不相交 + 必须有上下界」。若保留原文，本条会被 CI 拒绝，属规则过严。"
+      },
+      "counted": 0,
+      "counted_reason": "same_as CLAUDE-REG-02，同源合并，不进分组分母；但仍执行、落库、进报告"
+    },
+    {
+      "code": "CH3-REG-04",
+      "code_kind": "platform_checkpoint_not_original_id",
+      "title": "system 完整性",
+      "original_goal": "防止因 system 被丢弃，造成请求“很快但实际没处理上下文”",
+      "original_reject_criteria": null,
+      "source_section": "3.12 Claude 固定回归测试",
+      "source_table": "Worksheet31",
+      "source_table_file": "Microsoft_Excel_Worksheet31.xlsx",
+      "source_row": 5,
+      "proxy_of": "ch3:CTRL-02",
+      "same_as": "CLAUDE-REG-03",
+      "relation_to_166": "同源合并（不单独计量）",
+      "why_separate": "与 CLAUDE-REG-03（字符串格式 system）为同一要求在 3.12 的复述。注意本行「很快但实际没处理上下文」中的「很快」是现象描述，不是判据——p149 已明确「响应变快也不能单独作为命中依据」，实现时不得以耗时判此项，只能判 system 规则是否生效。",
+      "assertions_hint": "同 CLAUDE-REG-03。禁止以响应耗时作为判据",
+      "shares_execution_with": "CTRL-02",
+      "assertion_ref": [
+        "HARD-A4"
+      ],
+      "chapter": 3,
+      "thresholds": [
+        {
+          "metric": "system_rule_exact_match",
+          "value": true,
+          "unit": "bool",
+          "basis": "原文 p118「验证字符串形式的 system 内容确实送达」+ 拒绝准入「静默丢弃、截断或错误转换 system」：以「system 规则是否被严格遵循」作为送达的可观测后果",
+          "source": "original_text",
+          "configurable": false
+        }
+      ],
+      "counted": 0,
+      "counted_reason": "same_as CLAUDE-REG-03，同源合并，不进分组分母；但仍执行、落库、进报告"
+    },
+    {
+      "code": "CH3-REG-05",
+      "code_kind": "platform_checkpoint_not_original_id",
+      "title": "流式输出用量",
+      "original_goal": "已输出正文时，正确提供输出用量，保证整体结算可用",
+      "original_reject_criteria": null,
+      "source_section": "3.12 Claude 固定回归测试",
+      "source_table": "Worksheet31",
+      "source_table_file": "Microsoft_Excel_Worksheet31.xlsx",
+      "source_row": 6,
+      "proxy_of": "ch2:SSE-05",
+      "same_as": "CLAUDE-REG-04",
+      "relation_to_166": "同源合并（不单独计量）",
+      "why_separate": "与 CLAUDE-REG-04（流式 usage）为同一要求在 3.12 的复述，措辞由「输出 token 为零或缺失」变为「已输出正文时，正确提供输出用量，保证整体结算可用」，判据一致。",
+      "assertions_hint": "同 CLAUDE-REG-04",
+      "shares_execution_with": "SSE-05",
+      "assertion_ref": [
+        "HARD-A5"
+      ],
+      "chapter": 3,
+      "thresholds": [
+        {
+          "metric": "output_tokens_lower_bound",
+          "value": 1,
+          "unit": "tokens",
+          "basis": "原文 p118「已产生正文，但输出 token 为零或缺失，影响结算」——阈值为「>0」，1 即最小可判值",
+          "source": "original_text",
+          "configurable": false
+        }
+      ],
+      "counted": 0,
+      "counted_reason": "same_as CLAUDE-REG-04，同源合并，不进分组分母；但仍执行、落库、进报告"
+    }
+  ],
+  "execution_constraints": [
+    {
+      "paragraph": "p116 / p117",
+      "original_text": "接入任何新的 Claude 兼容上游前，必须运行：tests/anthropic_channel_accept_test.go",
+      "constraint": "执行前置：本组不得手工拼请求替代，必须跑该套件或等价实现，并在报告记录套件版本"
+    },
+    {
+      "paragraph": "p118",
+      "original_text": "以下四类问题全部作为硬断言：",
+      "constraint": "四类均为阻断级，不得降为提示"
+    },
+    {
+      "paragraph": "p123",
+      "original_text": "CHANNEL_ACCEPT_CTX_BYTES：默认 240000。",
+      "constraint": "上下文构造规模取该参数，缺省 240000；单位为字节，不是 token（p158 已警告字节数不能当 token 数，须用 tokenizer 或 usage 复核）"
+    },
+    {
+      "paragraph": "p124",
+      "original_text": "CHANNEL_ACCEPT_TTFA_BUDGET：默认 30s。",
+      "constraint": "首内容预算取该参数，缺省 30s；该项属性能观测，不得替代第三章缓存判定"
+    },
+    {
+      "paragraph": "p126",
+      "original_text": "未设置环境变量自动 skip，适用于普通 CI；供应商验收时 skip 不算通过。",
+      "constraint": "红线：套件 skip 必须映射为 not_tested 或 blocked，绝不能映射为 pass"
+    },
+    {
+      "paragraph": "p127",
+      "original_text": "先用低成本模型跑完整用例，再对实际拟上架的模型验证关键能力。Haiku 通过不能代表 Sonnet、Opus 自动通过。",
+      "constraint": "执行顺序固定；模型间结论不得继承（与 MODEL-01「某个模型成功不能代替其他模型验收」同源）"
+    },
+    {
+      "paragraph": "p128",
+      "original_text": "缓存 token 数量、命中比例和延迟阈值，按模型及供应商协议配置；修改阈值必须记录理由，不能为通过测试而放宽。",
+      "constraint": "阈值必须是按模型/协议配置的数据而非代码常量；变更需留理由与操作人（走 retest_log）"
+    },
+    {
+      "paragraph": "p129",
+      "original_text": "缓存测试使用固定种子生成上下文；跨次独立验收应确认缓存状态，避免已有缓存干扰“首次写入”的判断。",
+      "constraint": "每组用独立前缀；执行前确认前缀无既有缓存（与 p174 的 prefix fence 同一机制）"
+    },
+    {
+      "paragraph": "p130",
+      "original_text": "报告记录代码版本、测试参数、模型、时间和请求 ID；密钥脱敏。",
+      "constraint": "报告须含这 6 项"
+    },
+    {
+      "paragraph": "p204",
+      "original_text": "使用现有脚本的读取下限、重写上限及上下文长度参数进行断言。阈值应依据可缓存前缀和模型计数口径确定，不能把某次实测 token 数直接套用于所有模型。",
+      "constraint": "阈值按模型配置，禁止跨模型复用一次实测值"
+    },
+    {
+      "paragraph": "p205",
+      "original_text": "现有脚本通过后，仍需补充 TTL、前缀变化、并发和账单核对；脚本中的延迟预算也不能替代后续性能验收。",
+      "constraint": "本组通过 ≠ 第三章通过；延迟预算不得当作性能验收结论"
+    }
+  ],
+  "assertion_ref_note": "【v4 重写，v3 原文已失效并保留在下方作为证据】v3 原文：「当前 assertions 尚未落成数据，故留 null，不要凭空编造断言 id」。该理由在 assertions_claude.json 落成 5 条断言（HARD-A1~A5）之后已不成立，而注释仍在坚定地指导读者得出「这 9 条没有任何断言在管」的错误结论——这是「过期数据附带的解释还在误导人」，比没有注释更坏，因为它带着权威感。现口径：assertion_ref 由 covers_checkpoints 反向派生（见 assertion_ref_derivation），9/9 已全部填充，不得手填、不得留 null。留空只在一种情况下合法：该 code 确实不被任何断言覆盖——此时写 [] 并在 counted_reason 写明，不写 null（null 无法与「还没人处理」区分）。",
+  "inheritance_rule": "硬断言与 proxy_of 项共用同一次执行，但状态独立计算、独立落库。若被引用项为 blocked，硬断言也必须 blocked，不得因为「同一次执行里主项过了」就变 pass；反之主项 pass 也不自动推出硬断言 pass——两者断言集不同（例如 CACHE-02 现有实现只判 cached>0，未判重写量，CLAUDE-REG-02 判的是重写量）。",
+  "threshold_policy": "全部数值阈值必须按 value/basis/source 三件套声明，缺 basis 不得入库（原文 p128「修改阈值必须记录理由，不能为通过测试而放宽」；p204「不能把某次实测 token 数直接套用于所有模型」→ 阈值须支持 per_model / per_protocol 覆盖）。本文件 4 个 ratio 阈值当前均为 provisional_platform_default，须在拿到 anthropic_channel_accept_test.go 后回填真实参数名。",
+  "revision": "v4",
+  "checksum_algo": "sha256(json.dumps(内容, ensure_ascii=False, sort_keys=True)) 取前 16 位十六进制；内容 = 本文件去掉 checksum 字段后的整体。与 backend/standards.py 的 _checksum() 同族（同为 sha256+前16位+sorted keys），但覆盖范围不同：那边只覆盖 items 的 as_payload()，这边覆盖整文件。**两者不可互换比较**，只能各自与自己比。",
+  "revision_is_label_not_authority": "`revision` / `revision_note` 是**人类可读的变更标签，不是机器权威**——代码里没有任何地方读它（已 grep 确认）。判断「这份数据是不是我以为的那份」只能看 checksum。这与 standards_*.json 里 `version` 成为装饰字段是同一类问题，此处明示以免重复踩。",
+  "checksum": "bf10e4e19ea59e31",
+  "assertion_ref_derivation": {
+    "mode": "derived_from_covers_checkpoints",
+    "source_file": "config/assertions_claude.json",
+    "source_field": "covers_checkpoints",
+    "generator": "tools/derive_assertion_ref.py",
+    "rerun": "python tools/derive_assertion_ref.py --check  # 只校验；去掉 --check 则重派生并写回",
+    "must_not_hand_edit": true,
+    "why": "反边是正边的投影。手工填一遍等于抄一次，而抄错的最难发现形态是「两边都在，只是对不上」：那不是缺失，是矛盾。缺失会被空洞检查抓到（null 很显眼），矛盾不会（两个字段都有值）。",
+    "ci_assertion": {
+      "name": "test_assertion_ref_is_projection",
+      "expr": "{(it['code'], a) for it in items for a in it['assertion_ref']} == {(c, a['id']) for a in assertions for c in a['covers_checkpoints']}",
+      "equality_not_subset": "必须集合相等，不得写「包含」。包含式断言会让「多填一条」通过，而多填正是抄错的典型形态。",
+      "dangling_check": "covers_checkpoints 里的每个 code 必须存在于本文件 items；不存在时报悬空，不得静默忽略。"
+    }
+  },
+  "snapshot_fields_registry": {
+    "applies_to": "not_applicable",
+    "reason": "本文件 9 行是映射行（code → proxy_of / assertion_ref），不是断言；五类快照字段长在断言侧。给映射行填 branch_reachability / executor_ready 之类，等于给「不参与判定的记录」编造判定状态。",
+    "where_the_five_fields_live": [
+      "config/blocking_rules.json",
+      "config/assertions_claude.json",
+      "config/assertions_billing.json"
+    ],
+    "scope_authority": "见任一在范围内文件的 snapshot_fields_registry.scope；多处必须逐字一致（CI: test_snapshot_scope_agrees）",
+    "why_an_explicit_marker_instead_of_silence": "沉默会让人对四个文件跑对称比较，得到 1 个假警报；而假警报的标准处置是「补个值」——那就是填假值。显式声明 not_applicable 让检查器有答案可读，不必靠人记。"
+  },
+  "comment_invalidation_rule": "凡注释形如「因为 X 所以留空 / 留 null / 暂不填」，X 就是这条注释的失效条件。X 一旦不再成立，注释必须在同一批改动里重写——否则它比没有注释更坏，因为它把过期结论包装成了设计决定。本条由 v4 的 assertion_ref_note 事故得出：写的时候是对的，assertions 落成后仍在坚定误导人。",
+  "revision_note": "v4：assertion_ref 改为由 covers_checkpoints 反向派生（9/9 已填，脚本 tools/derive_assertion_ref.py 可复跑）；重写已失效的 assertion_ref_note；补 snapshot_fields_registry 的 not_applicable 标记与作用域理由；补 comment_invalidation_rule。",
+  "checksum_history": [
+    {
+      "revision": "v3：proxy_of 改为 union key（ch{N}:{id}）；每条补 counted（1/0，之和=5）与 counted_reason； denominator_policy 补 counted_field 与 item_count_must_stay=166。",
+      "checksum": "c759b914c3016d4f",
+      "superseded_by": "v4",
+      "reason": "assertion_ref 由 null 改为从 covers_checkpoints 派生的反边；原注释理由（assertions 尚未落成数据）已失效。"
+    }
+  ],
+  "checksum_history_note": "只追加不重写：每次 checksum 变化都留一行「旧值 + 为什么」，因为本轮的真正问题从来不是「文件变了」，是「变了没人知道」。时间戳刻意不写在这里——手写会造出不存在的时点，该由 CI 在提交时写入；本字段只保证可追溯，不保证可定日。"
+}

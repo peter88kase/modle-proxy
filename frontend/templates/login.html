@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登录 · 模型接口测试平台</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body class="login-body">
+{# 可脚本锚点规范：docs/12-testability-spec.md §6.2.1（t-{page}-{component}[-{role}]） #}
+<main class="login-card" data-testid="t-login-root">
+  <h1>模型接口测试平台</h1>
+
+  {% if notice %}
+  <div class="notice {{ notice_kind|default('error') }}" role="status" data-testid="t-login-status">{{ notice }}</div>
+  {% endif %}
+
+  <form id="login-form" novalidate data-testid="t-login-form">
+    <div class="field">
+      <label class="label" for="username">用户名</label>
+      <input type="text" id="username" name="username" autocomplete="username"
+             autocapitalize="none" spellcheck="false" required autofocus
+             data-testid="t-login-input-username">
+    </div>
+    <div class="field">
+      <label class="label" for="password">密码</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required
+             data-testid="t-login-input-password">
+    </div>
+    <div class="notice error hidden" id="login-error" role="alert" data-testid="t-login-error"></div>
+    <button class="btn btn-primary btn-block" type="submit" id="login-submit" data-testid="t-login-btn-submit">登录</button>
+  </form>
+</main>
+<script type="module" src="/static/js/login.js"></script>
+</body>
+</html>

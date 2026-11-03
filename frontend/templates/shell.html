@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}网络诊断 · 接入测试平台{% endblock %}
+
+{% block content %}
+<div class="page-head" data-testid="t-shell-root">
+  <div>
+    <h1>网络诊断</h1>
+    <p class="sub">在隔离的低权限进程中执行 curl / ping / dig，用于端点连通性与域名解析排查。</p>
+  </div>
+  <div class="actions">
+    <span class="badge neutral" id="worker-badge" data-testid="t-shell-status-worker">检测中</span>
+    <button class="btn btn-sm" id="refresh-health" type="button" data-testid="t-shell-btn-refresh-health">重新检测</button>
+  </div>
+</div>
+
+<div class="grid-console">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>诊断命令</h2>
+      <span class="meta">WHITELIST</span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="命令选择">
+      <button type="button" role="tab" data-cmd="curl_raw" aria-selected="true" data-testid="t-shell-btn-tab-curl-raw">自定义 curl</button>
+      <button type="button" role="tab" data-cmd="curl" aria-selected="false" data-testid="t-shell-btn-tab-curl">curl 表单</button>
+      <button type="button" role="tab" data-cmd="ping" aria-selected="false" data-testid="t-shell-btn-tab-ping">ping</button>
+      <button type="button" role="tab" data-cmd="dig" aria-selected="false" data-testid="t-shell-btn-tab-dig">dig</button>
+    </div>
+    <div class="panel-body">
+      {# 加载失败提示区：静态锚点，脚本可区分“工作进程离线”与“命令执行失败”（规格 §6.2.1） #}
+<div class="alert danger hidden" id="shell-error" role="alert" data-testid="t-shell-error"></div>
+
+<form id="shell-form" autocomplete="off" novalidate data-testid="t-shell-form">
+        <div data-pane="curl_raw">
+          <div class="field">
+            <label class="label" for="raw-command">curl 命令 <span class="req">*</span></label>
+            <textarea id="raw-command" class="mono" rows="9" spellcheck="false" data-testid="t-shell-input-raw-command" placeholder='curl -X POST "https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1/responses" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_KEY" \
+  -d &apos;{"model":"your-model","input":"Write a short poem about cloud computing.","stream":true}&apos;'></textarea>
+            <p class="hint">
+              直接粘贴完整命令，支持多行与 <code>\</code> 续行。<strong>只允许一个 http/https URL</strong>；
+              禁止 <code>-o</code> / <code>-K</code> / <code>--config</code> / <code>@file</code> /
+              <code>--resolve</code> / 代理等参数；不跟随重定向；超时、输出体积与端口仍受平台限制。
+            </p>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label class="label" for="raw-timeout">总超时(s)</label>
+              <input type="number" id="raw-timeout" class="mono" value="30" min="1" max="60" data-testid="t-shell-input-raw-timeout">
+            </div>
+            <div class="field">
+              <label class="label" for="raw-scope">执行范围</label>
+              <input type="text" id="raw-scope" class="mono" value="单 URL · 禁文件读写" disabled>
+            </div>
+          </div>
+        </div>
+
+        <div data-pane="curl" class="hidden">
+          <div class="field">
+            <label class="label" for="curl-url">目标 URL <span class="req">*</span></label>
+            <input type="text" id="curl-url" class="mono" spellcheck="false" placeholder="https://api.example.com/v1/models" data-testid="t-shell-input-curl-url">
+            <p class="hint">仅允许 http/https，端口需在授权列表内；证书校验始终开启，不跟随重定向。</p>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label class="label" for="curl-connect">连接超时(s)</label>
+              <input type="number" id="curl-connect" class="mono" value="5" min="1" max="10" data-testid="t-shell-input-curl-connect">
+            </div>
+            <div class="field">
+              <label class="label" for="curl-max">总超时(s)</label>
+              <input type="number" id="curl-max" class="mono" value="15" min="1" max="30" data-testid="t-shell-input-curl-max">
+            </div>
+          </div>
+          <div class="field">
+            <label class="check"><input type="checkbox" id="curl-head" data-testid="t-shell-check-curl-head"> 仅请求响应头（HEAD）</label>
+          </div>
+        </div>
+
+        <div data-pane="ping" class="hidden">
+          <div class="field">
+            <label class="label" for="ping-host">目标主机 <span class="req">*</span></label>
+            <input type="text" id="ping-host" class="mono" spellcheck="false" placeholder="api.example.com" data-testid="t-shell-input-ping-host">
+            <p class="hint">允许域名或 IP；平台先解析并校验地址，再用解析结果发包。</p>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label class="label" for="ping-count">次数</label>
+              <input type="number" id="ping-count" class="mono" value="3" min="1" max="5">
+            </div>
+            <div class="field">
+              <label class="label" for="ping-wait">单包等待(s)</label>
+              <input type="number" id="ping-wait" class="mono" value="3" min="1" max="10">
+            </div>
+          </div>
+        </div>
+
+        <div data-pane="dig" class="hidden">
+          <div class="field">
+            <label class="label" for="dig-host">域名 <span class="req">*</span></label>
+            <input type="text" id="dig-host" class="mono" spellcheck="false" placeholder="api.example.com" data-testid="t-shell-input-dig-host">
+          </div>
+          <div class="field">
+            <label class="label" for="dig-type">记录类型</label>
+            <select id="dig-type" class="mono" data-testid="t-shell-select-dig-type">
+              <option value="A">A</option>
+              <option value="AAAA">AAAA</option>
+              <option value="CNAME">CNAME</option>
+              <option value="MX">MX</option>
+              <option value="TXT">TXT</option>
+              <option value="NS">NS</option>
+              <option value="SOA">SOA</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="shell-run" type="submit" data-testid="t-shell-btn-exec">执行命令</button>
+        <div class="flex gap-8 mt-8">
+          <button class="btn btn-sm" id="shell-clear" type="button" data-testid="t-shell-btn-clear">清空输出</button>
+          <button class="btn btn-sm" id="shell-copy" type="button" data-testid="t-shell-btn-copy">复制输出</button>
+        </div>
+      </form>
+    </div>
+    <div class="panel-foot">
+      命令由独立进程 <code>bedrock-shell</code> 执行，子进程环境变量已清空，不继承任何密钥。
+    </div>
+  </section>
+
+  <div>
+    <section class="panel">
+      <div class="term-head">
+        <span id="term-title" data-testid="t-shell-status-terminal">bedrock-shell — idle</span>
+        <span id="term-status" class="t-dim" data-testid="t-shell-status-state" data-status="idle">等待执行</span>
+      </div>
+      <div class="terminal" id="terminal" role="log" aria-live="polite" aria-label="命令输出" data-testid="t-shell-output" data-status="idle"></div>
+    </section>
+
+    <div class="grid-2 mt-12">
+      <section class="panel">
+        <div class="panel-head"><h2>执行结果</h2><span class="meta" id="exec-meta" data-testid="t-shell-status-exec">—</span></div>
+        <div class="panel-body">
+          <dl class="kv">
+            <dt>退出码</dt><dd id="exec-exit" data-testid="t-shell-cell-exit-code">—</dd>
+            <dt>耗时</dt><dd id="exec-duration" data-testid="t-shell-cell-duration">—</dd>
+            <dt>目标主机</dt><dd id="exec-target" data-testid="t-shell-cell-target">—</dd>
+            <dt>输出截断</dt><dd id="exec-truncated">—</dd>
+            <dt>超时</dt><dd id="exec-timeout" data-testid="t-shell-cell-timeout">—</dd>
+          </dl>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>工作进程</h2><span class="meta">ISOLATION</span></div>
+        <div class="panel-body">
+          <dl class="kv">
+            <dt>运行账号</dt><dd id="w-user" data-testid="t-shell-cell-worker-user">—</dd>
+            <dt>UID</dt><dd id="w-uid">—</dd>
+            <dt>允许端口</dt><dd id="w-ports" data-testid="t-shell-cell-worker-ports">—</dd>
+            <dt>内网目标</dt><dd id="w-private">—</dd>
+            <dt>工具可用</dt><dd id="w-tools" data-testid="t-shell-cell-worker-tools">—</dd>
+            <dt>并发上限</dt><dd id="w-conc">—</dd>
+          </dl>
+          <p class="hint mt-8" id="w-hint">
+            如需调整策略，请修改 <code>/etc/bedrock/shell.env</code> 并重启工作进程。
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/shell.js"></script>
+{% endblock %}

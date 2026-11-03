@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}自动验收任务 · 接入测试平台{% endblock %}
+{% block content %}
+
+<section class="page-head" data-testid="t-tasks-root">
+  <h1>自动验收任务</h1>
+  <p class="sub">
+    填写第三方接口地址、API Key、模型 ID 与协议，平台按原始文档第 1～4 章自动执行适用用例并给出判定。
+    凭证只用于本次执行，不写入数据库、日志与报告。
+  </p>
+</section>
+
+{# 加载失败提示区：与 toast 不同，它是静态锚点，脚本可据此区分“加载失败”与“没有数据”（规格 §6.2.1） #}
+<div class="alert danger hidden" id="tasks-error" role="alert" data-testid="t-tasks-error"></div>
+
+<section class="panel" id="create-panel" data-testid="t-tasks-form-create">
+  <div class="panel-head">
+    <h2>新建任务</h2>
+    <span class="meta" id="create-meta" data-testid="t-tasks-status-create">必填：接口地址 / 模型 / 协议 / Key</span>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="field">
+        <label class="label" for="t-name">任务 / 供应商名称</label>
+        <input type="text" id="t-name" placeholder="例如：某供应商 GPT-4o 接入验收" maxlength="120" data-testid="t-tasks-input-name">
+      </div>
+      <div class="field">
+        <label class="label" for="t-base">接口 Base URL <span class="req">*</span></label>
+        <input type="text" id="t-base" class="mono" placeholder="https://api.example.com/v1" autocomplete="off" data-testid="t-tasks-input-base-url">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label class="label" for="t-key">API Key <span class="req">*</span></label>
+        <input type="password" id="t-key" class="mono" autocomplete="new-password" placeholder="仅本次执行使用，不落库" data-testid="t-tasks-input-key">
+      </div>
+      <div class="field">
+        <label class="label" for="t-model">模型 ID <span class="req">*</span></label>
+        <input type="text" id="t-model" class="mono" placeholder="claude-haiku-4-5, claude-sonnet-4-5" autocomplete="off" data-testid="t-tasks-input-model">
+        <p class="hint">多个模型用逗号或换行分隔，会放进<b>同一个任务</b>里按顺序执行，不再拆成多个任务。</p>
+      </div>
+    </div>
+
+    <details class="field model-fold">
+      <summary>常用模型组
+        <span class="small muted">（点选追加到上方输入框，可手工删除）</span>
+      </summary>
+      <div id="t-model-groups" class="model-groups" data-testid="t-tasks-model-groups">
+        <p class="hint">正在加载模型组…</p>
+      </div>
+      <p class="hint">
+        勾选只表示“把模型 ID 追加到上方”，不会额外建任务；这里只是常见模型 ID 的提示，不是白名单。
+      </p>
+    </details>
+
+    <div class="row">
+      <div class="field">
+        <label class="label" for="t-adapter">接口协议 <span class="req">*</span></label>
+        <div class="flex gap-8">
+          <select id="t-adapter" class="mono" data-testid="t-tasks-select-adapter"></select>
+          <button class="btn btn-sm" type="button" id="detect-btn" title="尝试从端点自动识别协议" data-testid="t-tasks-btn-detect">识别</button>
+        </div>
+        <p class="hint" id="detect-hint" data-testid="t-tasks-status-detect">无法自动识别时必须手动选择，平台不会猜测。</p>
+      </div>
+      <div class="field">
+        <label class="label" for="t-type">接口类型</label>
+        <select id="t-type" class="mono" data-testid="t-tasks-select-auth-style"></select>
+      </div>
+      <div class="field">
+        <label class="label" for="t-standard">测试标准</label>
+        <select id="t-standard" class="mono" data-testid="t-tasks-select-standard"></select>
+      </div>
+    </div>
+
+    <div class="options-row mt-8">
+      <label class="label inline"><input type="checkbox" id="t-noauth" data-testid="t-tasks-check-noauth"> 该端点无需鉴权</label>
+      <label class="label inline"><input type="checkbox" id="t-cache" checked data-testid="t-tasks-check-cache"> 启用缓存章节</label>
+      <label class="label inline"><input type="checkbox" id="t-cap" checked data-testid="t-tasks-check-capability"> 启用能力真实性章节</label>
+      <label class="label inline"><input type="checkbox" id="t-forward" data-testid="t-tasks-check-forward"> 同时测试 Fluxlane 转发链路</label>
+    </div>
+
+    <details class="mt-16" id="advanced">
+      <summary class="small">高级参数（默认值来自平台配置，一般无需修改）</summary>
+      <div class="row mt-8">
+        <div class="field">
+          <label class="label" for="t-repeat">普通请求重复次数</label>
+          <input type="number" id="t-repeat" class="mono" value="3" min="1" max="5" data-testid="t-tasks-input-repeat">
+        </div>
+        <div class="field">
+          <label class="label" for="t-total">单请求总超时(s)</label>
+          <input type="number" id="t-total" class="mono" value="60" min="3" max="300" data-testid="t-tasks-input-total-timeout">
+        </div>
+        <div class="field">
+          <label class="label" for="t-ttft">首内容超时(s)</label>
+          <input type="number" id="t-ttft" class="mono" value="30" min="3" max="300" data-testid="t-tasks-input-first-token-timeout">
+        </div>
+        <div class="field">
+          <label class="label" for="t-maxtok">max_tokens</label>
+          <input type="number" id="t-maxtok" class="mono" value="64" min="1" max="8192" data-testid="t-tasks-input-max-tokens">
+        </div>
+        <div class="field">
+          <label class="label" for="t-interval">请求间隔(s) <span class="note">相邻两次上游请求</span></label>
+          <input type="number" id="t-interval" class="mono" value="2" min="0" max="30" step="0.5" data-testid="t-tasks-input-interval">
+          <p class="hint">上一次响应结束后至少等这么久再发下一个。设太小会撞网关 RPM 限制，429 会被记成判定结论。</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="label" for="t-maxreq">最大请求数（预算）</label>
+          <input type="number" id="t-maxreq" class="mono" value="150" min="5" max="500" data-testid="t-tasks-input-max-requests">
+        </div>
+        <div class="field">
+          <label class="label" for="t-maxsec">最大时长(s)</label>
+          <input type="number" id="t-maxsec" class="mono" value="900" min="60" max="3600" data-testid="t-tasks-input-max-seconds">
+        </div>
+      </div>
+      <div class="row hidden" id="forward-row">
+        <div class="field">
+          <label class="label" for="t-fwd-url">Fluxlane 转发地址</label>
+          <input type="text" id="t-fwd-url" class="mono" placeholder="https://fluxlane.example.com/v1" data-testid="t-tasks-input-forward-url">
+        </div>
+        <div class="field">
+          <label class="label" for="t-fwd-key">转发链路 Key（留空则复用上面的 Key）</label>
+          <input type="password" id="t-fwd-key" class="mono" autocomplete="new-password" data-testid="t-tasks-input-forward-key">
+        </div>
+      </div>
+    </details>
+
+    <div class="row mt-16">
+      <button class="btn btn-primary" type="button" id="create-btn" data-testid="t-tasks-btn-create">开始自动测试</button>
+      <span class="small muted" id="create-msg" role="status" data-testid="t-tasks-error-create"></span>
+    </div>
+  </div>
+</section>
+
+<section class="panel mt-16">
+  <div class="panel-head">
+    <h2>任务列表</h2>
+    <span class="flex gap-8 center">
+      <span class="small muted" id="task-selected" data-testid="t-tasks-selected-count">未选择</span>
+      <button class="btn btn-sm btn-danger" type="button" id="task-delete-selected" disabled
+              data-testid="t-tasks-btn-delete-selected">删除选中</button>
+      <button class="btn btn-sm btn-danger" type="button" id="task-delete-all"
+              data-testid="t-tasks-btn-delete-all">删除全部任务</button>
+    </span>
+    <span class="meta" id="list-meta" data-testid="t-tasks-status-list">—</span>
+  </div>
+  <div class="table-wrap">
+    <table class="table" id="task-table" data-testid="t-tasks-table">
+      <thead>
+        <tr>
+          <th class="check-col"><input type="checkbox" id="task-check-all"
+                                       data-testid="t-tasks-check-all" aria-label="全选任务"></th>
+          <th>任务</th>
+          <th>模型 / 协议</th>
+          <th>状态</th>
+          <th>自动进度</th>
+          <th>结论</th>
+          <th>创建时间</th>
+          <th class="actions">操作</th>
+        </tr>
+      </thead>
+      <tbody id="task-body" data-testid="t-tasks-table-body">
+        <tr><td colspan="8" class="table-empty" data-testid="t-tasks-empty">加载中…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel mt-16 hidden" id="detail-panel" data-testid="t-tasks-detail">
+  <div class="panel-head">
+    <h2>任务详情 <span class="mono small muted" id="detail-title" data-testid="t-tasks-cell-title"></span></h2>
+    <span class="flex gap-8">
+      <a class="btn btn-sm btn-primary" id="pdf-btn" href="#" target="_blank" rel="noopener" data-testid="t-tasks-btn-export-pdf">导出 PDF 报告</a>
+      <a class="btn btn-sm hidden" id="pdf-batch-btn" href="#" target="_blank" rel="noopener" data-testid="t-tasks-btn-export-batch-pdf">导出整批 PDF</a>
+      <button class="btn btn-sm" type="button" id="retest-chapter-btn" data-testid="t-tasks-btn-retest-chapter">重测某章</button>
+      <button class="btn btn-sm" type="button" id="retest-all-btn" data-testid="t-tasks-btn-retest-all">重测整个任务</button>
+      <button class="btn btn-sm btn-danger hidden" type="button" id="cancel-btn" data-testid="t-tasks-btn-cancel">取消执行</button>
+    </span>
+  </div>
+  <div class="panel-body" id="detail-body">
+    <div class="kv kv-3" id="detail-meta" data-testid="t-tasks-detail-meta"></div>
+    <div class="mt-16">
+      <div class="progress" data-testid="t-tasks-progress"><span id="progress-bar" style="width:0%"></span></div>
+      <p class="hint" id="progress-text" data-testid="t-tasks-progress-text">—</p>
+    </div>
+    <div class="counts-row" id="counts-row" data-testid="t-tasks-counts"></div>
+    <p class="hint" id="stop-reason" data-testid="t-tasks-status-stop-reason"></p>
+    <div class="phase-row" id="phase-row" data-testid="t-tasks-phases"></div>
+
+    {# 多模型批次：同一次提交里的所有模型，逐个列出状态与结论。
+       失败的模型排在最前，并且单独标出来——这才是"哪些模型挂了"。 #}
+    <div class="batch-block hidden mt-16" id="batch-block" data-testid="t-tasks-batch">
+      <div class="label">
+        <span>同批次模型 <span class="note" id="batch-meta" data-testid="t-tasks-batch-meta"></span></span>
+        <span class="small muted" id="batch-failed" data-testid="t-tasks-batch-failed"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="table" data-testid="t-tasks-batch-table">
+          <thead>
+            <tr><th>模型</th><th>状态</th><th>结论</th><th class="num">不通过</th><th class="num">未测试</th><th class="num">阻塞</th><th class="actions">操作</th></tr>
+          </thead>
+          <tbody id="batch-body" data-testid="t-tasks-batch-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="panel-head">
+    <h2>测试项判定</h2>
+    <span class="flex gap-8">
+      <select id="f-chapter" class="mono" data-testid="t-tasks-select-chapter">
+        <option value="">全部章节</option>
+        <option value="1">第一章 连通性与鉴权</option>
+        <option value="2">第二章 接口兼容性</option>
+        <option value="3">第三章 缓存正确性</option>
+        <option value="4">第四章 模型与能力真实性</option>
+      </select>
+      <select id="f-status" class="mono" data-testid="t-tasks-select-status">
+        <option value="">全部状态</option>
+      </select>
+      <label class="label inline"><input type="checkbox" id="f-attention" data-testid="t-tasks-check-attention"> 只看待处理</label>
+    </span>
+  </div>
+  <div class="table-wrap">
+    <table class="table item-table" id="item-table" data-testid="t-tasks-table-item">
+      <thead>
+        <tr>
+          <th>编号</th>
+          <th>章节</th>
+          <th>测试项</th>
+          <th>方式</th>
+          <th>实际结果</th>
+          <th>状态</th>
+          <th class="actions">操作</th>
+        </tr>
+      </thead>
+      <tbody id="item-body" data-testid="t-tasks-table-item-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<dialog id="key-dialog" class="dialog" data-testid="t-tasks-dialog-key">
+  <form method="dialog" id="key-form">
+    <h3 id="key-title">需要 API Key</h3>
+    <p class="hint" id="key-hint">平台不保存明文密钥，重测/单项执行时需重新输入。</p>
+    <div class="field">
+      <label class="label" for="key-input">API Key</label>
+      <input type="password" id="key-input" class="mono" autocomplete="new-password" data-testid="t-tasks-input-retest-key">
+    </div>
+    <div class="field hidden" id="key-forward-field">
+      <label class="label" for="key-forward">转发链路 Key（留空复用）</label>
+      <input type="password" id="key-forward" class="mono" autocomplete="new-password" data-testid="t-tasks-input-retest-forward-key">
+    </div>
+    <div class="row mt-8">
+      <button class="btn btn-primary" type="submit" value="ok" data-testid="t-tasks-btn-key-confirm">确认</button>
+      <button class="btn" type="submit" value="cancel" data-testid="t-tasks-btn-key-cancel">取消</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="manual-dialog" class="dialog" data-testid="t-tasks-dialog-manual">
+  <form method="dialog" id="manual-form">
+    <h3>人工确认 <span class="mono small muted" id="manual-item" data-testid="t-tasks-cell-item-id"></span></h3>
+    <p class="hint" id="manual-expected" data-testid="t-tasks-cell-criteria"></p>
+    <div class="field">
+      <label class="label" for="manual-status">判定</label>
+      <select id="manual-status" data-testid="t-tasks-select-status-manual">
+        <option value="pass">通过（已人工核实）</option>
+        <option value="fail">不通过</option>
+        <option value="pending">待确认（仍需补充）</option>
+        <option value="not_applicable">不适用</option>
+        <option value="blocked">阻塞</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="label" for="manual-actual">实际检查结果</label>
+      <textarea id="manual-actual" rows="3" placeholder="写明你实际看到的现象、请求 ID、日志位置等" data-testid="t-tasks-input-actual"></textarea>
+    </div>
+    <div class="field">
+      <label class="label" for="manual-note">说明（不通过 / 不适用 / 阻塞时必填）</label>
+      <input type="text" id="manual-note" maxlength="500" data-testid="t-tasks-input-note">
+    </div>
+    <div class="field">
+      <label class="label" for="manual-file">证据文件（可选，≤ 2 MB，图片/日志/PDF/CSV）</label>
+      <input type="file" id="manual-file" accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.txt,.log,.json,.csv,.md" data-testid="t-tasks-input-evidence">
+    </div>
+    <p class="hint">确认人：<span id="manual-operator" data-testid="t-tasks-cell-operator">—</span>，时间由服务器记录。</p>
+    <div class="row mt-8">
+      <button class="btn btn-primary" type="submit" value="ok" data-testid="t-tasks-btn-manual-save">保存</button>
+      <button class="btn" type="submit" value="cancel" data-testid="t-tasks-btn-manual-cancel">取消</button>
+    </div>
+  </form>
+</dialog>
+
+{% endblock %}
+{% block scripts %}
+<script type="module" src="/static/js/tasks.js"></script>
+{% endblock %}

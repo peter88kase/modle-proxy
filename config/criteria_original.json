@@ -1,0 +1,2287 @@
+{
+ "source": {
+  "document": "新供应商引入测试标准1020.docx",
+  "sha256": "293ead824df8bf6217ba193f0a8508ef847749896b09ece9e63cb16469892299",
+  "extracted_at": "2026-10-22",
+  "extractor": "python-docx（w:p/w:tbl/oleObject 流序遍历）+ openpyxl（逐个内嵌 xlsx 解出）",
+  "note": "source_row 为 Excel 行号（表头为第 1 行）。source_table 为内嵌工作簿编号，对应 word/embeddings/Microsoft_Excel_WorksheetN.xlsx。",
+  "locator_note": "docx_paragraph 为该用例表所对应内嵌对象所在的段落序号（python-docx doc.paragraphs 同级索引，与 docs/10 中 pNNN 引用同一编号体系），可用于 paragraphs[n] 定位后逐字比对。source_row 为该内嵌工作表内的 Excel 行号（表头为第 1 行）。"
+ },
+ "summary": {
+  "checked_total": 166,
+  "inconsistent": 23,
+  "consistent": 143,
+  "by_chapter": {
+   "1": 23,
+   "2": 0,
+   "3": 0,
+   "4": 0
+  },
+  "correction_note": "团队此前传的「40 项」有误。原因是以 id 单键比对，而原文第 5～9 章复用 BILL-*/ROUTE-*/LIMIT-* 编号，造成跨章错配。改用（工作表, 编号）复合键后为 23 项，全部在第一章。",
+  "other_drift_method": 31,
+  "scenario_column_missing": 117
+ },
+ "items": [
+  {
+   "id": "NET-02",
+   "chapter": 1,
+   "current_criteria": "TLS 握手成功，证书有效且与域名匹配",
+   "original_text": "TLS 握手成功，证书有效且与请求域名匹配",
+   "source_section": "1.3 端点与网络连通性测试",
+   "source_table": "Worksheet2",
+   "source_table_file": "Microsoft_Excel_Worksheet2.xlsx",
+   "source_row": 3,
+   "clauses": [
+    "TLS 握手成功，证书有效且与请求域名匹配"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 16
+  },
+  {
+   "id": "NET-03",
+   "chapter": 1,
+   "current_criteria": "请求到达正确 API，无路径重复、404 或网页",
+   "original_text": "请求到达正确 API，无路径重复、404 或返回网页的情况",
+   "source_section": "1.3 端点与网络连通性测试",
+   "source_table": "Worksheet2",
+   "source_table_file": "Microsoft_Excel_Worksheet2.xlsx",
+   "source_row": 4,
+   "clauses": [
+    "请求到达正确 API，无路径重复、404 或返回网页的情况"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 16
+  },
+  {
+   "id": "NET-04",
+   "chapter": 1,
+   "current_criteria": "可直接访问约定端点；重定向须说明原因并核实密钥去向",
+   "original_text": "可直接访问约定端点；如确需重定向，必须明确原因和目标，核实不会将密钥发送到未经确认的域名",
+   "source_section": "1.3 端点与网络连通性测试",
+   "source_table": "Worksheet2",
+   "source_table_file": "Microsoft_Excel_Worksheet2.xlsx",
+   "source_row": 5,
+   "clauses": [
+    "可直接访问约定端点",
+    "如确需重定向，必须明确原因和目标，核实不会将密钥发送到未经确认的域名"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "note": "以下 clause 内部仍含第二个可判定成分（原文用逗号连接），生成 assertions 时应再细分：「如确需重定向，必须明确原因和目标，核实不会将密钥发送到未经确认的域名」",
+   "embedded_assertion_clauses": [
+    "如确需重定向，必须明确原因和目标，核实不会将密钥发送到未经确认的域名"
+   ],
+   "docx_paragraph": 16
+  },
+  {
+   "id": "NET-05",
+   "chapter": 1,
+   "current_criteria": "运行环境可访问，不以个人电脑测试成功为结论",
+   "original_text": "运行环境可正常访问；不得仅以个人电脑测试成功作为结论",
+   "source_section": "1.3 端点与网络连通性测试",
+   "source_table": "Worksheet2",
+   "source_table_file": "Microsoft_Excel_Worksheet2.xlsx",
+   "source_row": 6,
+   "clauses": [
+    "运行环境可正常访问",
+    "不得仅以个人电脑测试成功作为结论"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 16
+  },
+  {
+   "id": "REQ-01",
+   "chapter": 1,
+   "current_criteria": "返回协议约定成功状态，响应体可解析",
+   "original_text": "返回协议约定的成功状态，响应体可解析",
+   "source_section": "1.4 普通请求测试",
+   "source_table": "Worksheet3",
+   "source_table_file": "Microsoft_Excel_Worksheet3.xlsx",
+   "source_row": 2,
+   "clauses": [
+    "返回协议约定的成功状态，响应体可解析"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 20
+  },
+  {
+   "id": "REQ-02",
+   "chapter": 1,
+   "current_criteria": "返回有效文本，不为空、仅空白或只有元数据",
+   "original_text": "返回有效文本；不得为空、仅空白或只有元数据",
+   "source_section": "1.4 普通请求测试",
+   "source_table": "Worksheet3",
+   "source_table_file": "Microsoft_Excel_Worksheet3.xlsx",
+   "source_row": 3,
+   "clauses": [
+    "返回有效文本",
+    "不得为空、仅空白或只有元数据"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 20
+  },
+  {
+   "id": "REQ-04",
+   "chapter": 1,
+   "current_criteria": "返回 API 数据，不得是登录页、验证码页或代理错误页",
+   "original_text": "返回对应 API 数据，不得返回登录页、验证码页或代理错误网页",
+   "source_section": "1.4 普通请求测试",
+   "source_table": "Worksheet3",
+   "source_table_file": "Microsoft_Excel_Worksheet3.xlsx",
+   "source_row": 5,
+   "clauses": [
+    "返回对应 API 数据，不得返回登录页、验证码页或代理错误网页"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "note": "以下 clause 内部仍含第二个可判定成分（原文用逗号连接），生成 assertions 时应再细分：「返回对应 API 数据，不得返回登录页、验证码页或代理错误网页」",
+   "embedded_assertion_clauses": [
+    "返回对应 API 数据，不得返回登录页、验证码页或代理错误网页"
+   ],
+   "docx_paragraph": 20
+  },
+  {
+   "id": "REQ-05",
+   "chapter": 1,
+   "current_criteria": "路由到目标模型与渠道；model 字段差异有明确映射说明",
+   "original_text": "路由到目标模型及目标渠道；响应中的模型名差异有明确映射说明",
+   "source_section": "1.4 普通请求测试",
+   "source_table": "Worksheet3",
+   "source_table_file": "Microsoft_Excel_Worksheet3.xlsx",
+   "source_row": 6,
+   "clauses": [
+    "路由到目标模型及目标渠道",
+    "响应中的模型名差异有明确映射说明"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 20
+  },
+  {
+   "id": "STREAM-02",
+   "chapter": 1,
+   "current_criteria": "在首个有效内容预算内收到内容",
+   "original_text": "在设定的首个有效内容预算内收到内容",
+   "source_section": "1.5 流式请求测试",
+   "source_table": "Worksheet4",
+   "source_table_file": "Microsoft_Excel_Worksheet4.xlsx",
+   "source_row": 3,
+   "clauses": [
+    "在设定的首个有效内容预算内收到内容"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 25
+  },
+  {
+   "id": "STREAM-03",
+   "chapter": 1,
+   "current_criteria": "得到有效回答，无空流或仅心跳",
+   "original_text": "能得到有效回答，无空流或仅心跳的情况",
+   "source_section": "1.5 流式请求测试",
+   "source_table": "Worksheet4",
+   "source_table_file": "Microsoft_Excel_Worksheet4.xlsx",
+   "source_row": 4,
+   "clauses": [
+    "能得到有效回答，无空流或仅心跳的情况"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 25
+  },
+  {
+   "id": "STREAM-04",
+   "chapter": 1,
+   "current_criteria": "收到正常结束信号，并在总超时内完成",
+   "original_text": "收到正常结束信号，并在总超时预算内完成",
+   "source_section": "1.5 流式请求测试",
+   "source_table": "Worksheet4",
+   "source_table_file": "Microsoft_Excel_Worksheet4.xlsx",
+   "source_row": 5,
+   "clauses": [
+    "收到正常结束信号，并在总超时预算内完成"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "note": "以下 clause 内部仍含第二个可判定成分（原文用逗号连接），生成 assertions 时应再细分：「收到正常结束信号，并在总超时预算内完成」",
+   "embedded_assertion_clauses": [
+    "收到正常结束信号，并在总超时预算内完成"
+   ],
+   "docx_paragraph": 25
+  },
+  {
+   "id": "AUTH-05",
+   "chapter": 1,
+   "current_criteria": "在声明生效时间内被拒绝",
+   "original_text": "在供应商声明的撤销生效时间内被拒绝；记录实际生效时间",
+   "source_section": "1.6 鉴权测试",
+   "source_table": "Worksheet5",
+   "source_table_file": "Microsoft_Excel_Worksheet5.xlsx",
+   "source_row": 6,
+   "clauses": [
+    "在供应商声明的撤销生效时间内被拒绝",
+    "记录实际生效时间"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 30
+  },
+  {
+   "id": "AUTH-07",
+   "chapter": 1,
+   "current_criteria": "不得绕过鉴权",
+   "original_text": "不得绕过鉴权；如支持多种方式，应记录实际支持范围",
+   "source_section": "1.6 鉴权测试",
+   "source_table": "Worksheet5",
+   "source_table_file": "Microsoft_Excel_Worksheet5.xlsx",
+   "source_row": 8,
+   "clauses": [
+    "不得绕过鉴权",
+    "如支持多种方式，应记录实际支持范围"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "note": "以下 clause 内部仍含第二个可判定成分（原文用逗号连接），生成 assertions 时应再细分：「如支持多种方式，应记录实际支持范围」",
+   "embedded_assertion_clauses": [
+    "如支持多种方式，应记录实际支持范围"
+   ],
+   "docx_paragraph": 30
+  },
+  {
+   "id": "AUTH-08",
+   "chapter": 1,
+   "current_criteria": "明确拒绝，不自动转其他模型",
+   "original_text": "明确拒绝，不得自动转到其他模型",
+   "source_section": "1.6 鉴权测试",
+   "source_table": "Worksheet5",
+   "source_table_file": "Microsoft_Excel_Worksheet5.xlsx",
+   "source_row": 9,
+   "clauses": [
+    "明确拒绝，不得自动转到其他模型"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "note": "以下 clause 内部仍含第二个可判定成分（原文用逗号连接），生成 assertions 时应再细分：「明确拒绝，不得自动转到其他模型」",
+   "embedded_assertion_clauses": [
+    "明确拒绝，不得自动转到其他模型"
+   ],
+   "docx_paragraph": 30
+  },
+  {
+   "id": "AUTH-09",
+   "chapter": 1,
+   "current_criteria": "平台拒绝且不向上游发起调用",
+   "original_text": "平台拒绝请求，且不向上游发起调用",
+   "source_section": "1.6 鉴权测试",
+   "source_table": "Worksheet5",
+   "source_table_file": "Microsoft_Excel_Worksheet5.xlsx",
+   "source_row": 10,
+   "clauses": [
+    "平台拒绝请求，且不向上游发起调用"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "note": "以下 clause 内部仍含第二个可判定成分（原文用逗号连接），生成 assertions 时应再细分：「平台拒绝请求，且不向上游发起调用」",
+   "embedded_assertion_clauses": [
+    "平台拒绝请求，且不向上游发起调用"
+   ],
+   "docx_paragraph": 30
+  },
+  {
+   "id": "MODEL-01",
+   "chapter": 1,
+   "current_criteria": "所有模型均可用，单个成功不能代替其他",
+   "original_text": "所有拟上架模型均可用；某个模型成功不能代替其他模型验收",
+   "source_section": "1.7 模型 ID 与权限边界测试",
+   "source_table": "Worksheet6",
+   "source_table_file": "Microsoft_Excel_Worksheet6.xlsx",
+   "source_row": 2,
+   "clauses": [
+    "所有拟上架模型均可用",
+    "某个模型成功不能代替其他模型验收"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 35
+  },
+  {
+   "id": "MODEL-03",
+   "chapter": 1,
+   "current_criteria": "返回明确错误；支持别名需记录映射",
+   "original_text": "返回明确错误；如支持别名，需记录映射",
+   "source_section": "1.7 模型 ID 与权限边界测试",
+   "source_table": "Worksheet6",
+   "source_table_file": "Microsoft_Excel_Worksheet6.xlsx",
+   "source_row": 4,
+   "clauses": [
+    "返回明确错误",
+    "如支持别名，需记录映射"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 35
+  },
+  {
+   "id": "MODEL-04",
+   "chapter": 1,
+   "current_criteria": "映射正确，日志可关联目标渠道",
+   "original_text": "映射正确，日志能够关联目标渠道",
+   "source_section": "1.7 模型 ID 与权限边界测试",
+   "source_table": "Worksheet6",
+   "source_table_file": "Microsoft_Excel_Worksheet6.xlsx",
+   "source_row": 5,
+   "clauses": [
+    "映射正确，日志能够关联目标渠道"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 35
+  },
+  {
+   "id": "MODEL-05",
+   "chapter": 1,
+   "current_criteria": "平台拒绝，不绕过模型限制调用上游",
+   "original_text": "平台拒绝请求，不得绕过模型限制调用上游",
+   "source_section": "1.7 模型 ID 与权限边界测试",
+   "source_table": "Worksheet6",
+   "source_table_file": "Microsoft_Excel_Worksheet6.xlsx",
+   "source_row": 6,
+   "clauses": [
+    "平台拒绝请求，不得绕过模型限制调用上游"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "note": "以下 clause 内部仍含第二个可判定成分（原文用逗号连接），生成 assertions 时应再细分：「平台拒绝请求，不得绕过模型限制调用上游」",
+   "embedded_assertion_clauses": [
+    "平台拒绝请求，不得绕过模型限制调用上游"
+   ],
+   "docx_paragraph": 35
+  },
+  {
+   "id": "TIME-01",
+   "chapter": 1,
+   "current_criteria": "在连接超时预算内失败，错误可识别",
+   "original_text": "在连接超时预算内失败，给出可识别错误",
+   "source_section": "1.8 超时与失败返回测试",
+   "source_table": "Worksheet7",
+   "source_table_file": "Microsoft_Excel_Worksheet7.xlsx",
+   "source_row": 2,
+   "clauses": [
+    "在连接超时预算内失败，给出可识别错误"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 38
+  },
+  {
+   "id": "TIME-02",
+   "chapter": 1,
+   "current_criteria": "在首内容或总超时预算内结束",
+   "original_text": "在首个有效内容或总超时预算内结束，不得无限等待",
+   "source_section": "1.8 超时与失败返回测试",
+   "source_table": "Worksheet7",
+   "source_table_file": "Microsoft_Excel_Worksheet7.xlsx",
+   "source_row": 3,
+   "clauses": [
+    "在首个有效内容或总超时预算内结束，不得无限等待"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "note": "以下 clause 内部仍含第二个可判定成分（原文用逗号连接），生成 assertions 时应再细分：「在首个有效内容或总超时预算内结束，不得无限等待」",
+   "embedded_assertion_clauses": [
+    "在首个有效内容或总超时预算内结束，不得无限等待"
+   ],
+   "docx_paragraph": 38
+  },
+  {
+   "id": "TIME-03",
+   "chapter": 1,
+   "current_criteria": "心跳不能使请求无限存活",
+   "original_text": "心跳不能使请求无限存活；达到对应超时后结束",
+   "source_section": "1.8 超时与失败返回测试",
+   "source_table": "Worksheet7",
+   "source_table_file": "Microsoft_Excel_Worksheet7.xlsx",
+   "source_row": 4,
+   "clauses": [
+    "心跳不能使请求无限存活",
+    "达到对应超时后结束"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "docx_paragraph": 38
+  },
+  {
+   "id": "TIME-04",
+   "chapter": 1,
+   "current_criteria": "客户端及时退出，平台停止读取并记录取消",
+   "original_text": "客户端及时退出；平台停止继续读取或等待，并记录取消状态",
+   "source_section": "1.8 超时与失败返回测试",
+   "source_table": "Worksheet7",
+   "source_table_file": "Microsoft_Excel_Worksheet7.xlsx",
+   "source_row": 5,
+   "clauses": [
+    "客户端及时退出",
+    "平台停止继续读取或等待，并记录取消状态"
+   ],
+   "clause_split_rule": "分号+句号（严格按原文标点，未做二次切分）",
+   "note": "以下 clause 内部仍含第二个可判定成分（原文用逗号连接），生成 assertions 时应再细分：「平台停止继续读取或等待，并记录取消状态」",
+   "embedded_assertion_clauses": [
+    "平台停止继续读取或等待，并记录取消状态"
+   ],
+   "docx_paragraph": 38
+  }
+ ],
+ "consistent": [
+  "NET-01",
+  "REQ-03",
+  "STREAM-01",
+  "STREAM-05",
+  "AUTH-01",
+  "AUTH-02",
+  "AUTH-03",
+  "AUTH-04",
+  "AUTH-06",
+  "MODEL-02",
+  "MSG-01",
+  "MSG-02",
+  "MSG-03",
+  "MSG-04",
+  "MSG-05",
+  "MSG-06",
+  "MSG-07",
+  "MSG-08",
+  "CTX-01",
+  "CTX-02",
+  "CTX-03",
+  "CTX-04",
+  "CTX-05",
+  "PARAM-01",
+  "PARAM-02",
+  "PARAM-03",
+  "PARAM-04",
+  "PARAM-05",
+  "PARAM-06",
+  "PARAM-07",
+  "PARAM-08",
+  "TOOL-01",
+  "TOOL-02",
+  "TOOL-03",
+  "TOOL-04",
+  "TOOL-05",
+  "TOOL-06",
+  "TOOL-07",
+  "TOOL-08",
+  "MEDIA-01",
+  "MEDIA-02",
+  "MEDIA-03",
+  "MEDIA-04",
+  "MEDIA-05",
+  "MEDIA-06",
+  "MEDIA-07",
+  "STRUCT-01",
+  "STRUCT-02",
+  "STRUCT-03",
+  "THINK-01",
+  "THINK-02",
+  "THINK-03",
+  "THINK-04",
+  "SSE-01",
+  "SSE-02",
+  "SSE-03",
+  "SSE-04",
+  "SSE-05",
+  "SSE-06",
+  "SSE-07",
+  "ERR-01",
+  "ERR-02",
+  "ERR-03",
+  "ERR-04",
+  "ERR-05",
+  "ERR-06",
+  "CONV-01",
+  "CONV-02",
+  "CONV-03",
+  "CONV-04",
+  "CACHE-01",
+  "CACHE-02",
+  "CACHE-03",
+  "CACHE-04",
+  "CACHE-05",
+  "PREFIX-01",
+  "PREFIX-02",
+  "PREFIX-03",
+  "PREFIX-04",
+  "PREFIX-05",
+  "PREFIX-06",
+  "CTRL-01",
+  "CTRL-02",
+  "CTRL-03",
+  "CTRL-04",
+  "CTRL-05",
+  "CTRL-06",
+  "TTL-01",
+  "TTL-02",
+  "TTL-03",
+  "TTL-04",
+  "TTL-05",
+  "SCOPE-01",
+  "SCOPE-02",
+  "SCOPE-03",
+  "SCOPE-04",
+  "MODE-01",
+  "MODE-02",
+  "MODE-03",
+  "MODE-04",
+  "CONC-01",
+  "CONC-02",
+  "FAIL-01",
+  "FAIL-02",
+  "FAIL-03",
+  "BILL-01",
+  "BILL-02",
+  "BILL-03",
+  "BILL-04",
+  "BILL-05",
+  "BILL-06",
+  "ID-01",
+  "ID-02",
+  "ID-03",
+  "ID-04",
+  "ID-05",
+  "ID-06",
+  "ROUTE-01",
+  "ROUTE-02",
+  "ROUTE-03",
+  "ROUTE-04",
+  "ROUTE-05",
+  "CAP-01",
+  "CAP-02",
+  "CAP-03",
+  "CAP-04",
+  "CAP-05",
+  "CAP-06",
+  "CAP-07",
+  "LIMIT-01",
+  "LIMIT-02",
+  "LIMIT-03",
+  "LIMIT-04",
+  "LIMIT-05",
+  "LIMIT-06",
+  "COMP-01",
+  "COMP-02",
+  "COMP-03",
+  "COMP-04",
+  "CONS-01",
+  "CONS-02",
+  "CONS-03",
+  "CONS-04"
+ ],
+ "other_drift": {
+  "note": "任务只要求 criteria，但回读原文时另发现两类同类漂移，一并提供供迁移使用（若 B1 只回改 criteria，界面与报告显示的测试方法/场景仍是改写版）。",
+  "method": {
+   "inconsistent": 31,
+   "by_chapter": {
+    "1": 31,
+    "2": 0,
+    "3": 0,
+    "4": 0
+   },
+   "items": [
+    {
+     "id": "NET-01",
+     "chapter": 1,
+     "current_method": "从实际测试机解析供应商域名，记录解析结果",
+     "original_text": "从实际测试机解析供应商域名，记录解析结果；如失败，记录具体错误",
+     "source_section": "1.3 端点与网络连通性测试",
+     "source_table": "Worksheet2",
+     "source_row": 2,
+     "original_column": "测试方法",
+     "docx_paragraph": 16,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "NET-03",
+     "chapter": 1,
+     "current_method": "使用文档规定的完整路径发送最小有效请求",
+     "original_text": "使用供应商文档规定的完整路径发送最小有效请求",
+     "source_section": "1.3 端点与网络连通性测试",
+     "source_table": "Worksheet2",
+     "source_row": 4,
+     "original_column": "测试方法",
+     "docx_paragraph": 16,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "NET-04",
+     "chapter": 1,
+     "current_method": "首次请求不自动跟随重定向，检查 3xx 与目标地址",
+     "original_text": "首次请求不自动跟随重定向，检查是否返回 3xx 及目标地址",
+     "source_section": "1.3 端点与网络连通性测试",
+     "source_table": "Worksheet2",
+     "source_row": 5,
+     "original_column": "测试方法",
+     "docx_paragraph": 16,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "NET-05",
+     "chapter": 1,
+     "current_method": "从实际运行环境发起同类请求",
+     "original_text": "从 Fluxlane 实际运行环境发起同类请求",
+     "source_section": "1.3 端点与网络连通性测试",
+     "source_table": "Worksheet2",
+     "source_row": 6,
+     "original_column": "测试方法",
+     "docx_paragraph": 16,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "REQ-01",
+     "chapter": 1,
+     "current_method": "连续发送 3 次非流式请求，检查 HTTP 状态码及响应体",
+     "original_text": "检查 HTTP 状态码及响应体",
+     "source_section": "1.4 普通请求测试",
+     "source_table": "Worksheet3",
+     "source_row": 2,
+     "original_column": "检查内容",
+     "docx_paragraph": 20,
+     "repeat": 3,
+     "repeat_basis": "执行方法：每个拟上架模型，在上游直连及 Fluxlane 转发两条链路上，分别连续发送 3 次非流式请求。"
+    },
+    {
+     "id": "REQ-02",
+     "chapter": 1,
+     "current_method": "连续发送 3 次非流式请求，检查模型是否输出与提示词相符的内容",
+     "original_text": "检查模型是否输出与测试提示词相符的内容",
+     "source_section": "1.4 普通请求测试",
+     "source_table": "Worksheet3",
+     "source_row": 3,
+     "original_column": "检查内容",
+     "docx_paragraph": 20,
+     "repeat": 3,
+     "repeat_basis": "执行方法：每个拟上架模型，在上游直连及 Fluxlane 转发两条链路上，分别连续发送 3 次非流式请求。"
+    },
+    {
+     "id": "REQ-03",
+     "chapter": 1,
+     "current_method": "连续发送 3 次非流式请求，检查请求是否完整结束",
+     "original_text": "检查请求是否完整结束",
+     "source_section": "1.4 普通请求测试",
+     "source_table": "Worksheet3",
+     "source_row": 4,
+     "original_column": "检查内容",
+     "docx_paragraph": 20,
+     "repeat": 3,
+     "repeat_basis": "执行方法：每个拟上架模型，在上游直连及 Fluxlane 转发两条链路上，分别连续发送 3 次非流式请求。"
+    },
+    {
+     "id": "REQ-04",
+     "chapter": 1,
+     "current_method": "检查 Content-Type 与实际内容",
+     "original_text": "检查 Content-Type 及实际响应内容",
+     "source_section": "1.4 普通请求测试",
+     "source_table": "Worksheet3",
+     "source_row": 5,
+     "original_column": "检查内容",
+     "docx_paragraph": 20,
+     "repeat": 3,
+     "repeat_basis": "执行方法：每个拟上架模型，在上游直连及 Fluxlane 转发两条链路上，分别连续发送 3 次非流式请求。"
+    },
+    {
+     "id": "REQ-05",
+     "chapter": 1,
+     "current_method": "请求模型、配置映射与上游日志",
+     "original_text": "核对请求模型、配置映射及可获得的上游日志",
+     "source_section": "1.4 普通请求测试",
+     "source_table": "Worksheet3",
+     "source_row": 6,
+     "original_column": "检查内容",
+     "docx_paragraph": 20,
+     "repeat": 3,
+     "repeat_basis": "执行方法：每个拟上架模型，在上游直连及 Fluxlane 转发两条链路上，分别连续发送 3 次非流式请求。"
+    },
+    {
+     "id": "STREAM-01",
+     "chapter": 1,
+     "current_method": "开启流式参数，检查响应头与事件格式",
+     "original_text": "开启流式参数，检查响应头及事件格式",
+     "source_section": "1.5 流式请求测试",
+     "source_table": "Worksheet4",
+     "source_row": 2,
+     "original_column": "测试方法",
+     "docx_paragraph": 25,
+     "repeat": 3,
+     "repeat_basis": "执行方法：每个拟上架模型，在两条链路上分别连续发送 3 次流式请求。使用能逐块读取响应的客户端，避免客户端缓冲影响观察。"
+    },
+    {
+     "id": "STREAM-02",
+     "chapter": 1,
+     "current_method": "从请求发出计时，记录首个实际内容到达时间",
+     "original_text": "从请求发出开始计时，记录首个实际内容到达时间",
+     "source_section": "1.5 流式请求测试",
+     "source_table": "Worksheet4",
+     "source_row": 3,
+     "original_column": "测试方法",
+     "docx_paragraph": 25,
+     "repeat": 3,
+     "repeat_basis": "执行方法：每个拟上架模型，在两条链路上分别连续发送 3 次流式请求。使用能逐块读取响应的客户端，避免客户端缓冲影响观察。"
+    },
+    {
+     "id": "STREAM-04",
+     "chapter": 1,
+     "current_method": "检查协议结束事件/标记与连接收尾",
+     "original_text": "检查协议对应的结束事件或结束标记，以及连接收尾",
+     "source_section": "1.5 流式请求测试",
+     "source_table": "Worksheet4",
+     "source_row": 5,
+     "original_column": "测试方法",
+     "docx_paragraph": 25,
+     "repeat": 3,
+     "repeat_basis": "执行方法：每个拟上架模型，在两条链路上分别连续发送 3 次流式请求。使用能逐块读取响应的客户端，避免客户端缓冲影响观察。"
+    },
+    {
+     "id": "STREAM-05",
+     "chapter": 1,
+     "current_method": "流开始前后的错误能否被识别",
+     "original_text": "检查流开始前和流开始后的错误是否能被客户端识别",
+     "source_section": "1.5 流式请求测试",
+     "source_table": "Worksheet4",
+     "source_row": 6,
+     "original_column": "测试方法",
+     "docx_paragraph": 25,
+     "repeat": 3,
+     "repeat_basis": "执行方法：每个拟上架模型，在两条链路上分别连续发送 3 次流式请求。使用能逐块读取响应的客户端，避免客户端缓冲影响观察。"
+    },
+    {
+     "id": "AUTH-01",
+     "chapter": 1,
+     "current_method": "使用有效 Key 发送请求",
+     "original_text": "使用具有目标模型权限的有效 Key",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 2,
+     "original_column": "操作方法",
+     "docx_paragraph": 30,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3",
+     "variant_count": 2,
+     "variant_basis": "执行方法：使用同一份已验证成功的最小请求，仅修改鉴权信息。每种情况分别测试普通请求与流式请求，并覆盖供应商支持的各个拟开放协议。",
+     "variant_note": "p29 要求每种鉴权情况分别测普通请求与流式请求（覆盖各拟开放协议）；这是「变体维度」，不是重复次数，不要与 repeat 混为一谈"
+    },
+    {
+     "id": "AUTH-02",
+     "chapter": 1,
+     "current_method": "不携带任何鉴权头发送请求",
+     "original_text": "完全移除鉴权头",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 3,
+     "original_column": "操作方法",
+     "docx_paragraph": 30,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3",
+     "variant_count": 2,
+     "variant_basis": "执行方法：使用同一份已验证成功的最小请求，仅修改鉴权信息。每种情况分别测试普通请求与流式请求，并覆盖供应商支持的各个拟开放协议。",
+     "variant_note": "p29 要求每种鉴权情况分别测普通请求与流式请求（覆盖各拟开放协议）；这是「变体维度」，不是重复次数，不要与 repeat 混为一谈"
+    },
+    {
+     "id": "AUTH-03",
+     "chapter": 1,
+     "current_method": "鉴权头存在但值为空发送请求",
+     "original_text": "保留鉴权头但将密钥值清空",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 4,
+     "original_column": "操作方法",
+     "docx_paragraph": 30,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3",
+     "variant_count": 2,
+     "variant_basis": "执行方法：使用同一份已验证成功的最小请求，仅修改鉴权信息。每种情况分别测试普通请求与流式请求，并覆盖供应商支持的各个拟开放协议。",
+     "variant_note": "p29 要求每种鉴权情况分别测普通请求与流式请求（覆盖各拟开放协议）；这是「变体维度」，不是重复次数，不要与 repeat 混为一谈"
+    },
+    {
+     "id": "AUTH-04",
+     "chapter": 1,
+     "current_method": "格式合理但随机的错误 Key",
+     "original_text": "使用格式合理但随机生成的错误 Key",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 5,
+     "original_column": "操作方法",
+     "docx_paragraph": 30,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3",
+     "variant_count": 2,
+     "variant_basis": "执行方法：使用同一份已验证成功的最小请求，仅修改鉴权信息。每种情况分别测试普通请求与流式请求，并覆盖供应商支持的各个拟开放协议。",
+     "variant_note": "p29 要求每种鉴权情况分别测普通请求与流式请求（覆盖各拟开放协议）；这是「变体维度」，不是重复次数，不要与 repeat 混为一谈"
+    },
+    {
+     "id": "AUTH-05",
+     "chapter": 1,
+     "current_method": "成功后撤销专用 Key",
+     "original_text": "创建专用测试 Key，成功调用后撤销，再重新请求",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 6,
+     "original_column": "操作方法",
+     "docx_paragraph": 30,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3",
+     "variant_count": 2,
+     "variant_basis": "执行方法：使用同一份已验证成功的最小请求，仅修改鉴权信息。每种情况分别测试普通请求与流式请求，并覆盖供应商支持的各个拟开放协议。",
+     "variant_note": "p29 要求每种鉴权情况分别测普通请求与流式请求（覆盖各拟开放协议）；这是「变体维度」，不是重复次数，不要与 repeat 混为一谈"
+    },
+    {
+     "id": "AUTH-06",
+     "chapter": 1,
+     "current_method": "使用已过期 Key 请求",
+     "original_text": "如支持有效期，使用已过期测试 Key",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 7,
+     "original_column": "操作方法",
+     "docx_paragraph": 30,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3",
+     "variant_count": 2,
+     "variant_basis": "执行方法：使用同一份已验证成功的最小请求，仅修改鉴权信息。每种情况分别测试普通请求与流式请求，并覆盖供应商支持的各个拟开放协议。",
+     "variant_note": "p29 要求每种鉴权情况分别测普通请求与流式请求（覆盖各拟开放协议）；这是「变体维度」，不是重复次数，不要与 repeat 混为一谈"
+    },
+    {
+     "id": "AUTH-07",
+     "chapter": 1,
+     "current_method": "构造缺失前缀、错误头名称等请求",
+     "original_text": "按协议要求构造缺失前缀、错误头名称等请求",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 8,
+     "original_column": "操作方法",
+     "docx_paragraph": 30,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3",
+     "variant_count": 2,
+     "variant_basis": "执行方法：使用同一份已验证成功的最小请求，仅修改鉴权信息。每种情况分别测试普通请求与流式请求，并覆盖供应商支持的各个拟开放协议。",
+     "variant_note": "p29 要求每种鉴权情况分别测普通请求与流式请求（覆盖各拟开放协议）；这是「变体维度」，不是重复次数，不要与 repeat 混为一谈"
+    },
+    {
+     "id": "AUTH-08",
+     "chapter": 1,
+     "current_method": "使用无目标模型权限的 Key 请求该模型",
+     "original_text": "仅在支持模型级权限时执行",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 9,
+     "original_column": "操作方法",
+     "docx_paragraph": 30,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3",
+     "variant_count": 2,
+     "variant_basis": "执行方法：使用同一份已验证成功的最小请求，仅修改鉴权信息。每种情况分别测试普通请求与流式请求，并覆盖供应商支持的各个拟开放协议。",
+     "variant_note": "p29 要求每种鉴权情况分别测普通请求与流式请求（覆盖各拟开放协议）；这是「变体维度」，不是重复次数，不要与 repeat 混为一谈"
+    },
+    {
+     "id": "AUTH-09",
+     "chapter": 1,
+     "current_method": "在 Fluxlane 侧禁用平台 Key 后请求",
+     "original_text": "使用已禁用、撤销或过期的 Fluxlane 测试 Key 请求",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 10,
+     "original_column": "操作方法",
+     "docx_paragraph": 30,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3",
+     "variant_count": 2,
+     "variant_basis": "执行方法：使用同一份已验证成功的最小请求，仅修改鉴权信息。每种情况分别测试普通请求与流式请求，并覆盖供应商支持的各个拟开放协议。",
+     "variant_note": "p29 要求每种鉴权情况分别测普通请求与流式请求（覆盖各拟开放协议）；这是「变体维度」，不是重复次数，不要与 repeat 混为一谈"
+    },
+    {
+     "id": "MODEL-01",
+     "chapter": 1,
+     "current_method": "对清单中每个拟上架模型分别请求",
+     "original_text": "对清单中每个拟上架模型分别发起请求",
+     "source_section": "1.7 模型 ID 与权限边界测试",
+     "source_table": "Worksheet6",
+     "source_row": 2,
+     "original_column": "测试方法",
+     "docx_paragraph": 35,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "MODEL-02",
+     "chapter": 1,
+     "current_method": "请求明确不存在的模型 ID",
+     "original_text": "请求一个明确不存在的模型 ID",
+     "source_section": "1.7 模型 ID 与权限边界测试",
+     "source_table": "Worksheet6",
+     "source_row": 3,
+     "original_column": "测试方法",
+     "docx_paragraph": 35,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "MODEL-03",
+     "chapter": 1,
+     "current_method": "修改模型 ID 一个字符或使用未配置别名",
+     "original_text": "修改模型 ID 的一个字符，或使用未配置的别名",
+     "source_section": "1.7 模型 ID 与权限边界测试",
+     "source_table": "Worksheet6",
+     "source_row": 4,
+     "original_column": "测试方法",
+     "docx_paragraph": 35,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "MODEL-04",
+     "chapter": 1,
+     "current_method": "通过对外 ID 请求，核对实际渠道与上游 ID",
+     "original_text": "通过对外模型 ID 请求，核对实际选中的渠道及上游 ID",
+     "source_section": "1.7 模型 ID 与权限边界测试",
+     "source_table": "Worksheet6",
+     "source_row": 5,
+     "original_column": "测试方法",
+     "docx_paragraph": 35,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "MODEL-05",
+     "chapter": 1,
+     "current_method": "受限 Key 请求未授权模型",
+     "original_text": "使用受限的 Fluxlane 测试 Key 请求未授权模型",
+     "source_section": "1.7 模型 ID 与权限边界测试",
+     "source_table": "Worksheet6",
+     "source_row": 6,
+     "original_column": "测试方法",
+     "docx_paragraph": 35,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "TIME-01",
+     "chapter": 1,
+     "current_method": "隔离配置中使用不可达端点",
+     "original_text": "在隔离测试配置中使用不可达端点",
+     "source_section": "1.8 超时与失败返回测试",
+     "source_table": "Worksheet7",
+     "source_row": 2,
+     "original_column": "测试方法",
+     "docx_paragraph": 38,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "TIME-02",
+     "chapter": 1,
+     "current_method": "模拟端点接受连接但不返回内容",
+     "original_text": "使用可控模拟端点，接受连接但不返回内容",
+     "source_section": "1.8 超时与失败返回测试",
+     "source_table": "Worksheet7",
+     "source_row": 3,
+     "original_column": "测试方法",
+     "docx_paragraph": 38,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "TIME-03",
+     "chapter": 1,
+     "current_method": "模拟端点仅发送心跳或空事件",
+     "original_text": "使用可控模拟端点，仅发送心跳或空事件",
+     "source_section": "1.8 超时与失败返回测试",
+     "source_table": "Worksheet7",
+     "source_row": 4,
+     "original_column": "测试方法",
+     "docx_paragraph": 38,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    },
+    {
+     "id": "TIME-04",
+     "chapter": 1,
+     "current_method": "请求发出后主动取消",
+     "original_text": "请求发出后主动取消，检查客户端和平台日志",
+     "source_section": "1.8 超时与失败返回测试",
+     "source_table": "Worksheet7",
+     "source_row": 5,
+     "original_column": "测试方法",
+     "docx_paragraph": 38,
+     "repeat": 1,
+     "repeat_basis": null,
+     "repeat_note": "原文该小节未规定重复次数；不代表不可重复，只代表原文没给次数，不得凭空写 3"
+    }
+   ]
+  },
+  "method_column_warning": "第一章有三种表头：NET/STREAM/MODEL/TIME 为「测试方法」、REQ 为「检查内容」、AUTH 为「测试场景｜操作方法」。只按「测试方法」匹配会漏掉 REQ-01~05。",
+  "scenario_column_missing": {
+   "affected_items": 117,
+   "by_chapter": {
+    "1": 9,
+    "2": 48,
+    "3": 35,
+    "4": 25
+   },
+   "diagnosis": "不是逐项内容被改写，而是整列未建模：config 的 scenario 字段实际等于 name（都取自编号单元格的标题部分），原文若干表另有独立的「测试场景」列（如 CACHE-01 的「新前缀建立缓存」、AUTH-01 的「正常鉴权」、ID-01 的「对外 ID 与实际模型对应关系」），该列内容在所有情况下都未进入 config。",
+   "impact": "不影响 criteria 判定，但影响可读性：页面与报告展示的「场景」与原文该列不一致。若规格决定补该字段，本文件 items 已给出全部 117 项的原文原句，可直接填值。",
+   "recommendation": "建议作为独立字段 source_scenario 补入，与 scenario 并存；不要直接覆盖 scenario，因为历史批次与页面筛选可能依赖现有值。",
+   "items": [
+    {
+     "id": "AUTH-01",
+     "chapter": 1,
+     "current_scenario": "有效 Key",
+     "original_text": "正常鉴权",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "AUTH-02",
+     "chapter": 1,
+     "current_scenario": "缺少鉴权头",
+     "original_text": "不带鉴权信息",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "AUTH-03",
+     "chapter": 1,
+     "current_scenario": "空 Key",
+     "original_text": "鉴权值为空",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "AUTH-04",
+     "chapter": 1,
+     "current_scenario": "随机错误 Key",
+     "original_text": "无效密钥",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "AUTH-05",
+     "chapter": 1,
+     "current_scenario": "已撤销 Key",
+     "original_text": "验证撤销生效",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "AUTH-06",
+     "chapter": 1,
+     "current_scenario": "过期 Key",
+     "original_text": "验证过期生效",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "AUTH-07",
+     "chapter": 1,
+     "current_scenario": "错误鉴权格式",
+     "original_text": "使用错误的鉴权方式或格式",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 8,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "AUTH-08",
+     "chapter": 1,
+     "current_scenario": "无目标模型权限的 Key",
+     "original_text": "使用无目标模型权限的 Key",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 9,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "AUTH-09",
+     "chapter": 1,
+     "current_scenario": "已禁用的平台 Key",
+     "original_text": "验证平台鉴权",
+     "source_section": "1.6 鉴权测试",
+     "source_table": "Worksheet5",
+     "source_row": 10,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MSG-01",
+     "chapter": 2,
+     "current_scenario": "单轮文本",
+     "original_text": "基础消息传递",
+     "source_section": "2.3 基础消息与角色测试",
+     "source_table": "Worksheet10",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MSG-02",
+     "chapter": 2,
+     "current_scenario": "多轮对话",
+     "original_text": "历史消息保留",
+     "source_section": "2.3 基础消息与角色测试",
+     "source_table": "Worksheet10",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MSG-03",
+     "chapter": 2,
+     "current_scenario": "assistant 历史",
+     "original_text": "助手消息处理",
+     "source_section": "2.3 基础消息与角色测试",
+     "source_table": "Worksheet10",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MSG-04",
+     "chapter": 2,
+     "current_scenario": "system 指令",
+     "original_text": "系统消息传递",
+     "source_section": "2.3 基础消息与角色测试",
+     "source_table": "Worksheet10",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MSG-05",
+     "chapter": 2,
+     "current_scenario": "developer 角色",
+     "original_text": "适用协议的角色支持",
+     "source_section": "2.3 基础消息与角色测试",
+     "source_table": "Worksheet10",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MSG-06",
+     "chapter": 2,
+     "current_scenario": "多内容块",
+     "original_text": "内容块顺序与完整性",
+     "source_section": "2.3 基础消息与角色测试",
+     "source_table": "Worksheet10",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MSG-07",
+     "chapter": 2,
+     "current_scenario": "字符串与数组形式",
+     "original_text": "同一内容的不同合法表示",
+     "source_section": "2.3 基础消息与角色测试",
+     "source_table": "Worksheet10",
+     "source_row": 8,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MSG-08",
+     "chapter": 2,
+     "current_scenario": "字符与转义",
+     "original_text": "特殊文本保留",
+     "source_section": "2.3 基础消息与角色测试",
+     "source_table": "Worksheet10",
+     "source_row": 9,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTX-01",
+     "chapter": 2,
+     "current_scenario": "长 system",
+     "original_text": "检查 system 是否截断或丢弃",
+     "source_section": "2.4 长上下文与内容完整性测试",
+     "source_table": "Worksheet11",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTX-02",
+     "chapter": 2,
+     "current_scenario": "长用户消息",
+     "original_text": "检查正文完整性",
+     "source_section": "2.4 长上下文与内容完整性测试",
+     "source_table": "Worksheet11",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTX-03",
+     "chapter": 2,
+     "current_scenario": "多轮长历史",
+     "original_text": "检查历史保留",
+     "source_section": "2.4 长上下文与内容完整性测试",
+     "source_table": "Worksheet11",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTX-04",
+     "chapter": 2,
+     "current_scenario": "近上限请求",
+     "original_text": "检查承诺上下文范围",
+     "source_section": "2.4 长上下文与内容完整性测试",
+     "source_table": "Worksheet11",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTX-05",
+     "chapter": 2,
+     "current_scenario": "超上限请求",
+     "original_text": "检查越界行为",
+     "source_section": "2.4 长上下文与内容完整性测试",
+     "source_table": "Worksheet11",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TOOL-01",
+     "chapter": 2,
+     "current_scenario": "工具定义",
+     "original_text": "工具名称、描述及参数结构",
+     "source_section": "2.6 工具调用兼容性测试",
+     "source_table": "Worksheet13",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TOOL-02",
+     "chapter": 2,
+     "current_scenario": "自动选择",
+     "original_text": "自动决定是否调用工具",
+     "source_section": "2.6 工具调用兼容性测试",
+     "source_table": "Worksheet13",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TOOL-03",
+     "chapter": 2,
+     "current_scenario": "强制调用",
+     "original_text": "指定工具或要求必须调用",
+     "source_section": "2.6 工具调用兼容性测试",
+     "source_table": "Worksheet13",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TOOL-04",
+     "chapter": 2,
+     "current_scenario": "禁止调用",
+     "original_text": "禁用工具调用",
+     "source_section": "2.6 工具调用兼容性测试",
+     "source_table": "Worksheet13",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TOOL-05",
+     "chapter": 2,
+     "current_scenario": "结果回传",
+     "original_text": "完成工具调用闭环",
+     "source_section": "2.6 工具调用兼容性测试",
+     "source_table": "Worksheet13",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TOOL-06",
+     "chapter": 2,
+     "current_scenario": "多工具调用",
+     "original_text": "同轮调用多个工具",
+     "source_section": "2.6 工具调用兼容性测试",
+     "source_table": "Worksheet13",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TOOL-07",
+     "chapter": 2,
+     "current_scenario": "流式参数",
+     "original_text": "工具参数分片返回",
+     "source_section": "2.6 工具调用兼容性测试",
+     "source_table": "Worksheet13",
+     "source_row": 8,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TOOL-08",
+     "chapter": 2,
+     "current_scenario": "非法工具结果",
+     "original_text": "错误或缺失调用 ID",
+     "source_section": "2.6 工具调用兼容性测试",
+     "source_table": "Worksheet13",
+     "source_row": 9,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MEDIA-01",
+     "chapter": 2,
+     "current_scenario": "图片 URL",
+     "original_text": "URL 图片输入",
+     "source_section": "2.7 图片及其他内容类型测试",
+     "source_table": "Worksheet14",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MEDIA-02",
+     "chapter": 2,
+     "current_scenario": "内嵌图片",
+     "original_text": "Base64／data URL 等合法形式",
+     "source_section": "2.7 图片及其他内容类型测试",
+     "source_table": "Worksheet14",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MEDIA-03",
+     "chapter": 2,
+     "current_scenario": "多图片",
+     "original_text": "多图输入与顺序",
+     "source_section": "2.7 图片及其他内容类型测试",
+     "source_table": "Worksheet14",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MEDIA-04",
+     "chapter": 2,
+     "current_scenario": "图文混合",
+     "original_text": "图片与文本块共同输入",
+     "source_section": "2.7 图片及其他内容类型测试",
+     "source_table": "Worksheet14",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MEDIA-05",
+     "chapter": 2,
+     "current_scenario": "无效图片",
+     "original_text": "不可访问 URL、损坏数据或错误 MIME 类型",
+     "source_section": "2.7 图片及其他内容类型测试",
+     "source_table": "Worksheet14",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MEDIA-06",
+     "chapter": 2,
+     "current_scenario": "不支持视觉的模型",
+     "original_text": "能力限制",
+     "source_section": "2.7 图片及其他内容类型测试",
+     "source_table": "Worksheet14",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MEDIA-07",
+     "chapter": 2,
+     "current_scenario": "其他模态",
+     "original_text": "音频、视频、文件等",
+     "source_section": "2.7 图片及其他内容类型测试",
+     "source_table": "Worksheet14",
+     "source_row": 8,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "STRUCT-01",
+     "chapter": 2,
+     "current_scenario": "JSON 输出",
+     "original_text": "JSON 模式",
+     "source_section": "2.8 结构化输出与思考参数测试",
+     "source_table": "Worksheet15",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "STRUCT-02",
+     "chapter": 2,
+     "current_scenario": "Schema 约束",
+     "original_text": "JSON Schema／严格输出",
+     "source_section": "2.8 结构化输出与思考参数测试",
+     "source_table": "Worksheet15",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "STRUCT-03",
+     "chapter": 2,
+     "current_scenario": "非法 Schema",
+     "original_text": "错误结构或不支持的 Schema 特性",
+     "source_section": "2.8 结构化输出与思考参数测试",
+     "source_table": "Worksheet15",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "THINK-01",
+     "chapter": 2,
+     "current_scenario": "思考开关",
+     "original_text": "模型支持的思考设置",
+     "source_section": "2.8 结构化输出与思考参数测试",
+     "source_table": "Worksheet15",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "THINK-02",
+     "chapter": 2,
+     "current_scenario": "思考预算",
+     "original_text": "合法预算与非法组合",
+     "source_section": "2.8 结构化输出与思考参数测试",
+     "source_table": "Worksheet15",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "THINK-03",
+     "chapter": 2,
+     "current_scenario": "内容块处理",
+     "original_text": "思考与正文的返回结构",
+     "source_section": "2.8 结构化输出与思考参数测试",
+     "source_table": "Worksheet15",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "THINK-04",
+     "chapter": 2,
+     "current_scenario": "多轮回传",
+     "original_text": "需保留的思考块或签名字段",
+     "source_section": "2.8 结构化输出与思考参数测试",
+     "source_table": "Worksheet15",
+     "source_row": 8,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SSE-01",
+     "chapter": 2,
+     "current_scenario": "事件解析",
+     "original_text": "按协议解析事件流",
+     "source_section": "2.9 流式协议完整性测试",
+     "source_table": "Worksheet16",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SSE-02",
+     "chapter": 2,
+     "current_scenario": "文本拼接",
+     "original_text": "拼接所有正文增量",
+     "source_section": "2.9 流式协议完整性测试",
+     "source_table": "Worksheet16",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SSE-03",
+     "chapter": 2,
+     "current_scenario": "多内容块",
+     "original_text": "文本、工具等内容块交替",
+     "source_section": "2.9 流式协议完整性测试",
+     "source_table": "Worksheet16",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SSE-04",
+     "chapter": 2,
+     "current_scenario": "结束原因",
+     "original_text": "正常完成、输出上限、工具调用",
+     "source_section": "2.9 流式协议完整性测试",
+     "source_table": "Worksheet16",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SSE-05",
+     "chapter": 2,
+     "current_scenario": "用量事件",
+     "original_text": "最终 token 统计",
+     "source_section": "2.9 流式协议完整性测试",
+     "source_table": "Worksheet16",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SSE-06",
+     "chapter": 2,
+     "current_scenario": "流中错误",
+     "original_text": "模拟或复现输出后的错误",
+     "source_section": "2.9 流式协议完整性测试",
+     "source_table": "Worksheet16",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SSE-07",
+     "chapter": 2,
+     "current_scenario": "未知事件",
+     "original_text": "协议允许的扩展事件",
+     "source_section": "2.9 流式协议完整性测试",
+     "source_table": "Worksheet16",
+     "source_row": 8,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ERR-01",
+     "chapter": 2,
+     "current_scenario": "非法 JSON",
+     "original_text": "请求体不完整或语法错误",
+     "source_section": "2.10 非法请求与错误响应测试",
+     "source_table": "Worksheet17",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ERR-02",
+     "chapter": 2,
+     "current_scenario": "缺少必填字段",
+     "original_text": "删除 model、messages 等必填项",
+     "source_section": "2.10 非法请求与错误响应测试",
+     "source_table": "Worksheet17",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ERR-03",
+     "chapter": 2,
+     "current_scenario": "字段类型错误",
+     "original_text": "数值字段传对象、消息字段传错误类型等",
+     "source_section": "2.10 非法请求与错误响应测试",
+     "source_table": "Worksheet17",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ERR-04",
+     "chapter": 2,
+     "current_scenario": "非法消息结构",
+     "original_text": "不允许的角色、错误内容块或工具消息顺序",
+     "source_section": "2.10 非法请求与错误响应测试",
+     "source_table": "Worksheet17",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ERR-05",
+     "chapter": 2,
+     "current_scenario": "不支持的能力",
+     "original_text": "向不支持的模型发送工具、图片或结构化请求",
+     "source_section": "2.10 非法请求与错误响应测试",
+     "source_table": "Worksheet17",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ERR-06",
+     "chapter": 2,
+     "current_scenario": "错误格式转换",
+     "original_text": "上游返回错误，Fluxlane 转换后对外返回",
+     "source_section": "2.10 非法请求与错误响应测试",
+     "source_table": "Worksheet17",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CACHE-01",
+     "chapter": 3,
+     "current_scenario": "首次写入",
+     "original_text": "新前缀建立缓存",
+     "source_section": "3.4 基础写入与读取测试",
+     "source_table": "Worksheet23",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CACHE-02",
+     "chapter": 3,
+     "current_scenario": "相同请求读取",
+     "original_text": "完全相同内容复用",
+     "source_section": "3.4 基础写入与读取测试",
+     "source_table": "Worksheet23",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CACHE-03",
+     "chapter": 3,
+     "current_scenario": "连续读取",
+     "original_text": "命中可重复",
+     "source_section": "3.4 基础写入与读取测试",
+     "source_table": "Worksheet23",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CACHE-04",
+     "chapter": 3,
+     "current_scenario": "回答正确性",
+     "original_text": "命中不影响上下文",
+     "source_section": "3.4 基础写入与读取测试",
+     "source_table": "Worksheet23",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CACHE-05",
+     "chapter": 3,
+     "current_scenario": "低于门槛",
+     "original_text": "短内容不触发缓存",
+     "source_section": "3.4 基础写入与读取测试",
+     "source_table": "Worksheet23",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "PREFIX-01",
+     "chapter": 3,
+     "current_scenario": "后缀变化",
+     "original_text": "相同前缀、不同问题",
+     "source_section": "3.5 前缀复用与变更测试",
+     "source_table": "Worksheet24",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "PREFIX-02",
+     "chapter": 3,
+     "current_scenario": "前缀开头变化",
+     "original_text": "破坏已有匹配",
+     "source_section": "3.5 前缀复用与变更测试",
+     "source_table": "Worksheet24",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "PREFIX-03",
+     "chapter": 3,
+     "current_scenario": "前缀中段变化",
+     "original_text": "验证部分匹配",
+     "source_section": "3.5 前缀复用与变更测试",
+     "source_table": "Worksheet24",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "PREFIX-04",
+     "chapter": 3,
+     "current_scenario": "追加历史",
+     "original_text": "对话增长",
+     "source_section": "3.5 前缀复用与变更测试",
+     "source_table": "Worksheet24",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "PREFIX-05",
+     "chapter": 3,
+     "current_scenario": "工具定义变化",
+     "original_text": "工具参与缓存键",
+     "source_section": "3.5 前缀复用与变更测试",
+     "source_table": "Worksheet24",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "PREFIX-06",
+     "chapter": 3,
+     "current_scenario": "内容更新生效",
+     "original_text": "排查旧缓存污染",
+     "source_section": "3.5 前缀复用与变更测试",
+     "source_table": "Worksheet24",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTRL-01",
+     "chapter": 3,
+     "current_scenario": "缓存断点",
+     "original_text": "指定缓存边界",
+     "source_section": "3.6 显式缓存参数测试",
+     "source_table": "Worksheet25",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTRL-02",
+     "chapter": 3,
+     "current_scenario": "字符串与内容块",
+     "original_text": "检查格式转换",
+     "source_section": "3.6 显式缓存参数测试",
+     "source_table": "Worksheet25",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTRL-03",
+     "chapter": 3,
+     "current_scenario": "多断点",
+     "original_text": "多个缓存边界",
+     "source_section": "3.6 显式缓存参数测试",
+     "source_table": "Worksheet25",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTRL-04",
+     "chapter": 3,
+     "current_scenario": "非法配置",
+     "original_text": "不合法断点或数量",
+     "source_section": "3.6 显式缓存参数测试",
+     "source_table": "Worksheet25",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTRL-05",
+     "chapter": 3,
+     "current_scenario": "移除缓存参数",
+     "original_text": "验证无显式控制时的行为",
+     "source_section": "3.6 显式缓存参数测试",
+     "source_table": "Worksheet25",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CTRL-06",
+     "chapter": 3,
+     "current_scenario": "参数透传",
+     "original_text": "Fluxlane 保留控制字段",
+     "source_section": "3.6 显式缓存参数测试",
+     "source_table": "Worksheet25",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TTL-01",
+     "chapter": 3,
+     "current_scenario": "有效期内读取",
+     "original_text": "TTL 内复用",
+     "source_section": "3.7 缓存有效期测试",
+     "source_table": "Worksheet26",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TTL-02",
+     "chapter": 3,
+     "current_scenario": "到期后访问",
+     "original_text": "缓存过期",
+     "source_section": "3.7 缓存有效期测试",
+     "source_table": "Worksheet26",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TTL-03",
+     "chapter": 3,
+     "current_scenario": "命中续期",
+     "original_text": "滑动有效期",
+     "source_section": "3.7 缓存有效期测试",
+     "source_table": "Worksheet26",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TTL-04",
+     "chapter": 3,
+     "current_scenario": "多种 TTL",
+     "original_text": "不同有效期",
+     "source_section": "3.7 缓存有效期测试",
+     "source_table": "Worksheet26",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "TTL-05",
+     "chapter": 3,
+     "current_scenario": "非法 TTL",
+     "original_text": "不支持的有效期",
+     "source_section": "3.7 缓存有效期测试",
+     "source_table": "Worksheet26",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SCOPE-01",
+     "chapter": 3,
+     "current_scenario": "切换模型",
+     "original_text": "不同模型缓存范围",
+     "source_section": "3.8 模型、Key 与路由变化测试",
+     "source_table": "Worksheet27",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SCOPE-02",
+     "chapter": 3,
+     "current_scenario": "切换 Key",
+     "original_text": "同账号不同 Key",
+     "source_section": "3.8 模型、Key 与路由变化测试",
+     "source_table": "Worksheet27",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SCOPE-03",
+     "chapter": 3,
+     "current_scenario": "切换渠道",
+     "original_text": "Fluxlane 路由影响",
+     "source_section": "3.8 模型、Key 与路由变化测试",
+     "source_table": "Worksheet27",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "SCOPE-04",
+     "chapter": 3,
+     "current_scenario": "重复命中波动",
+     "original_text": "排查节点不一致",
+     "source_section": "3.8 模型、Key 与路由变化测试",
+     "source_table": "Worksheet27",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MODE-01",
+     "chapter": 3,
+     "current_scenario": "非流式写入与读取",
+     "original_text": "普通响应缓存",
+     "source_section": "3.9 流式与非流式缓存测试",
+     "source_table": "Worksheet28",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MODE-02",
+     "chapter": 3,
+     "current_scenario": "流式写入与读取",
+     "original_text": "流式响应缓存",
+     "source_section": "3.9 流式与非流式缓存测试",
+     "source_table": "Worksheet28",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MODE-03",
+     "chapter": 3,
+     "current_scenario": "跨模式复用",
+     "original_text": "流式开关变化",
+     "source_section": "3.9 流式与非流式缓存测试",
+     "source_table": "Worksheet28",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "MODE-04",
+     "chapter": 3,
+     "current_scenario": "流式用量汇总",
+     "original_text": "多事件 usage 合并",
+     "source_section": "3.9 流式与非流式缓存测试",
+     "source_table": "Worksheet28",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CONC-01",
+     "chapter": 3,
+     "current_scenario": "热缓存并发",
+     "original_text": "已建立缓存同时读取",
+     "source_section": "3.10 并发缓存与异常请求测试",
+     "source_table": "Worksheet29",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CONC-02",
+     "chapter": 3,
+     "current_scenario": "冷缓存并发",
+     "original_text": "首次请求竞争",
+     "source_section": "3.10 并发缓存与异常请求测试",
+     "source_table": "Worksheet29",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "FAIL-01",
+     "chapter": 3,
+     "current_scenario": "请求被拒绝",
+     "original_text": "无效请求是否计缓存费",
+     "source_section": "3.10 并发缓存与异常请求测试",
+     "source_table": "Worksheet29",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "FAIL-02",
+     "chapter": 3,
+     "current_scenario": "输出中断",
+     "original_text": "已开始处理后取消",
+     "source_section": "3.10 并发缓存与异常请求测试",
+     "source_table": "Worksheet29",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "FAIL-03",
+     "chapter": 3,
+     "current_scenario": "重试影响",
+     "original_text": "重试是否重复收费",
+     "source_section": "3.10 并发缓存与异常请求测试",
+     "source_table": "Worksheet29",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ID-01",
+     "chapter": 4,
+     "current_scenario": "模型映射",
+     "original_text": "对外 ID 与实际模型对应关系",
+     "source_section": "4.3 模型身份与版本核查",
+     "source_table": "Worksheet34",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ID-02",
+     "chapter": 4,
+     "current_scenario": "固定版本",
+     "original_text": "带版本号的模型是否固定",
+     "source_section": "4.3 模型身份与版本核查",
+     "source_table": "Worksheet34",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ID-03",
+     "chapter": 4,
+     "current_scenario": "滚动别名",
+     "original_text": "别名可能更新",
+     "source_section": "4.3 模型身份与版本核查",
+     "source_table": "Worksheet34",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ID-04",
+     "chapter": 4,
+     "current_scenario": "响应模型字段",
+     "original_text": "返回标识是否一致",
+     "source_section": "4.3 模型身份与版本核查",
+     "source_table": "Worksheet34",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ID-05",
+     "chapter": 4,
+     "current_scenario": "请求关联",
+     "original_text": "追踪实际处理路径",
+     "source_section": "4.3 模型身份与版本核查",
+     "source_table": "Worksheet34",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ID-06",
+     "chapter": 4,
+     "current_scenario": "多 ID 映射",
+     "original_text": "不同商品是否实际同源",
+     "source_section": "4.3 模型身份与版本核查",
+     "source_table": "Worksheet34",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ROUTE-01",
+     "chapter": 4,
+     "current_scenario": "正常路由",
+     "original_text": "常态请求使用目标模型",
+     "source_section": "4.4 模型切换与降级测试",
+     "source_table": "Worksheet35",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ROUTE-02",
+     "chapter": 4,
+     "current_scenario": "限流后处理",
+     "original_text": "目标模型达到限额",
+     "source_section": "4.4 模型切换与降级测试",
+     "source_table": "Worksheet35",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ROUTE-03",
+     "chapter": 4,
+     "current_scenario": "故障后处理",
+     "original_text": "目标模型不可用",
+     "source_section": "4.4 模型切换与降级测试",
+     "source_table": "Worksheet35",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ROUTE-04",
+     "chapter": 4,
+     "current_scenario": "多次重试",
+     "original_text": "重试可能更换处理路径",
+     "source_section": "4.4 模型切换与降级测试",
+     "source_table": "Worksheet35",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "ROUTE-05",
+     "chapter": 4,
+     "current_scenario": "变更通知",
+     "original_text": "版本或模型调整",
+     "source_section": "4.4 模型切换与降级测试",
+     "source_table": "Worksheet35",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "LIMIT-01",
+     "chapter": 4,
+     "current_scenario": "上下文定义",
+     "original_text": "确认长度口径",
+     "source_section": "4.6 上下文长度与最大输出核验",
+     "source_table": "Worksheet37",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "LIMIT-02",
+     "chapter": 4,
+     "current_scenario": "分档输入",
+     "original_text": "逐步增加输入",
+     "source_section": "4.6 上下文长度与最大输出核验",
+     "source_table": "Worksheet37",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "LIMIT-03",
+     "chapter": 4,
+     "current_scenario": "长内容可用性",
+     "original_text": "不只是接受请求",
+     "source_section": "4.6 上下文长度与最大输出核验",
+     "source_table": "Worksheet37",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "LIMIT-04",
+     "chapter": 4,
+     "current_scenario": "最大输出参数",
+     "original_text": "高输出上限是否可设置",
+     "source_section": "4.6 上下文长度与最大输出核验",
+     "source_table": "Worksheet37",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "LIMIT-05",
+     "chapter": 4,
+     "current_scenario": "长输出生成",
+     "original_text": "实际输出是否受更低限制",
+     "source_section": "4.6 上下文长度与最大输出核验",
+     "source_table": "Worksheet37",
+     "source_row": 6,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "LIMIT-06",
+     "chapter": 4,
+     "current_scenario": "超限行为",
+     "original_text": "超过声明范围",
+     "source_section": "4.6 上下文长度与最大输出核验",
+     "source_table": "Worksheet37",
+     "source_row": 7,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "COMP-01",
+     "chapter": 4,
+     "current_scenario": "条件对齐",
+     "original_text": "减少非模型因素",
+     "source_section": "4.7 可信端点对照测试",
+     "source_table": "Worksheet38",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "COMP-02",
+     "chapter": 4,
+     "current_scenario": "固定任务集",
+     "original_text": "比较任务表现",
+     "source_section": "4.7 可信端点对照测试",
+     "source_table": "Worksheet38",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "COMP-03",
+     "chapter": 4,
+     "current_scenario": "协议特征",
+     "original_text": "比较能力边界",
+     "source_section": "4.7 可信端点对照测试",
+     "source_table": "Worksheet38",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "COMP-04",
+     "chapter": 4,
+     "current_scenario": "异常复核",
+     "original_text": "排查明显差异",
+     "source_section": "4.7 可信端点对照测试",
+     "source_table": "Worksheet38",
+     "source_row": 5,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CONS-01",
+     "chapter": 4,
+     "current_scenario": "不同时段",
+     "original_text": "检查路由或能力变化",
+     "source_section": "4.8 跨时间一致性测试",
+     "source_table": "Worksheet39",
+     "source_row": 2,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CONS-02",
+     "chapter": 4,
+     "current_scenario": "多次新会话",
+     "original_text": "排除会话状态影响",
+     "source_section": "4.8 跨时间一致性测试",
+     "source_table": "Worksheet39",
+     "source_row": 3,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CONS-03",
+     "chapter": 4,
+     "current_scenario": "性能突变关联",
+     "original_text": "延迟或吞吐突变是否伴随切换",
+     "source_section": "4.8 跨时间一致性测试",
+     "source_table": "Worksheet39",
+     "source_row": 4,
+     "original_column": "测试场景"
+    },
+    {
+     "id": "CONS-04",
+     "chapter": 4,
+     "current_scenario": "变更后复验",
+     "original_text": "配置或供货变化",
+     "source_section": "4.8 跨时间一致性测试",
+     "source_table": "Worksheet39",
+     "source_row": 5,
+     "original_column": "测试场景"
+    }
+   ]
+  }
+ },
+ "repeat_policy": {
+  "global_rule": "第二章及以后（含复用第二章判定口径的第四章项）适用 2.2 表「执行次数」行的原句，故默认 repeat=3；异常参数用例 repeat=1",
+  "global_basis": "每个适用正向用例至少运行 3 次；异常参数用例至少运行 1 次；发现不一致后追加复测",
+  "default_repeat": 3,
+  "exception_repeat": 1,
+  "exception_scope": "异常参数/非法请求类：PARAM-02（越界部分）、PARAM-08、ERR-01~06、STRUCT-03、CTRL-04、TTL-05、MEDIA-05、TOOL-08、MODEL-02、MODEL-03、AUTH-02~08",
+  "first_chapter_rule": "第一章次数由各小节导语单独给出：REQ-01~05 见 p19（3 次）、STREAM-01~05 见 p24（3 次）；其余项原文未给次数，repeat 落 1 且 repeat_basis 为 null——不得因为「第二章是 3 次」就套到第一章",
+  "must_not_collapse_to_single_run": [
+   {
+    "id": "TOOL-02",
+    "repeat": 3,
+    "judge": "3 次中 ≥2 次符合即判该侧通过",
+    "why": "工具选择属模型行为，有波动；单次定生死会把噪声判成结论"
+   },
+   {
+    "id": "LIMIT-03",
+    "repeat": 3,
+    "judge": "3 次标记均齐全才判通过",
+    "why": "「无可复现的静默截断」本身要求可复现，单次缺失不能定罪"
+   },
+   {
+    "id": "LIMIT-05",
+    "repeat": 3,
+    "judge": "3 次一致才判提前截断",
+    "why": "原文 p246「模型主动提前结束，不等于存在更低输出上限」"
+   },
+   {
+    "id": "CTX-02",
+    "repeat": 3,
+    "judge": "3 次结果稳定",
+    "why": "内容截断需可复现"
+   },
+   {
+    "id": "CACHE-04",
+    "repeat": 3,
+    "judge": "冷/命中两态各取校验串，重复验证稳定",
+    "why": "命中不能引入旧值混用"
+   },
+   {
+    "id": "PARAM-03",
+    "repeat": 3,
+    "judge": "3 次一致",
+    "why": "停止序列行为需稳定"
+   },
+   {
+    "id": "MSG-01",
+    "repeat": 3,
+    "judge": "3 次全部命中标记",
+    "why": "标记回传不能靠运气"
+   },
+   {
+    "id": "CAP-01",
+    "repeat": 3,
+    "judge": "三类任务全通过",
+    "why": "能力抽查不接受单次偶然"
+   },
+   {
+    "id": "SCOPE-04",
+    "repeat": 10,
+    "judge": "离散度 (max−min)/mean",
+    "why": "波动判定本身需要样本量"
+   },
+   {
+    "id": "MODEL-01",
+    "repeat": 3,
+    "judge": "N 模型 × 2 链路 × 3 次",
+    "why": "逐模型逐链路，任一失败即整体失败"
+   }
+  ],
+  "why_matters": "这 10 项若 repeat 落 1，实现方会按单次执行写检查器，判定式里「N 次中 ≥M 次」「3 次一致」的前提就不成立——那 10 项会静默退化成「单次定生死」。repeat 必须与断言一起入库，不能只写在文档里。"
+ },
+ "checksum_algo": "sha256(json.dumps(内容, ensure_ascii=False, sort_keys=True)) 取前 16 位十六进制；内容 = 本文件去掉 checksum 字段后的整体。与 backend/standards.py 的 _checksum() 同族（同为 sha256+前16位+sorted keys），但覆盖范围不同：那边只覆盖 items 的 as_payload()，这边覆盖整文件。**两者不可互换比较**，只能各自与自己比。",
+ "revision_is_label_not_authority": "`revision` / `revision_note` 是**人类可读的变更标签，不是机器权威**——代码里没有任何地方读它（已 grep 确认）。判断「这份数据是不是我以为的那份」只能看 checksum。这与 standards_*.json 里 `version` 成为装饰字段是同一类问题，此处明示以免重复踩。",
+ "checksum": "d112be7dce7b2c40"
+}

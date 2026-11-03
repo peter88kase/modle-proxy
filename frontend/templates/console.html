@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+{% block title %}接口测试 · 接入测试平台{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>接口测试</h1>
+    <p class="sub">服务端代理发起真实请求，覆盖普通请求、流式请求与第一章验收用例。</p>
+  </div>
+  <div class="actions">
+    <span class="badge neutral" id="env-badge">加载中</span>
+    <a class="btn btn-sm" href="/manual">用例说明</a>
+  </div>
+</div>
+
+<div class="grid-console" data-testid="t-console-root">
+  <!-- ---------------- form ---------------- -->
+  <section class="panel">
+    <div class="tabs" role="tablist" aria-label="测试模式">
+      <button type="button" role="tab" data-tab="single" aria-selected="true" id="tab-single" data-testid="t-console-btn-tab-single">单次测试</button>
+      <button type="button" role="tab" data-tab="suite" aria-selected="false" id="tab-suite" data-testid="t-console-btn-tab-suite">验收套件</button>
+    </div>
+    <div class="panel-body">
+      <form id="test-form" autocomplete="off" novalidate data-testid="t-console-form">
+        <div class="field">
+          <label class="label" for="provider">供应商 / 渠道 <span class="note">providers</span></label>
+          <div class="inline">
+            <select id="provider" data-testid="t-console-select-provider"></select>
+            <button type="button" class="btn btn-sm" id="reload-providers" title="重新读取供应商配置" data-testid="t-console-btn-reload-providers">刷新</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="adapter">适配器 <span class="note" id="adapter-note"></span></label>
+          <select id="adapter" data-testid="t-console-select-adapter"></select>
+        </div>
+
+        <div class="field">
+          <label class="label" for="base-url">Endpoint <span class="req">*</span></label>
+          <input type="text" id="base-url" class="mono" spellcheck="false" data-testid="t-console-input-base-url"
+                 placeholder="https://api.openai.com/v1">
+          <p class="hint">填写到版本前缀即可（如 <code>/v1</code>），平台按适配器拼接具体路径。</p>
+        </div>
+
+        <div class="single-only">
+          <div class="field">
+            <label class="label" for="link">测试链路</label>
+            <select id="link" data-testid="t-console-select-link">
+              <option value="direct">上游直连</option>
+              <option value="forward">转发链路（Fluxlane）</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="suite-only hidden">
+          <fieldset>
+            <legend>测试链路</legend>
+            <label class="check"><input type="checkbox" id="link-direct" checked data-testid="t-console-check-link-direct"> 上游直连</label>
+            <label class="check"><input type="checkbox" id="link-forward" data-testid="t-console-check-link-forward"> 转发链路（Fluxlane）</label>
+            <div id="forward-fields" class="hidden">
+              <div class="field mt-8">
+                <label class="label" for="forward-base">转发地址</label>
+                <input type="text" id="forward-base" class="mono" spellcheck="false" data-testid="t-console-input-forward-base">
+              </div>
+              <div class="field">
+                <label class="label" for="forward-model">对外模型 ID</label>
+                <input type="text" id="forward-model" class="mono" spellcheck="false" placeholder="留空则与上游一致" data-testid="t-console-input-forward-model">
+              </div>
+              <div class="field">
+                <label class="label" for="forward-key">转发 Key</label>
+                <input type="password" id="forward-key" autocomplete="new-password" placeholder="留空则复用上方 Key" data-testid="t-console-input-forward-key">
+              </div>
+            </div>
+            <div class="row mt-8">
+              <div class="field">
+                <label class="label" for="repeat">重复次数</label>
+                <input type="number" id="repeat" class="mono" value="3" min="1" max="5" data-testid="t-console-input-repeat">
+              </div>
+              <div class="field">
+                <label class="label" for="suite-links-hint">用例范围</label>
+                <input type="text" id="suite-links-hint" value="NET / REQ / STREAM / AUTH / MODEL / TIME" disabled>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="suite-interval">请求间隔(s) <span class="note">相邻两次上游请求</span></label>
+              <input type="number" id="suite-interval" class="mono" value="2" min="0" max="30" step="0.5" data-testid="t-console-input-interval">
+              <p class="hint">上一次响应结束后至少等这么久再发下一个；设太小会撞网关 RPM 限制（429）。</p>
+            </div>
+            <div class="field">
+              <label class="label" for="standard-version">测试标准（第 1～4 章）</label>
+              <select id="standard-version" class="mono" data-testid="t-console-select-standard"></select>
+              <p class="hint">绑定后本批次会按该版本标准生成逐项判定与 PDF 报告；不绑定则不产生判定。</p>
+            </div>
+          </fieldset>
+
+          <details class="mb-12">
+            <summary class="small muted">模拟端点（可选，用于超时与取消用例）</summary>
+            <div class="field mt-8">
+              <label class="label" for="mock-no-content">连接后不返回内容的端点</label>
+              <input type="text" id="mock-no-content" class="mono" spellcheck="false" placeholder="https://api.example.com/hang" data-testid="t-console-input-mock-no-content">
+            </div>
+            <div class="field">
+              <label class="label" for="mock-heartbeat">仅发送心跳的流式端点</label>
+              <input type="text" id="mock-heartbeat" class="mono" spellcheck="false" placeholder="https://api.example.com/heartbeat" data-testid="t-console-input-mock-heartbeat">
+            </div>
+            <div class="field">
+              <label class="label" for="unreachable">不可达端点</label>
+              <input type="text" id="unreachable" class="mono" spellcheck="false" placeholder="留空则使用不可解析域名探测" data-testid="t-console-input-unreachable">
+            </div>
+          </details>
+        </div>
+
+        <div class="field">
+          <label class="label" for="auth-style">认证方式</label>
+          <select id="auth-style" data-testid="t-console-select-auth-style"></select>
+        </div>
+
+        <div class="field">
+          <label class="label" for="api-key">API Key / AK <span class="note">仅当前请求</span></label>
+          <div class="inline">
+            <input type="password" id="api-key" autocomplete="new-password" spellcheck="false" placeholder="sk-…" data-testid="t-console-input-key">
+            <button type="button" class="btn btn-sm" id="toggle-key" aria-label="切换密钥可见性" data-testid="t-console-btn-toggle-key">显示</button>
+          </div>
+          <p class="hint">不写入数据库、文件或缓存，请求结束后立即释放；表单提交后自动清空。</p>
+        </div>
+
+        <div class="field">
+          <label class="label" for="model">模型 ID <span class="req">*</span></label>
+          <div class="inline">
+            <input type="text" id="model" class="mono" list="model-options" spellcheck="false" placeholder="gpt-4o-mini" data-testid="t-console-input-model">
+            <button type="button" class="btn btn-sm" id="fetch-models" data-testid="t-console-btn-fetch-models">获取列表</button>
+          </div>
+          <datalist id="model-options"></datalist>
+          <p class="hint" id="model-hint">模型 ID 需按供应商实际支持填写，平台不内置任何模型清单。</p>
+          {# 从上游取回的模型清单：datalist 只有在输入框里敲字才弹，83 个模型等于看不见，
+             这里给一个常驻面板，点一下就填入。 #}
+          <div id="model-picker" class="model-picker hidden" data-testid="t-console-model-picker">
+            <div class="model-picker-head">
+              <span id="model-picker-count" class="small muted"></span>
+              <button type="button" class="btn btn-sm" id="model-picker-close" data-testid="t-console-btn-model-picker-close">收起</button>
+            </div>
+            <input type="search" id="model-picker-filter" class="mono" spellcheck="false"
+                   placeholder="筛选模型 ID（支持关键字）" data-testid="t-console-input-model-filter">
+            <div id="model-picker-list" class="model-picker-list" data-testid="t-console-model-picker-list"></div>
+          </div>
+        </div>
+
+        <!-- 批量模型只在「验收套件」模式下有意义：单次测试只发 1 个请求。 -->
+        <details class="field suite-only hidden model-fold">
+          <summary>批量测试多个模型
+            <span class="small muted">（可选；点开选择，每个模型建一个独立任务）</span>
+          </summary>
+          <div id="model-groups" class="model-groups" data-testid="t-console-model-groups">
+            <p class="hint">正在加载模型组…</p>
+          </div>
+          <p class="hint">
+            勾选后会为每个模型各建一个任务，<b>按顺序执行</b>（网关按 RPM 限流时更稳，避免 429 污染判定）。
+            这里只是常见模型 ID 的提示，不是白名单——实际可用性以供应商为准。
+          </p>
+        </details>
+
+        <details class="mb-12">
+          <summary class="small muted">提示词、参数与超时</summary>
+          <div class="field mt-8">
+            <label class="label" for="prompt">用户提示词</label>
+            <textarea id="prompt" class="mono" rows="2" data-testid="t-console-input-prompt">只回复 CONNECT_OK</textarea>
+          </div>
+          <div class="field">
+            <label class="label" for="system">System</label>
+            <textarea id="system" class="mono" rows="2" placeholder="可选"></textarea>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label class="label" for="max-tokens">max_tokens</label>
+              <input type="number" id="max-tokens" class="mono" value="32" min="1" max="8192" data-testid="t-console-input-max-tokens">
+            </div>
+            <div class="field">
+              <label class="label" for="temperature">temperature</label>
+              <input type="number" id="temperature" class="mono" value="0.2" step="0.1" min="0" max="2">
+            </div>
+          </div>
+          <div class="row-3">
+            <div class="field">
+              <label class="label" for="connect-timeout">连接超时(s)</label>
+              <input type="number" id="connect-timeout" class="mono" value="10" min="1" max="60">
+            </div>
+            <div class="field">
+              <label class="label" for="first-timeout">首内容(s)</label>
+              <input type="number" id="first-timeout" class="mono" value="30" min="3" max="300">
+            </div>
+            <div class="field">
+              <label class="label" for="total-timeout">总超时(s)</label>
+              <input type="number" id="total-timeout" class="mono" value="60" min="3" max="300" data-testid="t-console-input-total-timeout">
+            </div>
+          </div>
+          <div class="field">
+            <label class="check"><input type="checkbox" id="stream-mode" data-testid="t-console-check-stream"> 使用流式请求（SSE）</label>
+            <label class="check mt-8"><input type="checkbox" id="stream-usage"> 请求流式 usage（stream_options，部分网关不支持）</label>
+          </div>
+        </details>
+
+        <button class="btn btn-primary btn-block" id="run-btn" type="submit" data-testid="t-console-btn-run">发送测试请求</button>
+        <p class="hint mt-8" id="run-hint">单次测试仅发送 1 个请求；验收套件按链路与重复次数执行完整用例。</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ---------------- results ---------------- -->
+  <div>
+    <section class="panel" id="single-panel" data-testid="t-console-result">
+      <div class="panel-head">
+        <h2>响应结果</h2>
+        <span class="meta" id="result-meta">—</span>
+      </div>
+      <div class="stat-strip">
+        <div class="stat"><div class="k">HTTP 状态</div><div class="v muted" id="r-http" data-testid="t-console-cell-http">—</div></div>
+        <div class="stat"><div class="k">总耗时</div><div class="v muted" id="r-latency" data-testid="t-console-cell-latency">—</div></div>
+        <div class="stat"><div class="k">首内容（TTFT）</div><div class="v muted" id="r-ttft" data-testid="t-console-cell-ttft">—</div></div>
+        <div class="stat"><div class="k">判定</div><div class="v muted" id="r-verdict" data-testid="t-console-cell-verdict">—</div></div>
+      </div>
+      <div class="panel-body">
+        <div class="alert danger hidden" id="result-error" role="alert" data-testid="t-console-error"></div>
+        <pre class="output answer" id="answer" data-testid="t-console-answer"></pre>
+        <div class="grid-2 mt-12">
+          <dl class="kv">
+            <dt>响应 model</dt><dd id="r-model">—</dd>
+            <dt>finish_reason</dt><dd id="r-finish">—</dd>
+            <dt>usage</dt><dd id="r-usage">—</dd>
+            <dt>Content-Type</dt><dd id="r-content-type">—</dd>
+          </dl>
+          <dl class="kv">
+            <dt>端点主机</dt><dd id="r-host">—</dd>
+            <dt>请求 ID</dt><dd id="r-request-id">—</dd>
+            <dt>正文字符</dt><dd id="r-chars">—</dd>
+            <dt>流式分块</dt><dd id="r-chunks">—</dd>
+          </dl>
+        </div>
+        <p class="hint mt-8">
+          响应正文仅显示在浏览器中，服务端不回写数据库；验收记录只保存状态码、耗时与判定。
+        </p>
+        <details class="mt-12">
+          <summary class="small muted">请求详情（认证头已隐藏）</summary>
+          <dl class="kv mt-8">
+            <dt>方法与地址</dt><dd id="req-line">—</dd>
+            <dt>认证头</dt><dd id="req-auth">—</dd>
+            <dt>其他请求头</dt><dd id="req-headers">—</dd>
+          </dl>
+          <pre class="output mt-8" id="req-body">—</pre>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="suite-panel" data-testid="t-console-suite">
+      <div class="panel-head">
+        <h2>验收套件结果</h2>
+        <span class="meta" id="suite-meta">未运行</span>
+      </div>
+      <div class="stat-strip">
+        <div class="stat"><div class="k">PASS</div><div class="v muted" id="s-pass" data-testid="t-console-cell-pass">0</div></div>
+        <div class="stat"><div class="k">FAIL</div><div class="v muted" id="s-fail" data-testid="t-console-cell-fail">0</div></div>
+        <div class="stat"><div class="k">SKIP</div><div class="v muted" id="s-skip" data-testid="t-console-cell-skip">0</div></div>
+        <div class="stat"><div class="k">记录 ID</div><div class="v muted" id="s-run" data-testid="t-console-cell-run">—</div></div>
+      </div>
+      <div class="progress" data-testid="t-console-progress"><span id="s-progress" class="progress-bar"></span></div>
+      <div class="panel-body tight">
+        <div class="case-list" id="case-list" data-testid="t-console-table">
+          <div class="table-empty" data-testid="t-console-empty">选择链路并运行验收套件，用例会逐条出现在这里。</div>
+        </div>
+      </div>
+      <div class="panel-foot flex between center">
+        <span id="suite-foot">用例编号对应《新供应商引入测试标准》第一章。</span>
+        <span class="flex gap-8">
+          <a class="btn btn-sm" id="export-md" href="#" aria-disabled="true" data-testid="t-console-btn-export-md">导出 Markdown</a>
+          <a class="btn btn-sm" id="export-csv" href="#" aria-disabled="true" data-testid="t-console-btn-export-csv">导出 CSV</a>
+        </span>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/console.js"></script>
+{% endblock %}

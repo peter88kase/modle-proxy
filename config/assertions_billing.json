@@ -1,0 +1,226 @@
+{
+  "schema": "assertions/v1（docs/12 §1.3.2 子集，供 B0.6 与 BILL 一并入库）",
+  "assertion_schema_version": "v1",
+  "source": {
+    "document": "新供应商引入测试标准1020.docx",
+    "sha256": "293ead824df8bf6217ba193f0a8508ef847749896b09ece9e63cb16469892299",
+    "extracted_at": "2026-10-22",
+    "basis_paragraphs": {
+      "p195": "当三个输入类别互不重叠时，可按以下方式核对：",
+      "p195_table": "预期输入费用 = 普通输入 tokens × 普通输入单价 + 缓存写入 tokens × 缓存写入单价 + 缓存读取 tokens × 缓存读取单价",
+      "p196": "如果某协议的总输入量已经包含缓存 token，必须先按定义拆分，不能再直接叠加缓存费用。不同 TTL 的缓存写入需按各自费率分别计算。",
+      "p197": "上游成本与 Fluxlane 用户售价分别核对，不要求两者相等。",
+      "p215_3_13": "请求级用量、平台扣费与供应商账单能够对账。"
+    }
+  },
+  "purpose": "补 verdict-engine-architect 指出的缺口：BILL-06 的对账公式（p195 内嵌表）原先没有落成断言，B0.6 与 BILL 若分两次改会产生两套公式。本文件把公式一次性落成数据。",
+  "cost_formula": {
+    "expression": "expected_cost = normal_input_tokens × normal_price + cache_write_tokens × cache_write_price + cache_read_tokens × cache_read_price",
+    "source": "p195 内嵌表原句",
+    "split_rule": "若该协议的总输入量已包含缓存 token，必须先按定义拆分再代入式子，不得在未拆分的情况下叠加缓存费用（p196）",
+    "ttl_rule": "不同 TTL 的缓存写入按各自费率分别计算，不得用单一写入费率套所有 TTL（p196）",
+    "scope_rule": "上游成本与 Fluxlane 用户售价分别核对，不要求两者相等（p197）——本断言只比「同一侧的预期值 vs 同一侧的实际值」，不跨侧比"
+  },
+  "assertions": [
+    {
+      "id": "BILL-A1",
+      "judgement": "账单对账：请求级用量换算的预期费用 vs 供应商账单金额",
+      "text": "按 p195 公式用请求级用量与价目表算出的预期费用，应与供应商账单金额在舍入容差内一致",
+      "covers_checkpoints": [
+        "BILL-06"
+      ],
+      "belongs_to_block": "BLOCK-03",
+      "automation_level": "L1",
+      "reads": [
+        "billing.expected_cost",
+        "billing.invoiced_cost"
+      ],
+      "logic": "all",
+      "checks": [
+        {
+          "op": "delta_within",
+          "num": "billing.expected_cost",
+          "den": "billing.invoiced_cost",
+          "tolerance": {
+            "rel": 0.01
+          },
+          "missing": "blocked"
+        }
+      ],
+      "fail_message": "按 p195 公式算得预期费用 {billing.expected_cost}，账单金额 {billing.invoiced_cost}，相对偏差 {delta} 超出 0.01：请求级用量与账单无法对账",
+      "evidence": [
+        "billing.expected_cost",
+        "billing.invoiced_cost",
+        "usage.cache_write",
+        "usage.cache_read",
+        "usage.prompt_tokens",
+        "harness.price_table",
+        "billing.invoice_lines"
+      ],
+      "missing_rationale": "取 blocked 而非 fail：没有账单就没有对账对象，属缺证据。但注意 BLOCK-03 的语义——「无法对账」本身就是命中条件（原文三项并列：计量错误、重复收费、**或**用量无法对账），所以该 blocked 在 BLOCK-03 里不得被当成「未命中」，见 blocking_rules.json 中 BLOCK-03 的 notes。",
+      "preconditions": [
+        "billing.expected_cost 必须由 harness 用 p195 公式从 usage 三个字段 × price_table 算出，不得直接取供应商给的数（否则等于自己和自己比）",
+        "billing.invoiced_cost 必须来自供应商账单/对账单 CSV，按请求 ID 或时间窗归集；归集口径须与请求级记录同口径",
+        "若协议总输入量已含缓存 token（p196），必须先拆分再算，否则预期值会重复计费"
+      ],
+      "thresholds": [
+        {
+          "metric": "invoice_reconciliation_tolerance",
+          "value": {
+            "rel": 0.01
+          },
+          "unit": "ratio",
+          "basis": "原文 p195 内嵌表给出的费用公式（预期输入费用 = 普通输入 tokens×单价 + 缓存写入 tokens×单价 + 缓存读取 tokens×单价），并结合 p197「上游成本与 Fluxlane 用户售价分别核对，不要求两者相等」界定比较口径（只比同一侧，不跨侧比）；原文只写「在精度和舍入规则允许范围内一致」，未给数值，故 rel=0.01 为拟定的舍入容差，须按供应商账单实际精度回填。",
+          "source": "provisional_pending_supplier_invoice",
+          "configurable": true
+        }
+      ],
+      "level_rationale": "对账可被机器**证伪**：算出偏差超容差，账单一定对不上，不需要人判断；但**证真**需要人确认「账单完整、期间归属正确、口径定义一致」。这正是 L1 的定义（非对称判定权：机器有证伪权、无证真权，docs/12 §2.4）。标 L0 会把一个可自动证伪的项降成纯人工，方向与全自动化相反。",
+      "checks_naming_note": "字段名保留 `checks` 而非改为 `prefetch_checks`：L1 下机器**可以**判 fail，`fail_message` 是合法产出，因此这些检查不是「只算不判」的预取。若改名会误导实现方以为机器无权出结论。",
+      "confirmation": {
+        "required": true,
+        "authority_for_pass": "human_confirmed",
+        "machine_authority": "fail_only",
+        "human_must_confirm": [
+          "账单完整性：该期间内是否所有调用都已出账，是否存在未出账/延迟出账的批次",
+          "期间归属：账单账期与请求时间窗是否对齐，跨账期请求如何切分",
+          "口径定义：供应商对「普通输入 / 缓存写入 / 缓存读取」的字段定义与平台是否一致（若不一致，需先折算再比）",
+          "账单来源可信：是否为供应商正式对账单，而非截图或转售商自制表"
+        ],
+        "why": "这四项都不是数值比较能回答的：机器能证明「数对不上」，不能证明「这份账单是完整且权威的」。"
+      },
+      "downgrade_note": "不判 L2 的原因：平台拿不到供应商账单的原始凭证，只能拿到对账单（CSV/PDF），无法验证其完整性与真伪；且期间归属与口径定义依赖商务约定。所以机器只能证伪，证真必须人确认。",
+      "plan_ref": "single_request",
+      "executor_ready": {
+        "derived": true,
+        "computed_from": "plan_ref 是否已在 backend/plans.py 注册 ∧ assertions 非空 ∧ reads 所需信号已在 signals.json 声明",
+        "formula": "ready = (plan_ref ∈ registered_templates) AND (len(assertions) > 0) AND (all(reads) ⊆ signals)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "not_ready",
+        "snapshot_explains": "backend/plans.py 当前不存在，11 个 plan 模板无一注册 → 所有断言 executor_ready = not_ready",
+        "on_not_ready": "该项必须落 blocked(executor_not_ready)，**不得落 pass**。「计划是 L2」不等于「已能执行」——B0.5 全量写 automation_level 时若不同步重算本字段，执行器未实现的项会显示 pass，那是整轮在堵的假绿换了个维度复现。",
+        "write_time_rule": "任何写入 automation_level 的迁移脚本必须同时重算本字段，不得沿用旧快照"
+      },
+      "evidence_channel": "对账所需账单走规格 §3.2 L1 材料核验通道：extractor = csv_table（确定性解析，置信度 1.0），不经过请求执行器。请求部分用 single_request 取 usage，账单部分用材料核验，两者分别留痕。plan_ref 只能取 §3.1.2 的 11 个模板之一，故此处取 single_request；账单不属 plan 模板。",
+      "value_present": {
+        "class": 2,
+        "judges": "枚举值是否存在",
+        "invalidated_by": "枚举表扩展",
+        "derived_in": "config",
+        "formula": "present(v) = v ∈ enum(blocker_reason)",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "all_present",
+        "snapshot_explains": "三个值已于规格 §2.3 落地（现 13 值）",
+        "note": "本字段此前没落——是「对称比较」断言第一次跑出来发现的。它和 branch_reachability 判的是不同的事：后者判「分支能不能执行」，前者判「值本身在不在」。枚举被删掉某个值时，value_present 先红；值在但分支条件写错时，branch_reachability 不红（因为成员关系仍成立）。"
+      },
+      "applicability": {
+        "derived_in": "config",
+        "formula": "applicable = True（账单对账与协议无关）",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "always"
+      },
+      "has_evidence": {
+        "derived_in": "runtime",
+        "note": "账单文件是否已上传属运行时；config 仅登记契约，不伪造快照值"
+      }
+    }
+  ],
+  "notes": {
+    "why_L0": "本项依赖供应商账单/对账单，属不可机取的外部证据。机器能做的部分是「按公式重算并逐行比对」，做不到的是「证明账单本身真实、口径定义正确、账期归属无误」——那三项仍需人判。",
+    "operator_check": "只用了 delta_within 一个白名单操作符，无 custom。",
+    "single_formula_rule": "全库对账只用这一份公式。若后续 BILL-01~05 或第七章需要算费用，必须引用本文件的 cost_formula，不得各自重写——这是 verdict-engine-architect 要求「公式不要分两次改」的落点。",
+    "not_covered_here": "BILL-01~05（字段口径、首次写入、再次读取、新增后缀、平台扣费）是「分量是否正确」的检查，不属于「总值对账」，故不在本文件；它们各自的断言按 docs/10 第 3 章的判定式翻译。"
+  },
+  "revision": "v6",
+  "snapshot_policy": "所有快照字段遵守三段规则（规格 §9.1.1）：① 加载时一律重算，字段值 = 当前计算结果；② 保留上一次的 snapshot_at + snapshot_value，仅用于发现「结论变了」；③ 判定时只读重算值，禁止读 snapshot_value。原因：「引得到」不等于「引到的东西不会变」——可达性/存在性/适用性/执行器就绪都可能过期，而过期值在 review 时读起来完全自洽。",
+  "recompute_policy": "凡字段值由其他事实派生（如 branch_reachability 由枚举成员关系算、executor_ready 由 plan_ref 注册状态算），必须在每次加载时重算；snapshot_value 只是某一时点的快照，不是配置事实。存储值必须等于重算值，不等即 config_invalid。新增派生字段时本策略自动适用，不得只给新字段单独写一遍——漏写不会报错，这正是要防的。",
+  "snapshot_fields_registry": {
+    "source": "规格 §9.1.1 五类快照字段",
+    "fields": {
+      "branch_reachability": {
+        "class": 1,
+        "judges": "分支可达性（依赖枚举值是否存在）",
+        "invalidated_by": "枚举落地、判定式改写",
+        "derived_in": "config",
+        "formula": "dead = NOT ( (values ∪ contrast_values) ⊆ enum(blocker_reason) )",
+        "landed_at": "BLOCK-03.decision_rule[1].requires_enum.branch_reachability"
+      },
+      "value_present": {
+        "class": 2,
+        "judges": "枚举值是否存在",
+        "invalidated_by": "枚举表扩展",
+        "derived_in": "config",
+        "formula": "present(v) = v ∈ enum(blocker_reason)",
+        "landed_at": "enum_dependencies[*].required_values",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "all_present",
+        "snapshot_explains": "三个值已于规格 §2.3 落地（现 13 值）",
+        "note": "本字段此前没落——是「对称比较」断言第一次跑出来发现的。它和 branch_reachability 判的是不同的事：后者判「分支能不能执行」，前者判「值本身在不在」。枚举被删掉某个值时，value_present 先红；值在但分支条件写错时，branch_reachability 不红（因为成员关系仍成立）。"
+      },
+      "applicability": {
+        "class": 3,
+        "judges": "某项是否适用",
+        "invalidated_by": "协议升级、declared_* 参数录入",
+        "derived_in": "config",
+        "formula": "applicable = (channel_protocol == anthropic-messages)",
+        "landed_at": "assertions[*].applicability（本次补齐）",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "conditional",
+        "snapshot_explains": "仅 Claude 兼容上游适用；非该协议一律 not_applicable，理由固定",
+        "note": "此前只在 group.applicability 写了一句散文，没有逐断言字段——散文无法被对称比较看到。这条也是本次检查发现的。"
+      },
+      "executor_ready": {
+        "class": 4,
+        "judges": "L2/L1 项落 pass 还是 blocked",
+        "invalidated_by": "批次施工完成",
+        "derived_in": "config",
+        "formula": "ready = (plan_ref ∈ registered_templates) AND (len(assertions)>0) AND (all(reads) ⊆ signals)",
+        "landed_at": "assertions[*].executor_ready"
+      },
+      "has_evidence": {
+        "class": 5,
+        "judges": "证据是否已上传",
+        "invalidated_by": "上传 / 删除 / 重传",
+        "derived_in": "runtime",
+        "formula": "has = exists(evidence where item_id = this AND sha256 未失效)",
+        "landed_at": "run_items / evidence 表（不在 config）",
+        "snapshot_value": "runtime_state",
+        "note": "config 侧只能声明契约，不能伪造快照值——写一个假的 has_evidence=false 会让对称比较通过，但那个值没有任何意义，且会掩盖「运行时根本没实现这个字段」。因此本字段登记为 derived_in=runtime，其断言落在 B0.5/B6 的运行时校验，不在此处。"
+      }
+    },
+    "scope": {
+      "applies_to": "assertion-level files only",
+      "in_scope": [
+        "config/blocking_rules.json",
+        "config/assertions_claude.json",
+        "config/assertions_billing.json"
+      ],
+      "not_in_scope": [
+        "config/hard_assertions.json",
+        "config/criteria_original.json",
+        "config/automation_levels.json"
+      ],
+      "not_in_scope_reason": "hard_assertions 的 9 行是映射行不是断言；criteria_original 是原文比对清单；automation_levels 是迁移素材。三者都不产生判定，给它们填五类快照字段等于给不判定的记录编造判定状态。",
+      "in_scope_last_reviewed": "v21：blocking_rules 加入 in_scope。依据：唯一一处真实 branch_reachability 实例就在本文件（BLOCK-03 的 evidence_refused 分支）。若把它排除在作用域外，作用域内反而一条真实实例都查不到，等于「登记了字段却没人真用」——这种 registry 会在下一次检查时被当成形式主义删掉。",
+      "ci_assertion": {
+        "name": "test_snapshot_scope_agrees",
+        "expr": "三处 scope 深度相等（含 in_scope / not_in_scope / not_in_scope_reason）",
+        "why": "作用域声明若三处不一致，下一个人仍会得到假警报。他不需要相信哪一处，他只需要跑一次比较。"
+      }
+    }
+  },
+  "write_time_rule": "任何写入 automation_level / automation_level 相关字段的迁移脚本，必须同时重算该文件的全部快照字段（branch_reachability / value_present / applicability / executor_ready / has_evidence），不得沿用旧快照。理由：快照是某一时点的计算结果，不是配置事实；而「只写级别不算就绪」会让执行器未实现的项显示 pass，那是假绿换了个字段名。本规则写在此处而非只挂在单条断言上——迁移脚本作者不一定会读单条断言的元数据。",
+  "checksum_algo": "sha256(json.dumps(内容, ensure_ascii=False, sort_keys=True)) 取前 16 位十六进制；内容 = 本文件去掉 checksum 字段后的整体。与 backend/standards.py 的 _checksum() 同族（同为 sha256+前16位+sorted keys），但覆盖范围不同：那边只覆盖 items 的 as_payload()，这边覆盖整文件。**两者不可互换比较**，只能各自与自己比。",
+  "revision_is_label_not_authority": "`revision` / `revision_note` 是**人类可读的变更标签，不是机器权威**——代码里没有任何地方读它（已 grep 确认）。判断「这份数据是不是我以为的那份」只能看 checksum。这与 standards_*.json 里 `version` 成为装饰字段是同一类问题，此处明示以免重复踩。",
+  "checksum": "97ac30d8904039ae",
+  "revision_note": "v6：snapshot_fields_registry 补 scope 作用域声明（in_scope / not_in_scope / not_in_scope_reason）。理由：缺作用域会让下一个人对四个文件跑对称比较得到 1 个假警报，而假警报的标准处置是「补个值」——那就变成填假值。",
+  "checksum_history": [
+    {
+      "revision": "v5：write_time_rule 提到文件层。",
+      "checksum": "9e89319c3a1f3de2",
+      "superseded_by": "v6",
+      "reason": "补快照字段作用域声明，避免四文件对称比较产生假警报。"
+    }
+  ],
+  "checksum_history_note": "只追加不重写：每次 checksum 变化都留一行「旧值 + 为什么」，因为本轮的真正问题从来不是「文件变了」，是「变了没人知道」。时间戳刻意不写在这里——手写会造出不存在的时点，该由 CI 在提交时写入；本字段只保证可追溯，不保证可定日。"
+}

@@ -1,0 +1,1228 @@
+{
+  "source": {
+    "document": "新供应商引入测试标准1020.docx",
+    "sha256": "293ead824df8bf6217ba193f0a8508ef847749896b09ece9e63cb16469892299",
+    "section": "（无编号一级标题）上架判定，p131～p139",
+    "section_position": "位于第二章之后、第三章之前；config 完全未收录",
+    "extracted_at": "2026-10-22"
+  },
+  "purpose": "原文 p132「以下问题必须修复后再上架」。这 6 条决定「能不能上架」，与 166 项的逐项通过率是两个不同的问题：166 项全通过只说明「每项都没问题」，不等于可上架。",
+  "evaluation_order": "blocking_rules 必须**先于** conclusion() 求值，且 fatal 命中时立即短路（不必等全量跑完）。",
+  "id_convention": "trigger 内所有 item 引用一律用（章, 编号）复合键，形如 ch3:CACHE-02、ch2:CLAUDE-REG-03。原因：原文第 5～9 章复用了 BILL-*/ROUTE-*/LIMIT-* 编号（各 2 次），单用编号会产生跨章错配。CLAUDE-REG-* 属第 2 章末尾的无编号一级标题「Claude 兼容上游固定回归测试」，故记 ch2。",
+  "level_summary": {
+    "fatal": 5,
+    "conditional": 1,
+    "out_of_scope": 1,
+    "total": 6
+  },
+  "rules": [
+    {
+      "code": "BLOCK-01",
+      "level": "fatal",
+      "requires_recheck": false,
+      "exception": null,
+      "original_text": "静默丢弃 system、图片、工具定义或上下文。",
+      "source": "p132「以下问题必须修复后再上架」第 1 条（正文 p133）",
+      "trigger_text": "下列任一断言 fail：system / 图片 / 工具定义 / 上下文在请求、转换或响应任一层被静默丢弃、截断或未生效",
+      "trigger": {
+        "any_of": [
+          {
+            "item": "ch1:REQ-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:MSG-04",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:MSG-05",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:CTRL-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:CTX-01",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:CTX-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:CTX-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch4:LIMIT-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:MEDIA-01",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:MEDIA-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:MEDIA-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:MEDIA-04",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:MEDIA-05",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:MEDIA-06",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:TOOL-01",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:ERR-05",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:CONV-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:CLAUDE-REG-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:MSG-07",
+            "status": "fail"
+          }
+        ]
+      },
+      "evidence_needed": "对应项的最小复现请求 + 脱敏响应 + usage + 平台转发记录；判定「静默丢弃」必须能看到请求里有什么、响应里少了什么，不能只凭模型答非所问",
+      "notes": "原文写「静默」，即无报错、无降级说明的丢失。若上游明确返回 4xx 拒绝，属 ERR-05/CONV-03 的「明确拒绝」分支，不算静默丢弃；只有 200 且内容缺失才算命中。MEDIA-05 的 fail 定义就是「200 且给出纯文本答案」，与此一致。",
+      "caveat": "可命中，但部分引用项偏弱：CTX-01/02 实测载荷仅约 2.7k token（远低于声明上下文上限，触及不到截断边界）、MEDIA 类依赖平台图床可达性、TOOL-01 不校验工具名与必填参数。**命中可信；未命中不代表没有静默丢弃**——载荷没到边界时，截断根本不会显现。",
+      "status": "active",
+      "report_section": "未触发",
+      "unknown_message_template": "存在未执行或不可判定的引用项（{undecidable_refs}），无法确认是否发生静默丢弃；不得读成「没有静默丢弃」",
+      "tier": "A",
+      "report_label_when_miss": "未触发（该项判定能力不足，未触发不代表无风险）",
+      "tier_rule": "能命中，命中按 severity 生效；**未命中时报告也必须打印 caveat 原文**，标签固定"
+    },
+    {
+      "code": "BLOCK-02",
+      "level": "fatal",
+      "requires_recheck": false,
+      "exception": null,
+      "original_text": "未经约定替换模型。",
+      "source": "p132 第 2 条（正文 p134）",
+      "trigger_text": "下列任一断言 fail：出现未在映射表中说明的模型替换、静默回退默认模型、或未授权降级",
+      "trigger": {
+        "any_of": [
+          {
+            "item": "ch1:MODEL-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch1:MODEL-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch1:REQ-05",
+            "status": "fail"
+          },
+          {
+            "item": "ch4:ID-01",
+            "status": "fail"
+          },
+          {
+            "item": "ch4:ID-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch4:ROUTE-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch4:ROUTE-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch4:ROUTE-01",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:PARAM-07",
+            "status": "fail"
+          },
+          {
+            "item": "ch4:ID-04",
+            "status": "fail"
+          }
+        ]
+      },
+      "evidence_needed": "平台转发日志（对外 model → 上游 model → 渠道 ID）+ 映射配置 + 供应商请求级回执。**不得仅凭响应里的 model 字段判此项**（原文 p22/p234 已明确 model 字段不能单独证明实际模型身份），所以 REQ-05/ROUTE-01 这类「只查 model 字段」的判定不足以支撑本规则的通过——见 notes",
+      "notes": "本条命中需要「未经约定」这个实质判断。现有 REQ-05 / ROUTE-01 只断言了响应 model 与请求一致，对「渠道」毫无观测；PARAM-07 的现有实现更是「只要不是 5xx 就 PASS」，连 model 字段都没读。因此这三项在本条里只能作为**线索**（fail 即命中），不能作为**通过依据**（pass 不等于未命中）。若平台无法提供转发日志或供应商回执，本条应记 blocked（无法证实／无法排除），不得默认「未命中」。",
+      "evidence_order_note": "直接证据优先：MODEL-02（请求不存在的模型 ID 是否被静默改用默认）、MODEL-03（单字符变更是否静默回退）、ID-02（固定版本是否被静默改版）是「未经约定替换模型」的直接观测；ROUTE-01/ROUTE-02/ROUTE-03、PARAM-07、ID-04 是间接推断（依赖 model 字段一致性或降级路径）。两类都要，但判定时先看直接证据——直接证据 fail 即可定论，间接证据 fail 只作线索（见 notes）。",
+      "caveat": "可命中，但依赖 identity 类证据：MODEL-02/03/ID-02 是直接证据，ROUTE-01~03、PARAM-07、ID-04 是间接推断（靠响应自报的 model 字段）。**命中可信；未命中不代表没有替换模型**——供应商把渠道换成别家但回填原 model 名时，本条不会命中。",
+      "status": "active",
+      "report_section": "未触发",
+      "decision_rule": [
+        {
+          "if": "any(ref == fail for ref in refs)",
+          "then": "hit",
+          "branch_id": "any_ref_fail"
+        },
+        {
+          "elif": "any(ref in {blocked, undefined, not_tested, pending} for ref in refs)",
+          "then": "unknown",
+          "branch_id": "any_ref_undecidable"
+        },
+        {
+          "else": "",
+          "then": "miss",
+          "branch_id": "fallthrough_miss"
+        }
+      ],
+      "supplier_evidence_policy": "BLOCK-02 的 identity 类证据（路由回执）无论 missing 还是 refused 都记 unknown：原文 p134 的缺陷是「未经约定替换模型」，「不提供证据」不是替换的证据。按 p269「无法提供必要证据则不能按该定位验收通过」，unknown → 结论「无法判定」→ 不予放行。不要因为 BLOCK-03 对 refused 判 hit 就在这里照抄——那是 p135 有并列缺陷条文，p134 没有。",
+      "unknown_message_template": "供应商未提供路由回执 / identity 类项不可得（{undecidable_refs}），**identity 结论不可得**；不得读成「没有替换模型」",
+      "tier": "A",
+      "report_label_when_miss": "未触发（该项判定能力不足，未触发不代表无风险）",
+      "tier_rule": "能命中，命中按 severity 生效；**未命中时报告也必须打印 caveat 原文**，标签固定",
+      "order_policy": {
+        "order_is_normative": true,
+        "expected_branch_order": [
+          "any_ref_fail",
+          "any_ref_undecidable",
+          "fallthrough_miss"
+        ],
+        "why": "分支是一串 if/elif/else，先命中者胜。refs 混合状态时顺序决定结论：refs={fail, blocked} 先命中 any_ref_fail 得 hit；若把 any_ref_undecidable 提前，则一个已确认失败项被一个阻塞项掩盖，降为 unknown。",
+        "ci_assertion": {
+          "name": "test_block02_branch_order",
+          "expr": "[b['branch_id'] for b in decision_rule] == order_policy['expected_branch_order']",
+          "failure_is": "semantic_change",
+          "message_template": "BLOCK-02 分支顺序与 expected_branch_order 不符：位置 {i} 期望 {expected}，实际 {actual}。这是**语义变更**，不是排版变更——checksum 只能发现字节变了，发现不了判定含义变了。若 any_ref_undecidable 被提到 any_ref_fail 之前，refs={fail, blocked} 会由 hit 降为 unknown，即「已确认失败的一项被一个阻塞项掩盖」。请对照 decision_rule_source 复核判定式；**不得**把 expected_branch_order 改成实际顺序来自证通过。"
+        },
+        "semantic_vs_byte_note": "checksum 是文件级的，只能证明字节变了；分支顺序变了但 checksum 没变是不可能的，反过来——checksum 变了但没人知道变的是语义还是排版——才是本轮反复吃亏的地方。"
+      }
+    },
+    {
+      "code": "BLOCK-03",
+      "level": "fatal",
+      "requires_recheck": false,
+      "exception": null,
+      "original_text": "缓存计量错误、重复收费或用量无法对账。",
+      "source": "p132 第 3 条（正文 p135）",
+      "trigger_text": "下列任一断言 fail：缓存用量计量错误、同一用量被重复计费、或请求级用量无法与平台扣费/供应商账单对上",
+      "trigger": {
+        "any_of": [
+          {
+            "item": "ch3:CACHE-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:PREFIX-01",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:PREFIX-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:PREFIX-04",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:BILL-01",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:BILL-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:BILL-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:BILL-04",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:BILL-05",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:BILL-06",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:FAIL-01",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:FAIL-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:MODE-04",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:CLAUDE-REG-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:CH3-REG-01",
+            "status": "fail"
+          },
+          {
+            "item": "ch3:CACHE-05",
+            "status": "fail"
+          }
+        ]
+      },
+      "evidence_needed": "原始 usage（三类字段）+ 平台扣费流水 + 供应商账单/对账单。对账公式见原文 p195 内嵌表：预期输入费用 = 普通输入 tokens×单价 + 缓存写入 tokens×单价 + 缓存读取 tokens×单价",
+      "notes": "「无法对账」是原文 p135 的并列条件之一，但它不等于「已经证明对不上」，而是「当前无法确定」。因此 BILL-06 为 blocked/undefined/not_tested 时，本条记 **unknown**（→ 结论「无法判定」），**不得记未命中**——否则「对不了账」这个条件会永远判不出来。注意：unknown 比 hit 更准确，也足够阻断「达标」；写成 hit 会过度断言。",
+      "caveat": "可命中，但 BILL 类项要供应商账单（BILL-06 为 L1，账单未到时为 blocked），CACHE-02 现只判 `cached>0`、未判重写量。**命中可信；未命中不代表计量正确**——账单没到时无法命中，账目是否对得上仍是未知。",
+      "decision_rule": [
+        {
+          "if": "any(ref == fail for ref in refs)",
+          "then": "hit",
+          "branch_id": "any_ref_fail"
+        },
+        {
+          "elif": "BILL-06.blocker_reason == supplier_evidence_refused",
+          "then": "hit",
+          "requires_enum": {
+            "field": "blocker_reason",
+            "values": [
+              "supplier_evidence_refused"
+            ],
+            "contrast_values": [
+              "supplier_evidence_missing",
+              "awaiting_billing_period"
+            ],
+            "status": "pending_spec",
+            "note": "本分支只匹配 **refused**。missing 与 awaiting_billing_period 必须在 contrast_values 里且不得映射 hit：missing 是「答应提供但还没给」，判 hit 等于在供应商还没违约时就宣布它有缺陷；awaiting_billing_period 是外部时序，判 hit 会把正常账期滞后当计量错误。",
+            "branch_reachability": {
+              "mode": "derived",
+              "computed_from": "规格 blocker_reason 枚举的成员关系",
+              "formula": "dead = NOT ( (values ∪ contrast_values) ⊆ enum(blocker_reason) )",
+              "snapshot_value": "reachable",
+              "snapshot_explains": "规格 §2.3 枚举已含 supplier_evidence_refused（以及作为 contrast 的 missing / awaiting_billing_period）→ (values ∪ contrast_values) ⊆ enum 成立 → reachable",
+              "must_recompute": true,
+              "ci_assertion": "每次加载 config 时按 formula 重新计算，并与 snapshot_value 比较；不相等 → config_invalid，报「branch_reachability 快照过期」并提示是「枚举已落地需解除 dead」还是「枚举被移除」。**禁止把 snapshot_value 当静态事实读取**——它只是某个时点的计算结果。",
+              "recompute_policy": "本字段每次加载必须重算；快照仅供比对。本次变更就是该机制的一次实际发生：枚举落地前算得 dead，落地后算得 reachable，快照随之更新。若当初把 dead 写成静态布尔，这条 hit 分支会永久不可达且无人察觉。",
+              "snapshot_at": "2026-10-22T18:55:14+08:00",
+              "three_stage": {
+                "on_load": "按 formula 重算，字段值 = 计算结果",
+                "on_compare": "与 snapshot_value / snapshot_at 比对，不等即发现「结论变了」",
+                "on_judge": "只读重算值，禁止读 snapshot_value"
+              }
+            },
+            "do_not_read_statically": "`snapshot_value` 是派生结果，不是配置事实。枚举落地后它会自动应为 reachable；若实现方直接读 snapshot 而不重算，hit 分支会永久死，且数据里写着「有意标 dead」，无人会去解除。"
+          },
+          "hit_basis": "p135",
+          "hit_basis_required": true,
+          "hit_basis_quote": "缓存计量错误、重复收费或用量无法对账。",
+          "hit_basis_reviewed_by": null,
+          "hit_basis_three_field": {
+            "machine_checked": [
+              "hit_basis（段落号存在）",
+              "hit_basis_quote（与 docx 该段落逐字匹配）"
+            ],
+            "human_checked": [
+              "「该情形本身」vs「它的后果」的语义判断"
+            ],
+            "reviewed_by_required": true,
+            "review_status": "pending_named_reviewer",
+            "note": "reviewed_by 未指定，因为当前没有具名复核人可填——**不编造姓名**。在补齐具名复核前，本条的报告措辞只能写「形式已验、语义待复核」，不得写「依据已自动验证合格」，也不得因 CI 绿就默认语义已过。",
+            "third_state": "pending_named_reviewer",
+            "report_token": "pending_named_reviewer"
+          },
+          "branch_id": "evidence_refused"
+        },
+        {
+          "elif": "BILL-06.blocker_reason == supplier_evidence_missing",
+          "then": "unknown",
+          "note": "答应提供但还没给 → unknown（给履行机会），不判 hit。判 hit 等于在供应商还没违约时宣布它有缺陷；而「一直不给」也没有被放过——unknown 的 terminal_condition 是不放行，终点仍在，只是不在中间过程下结论。这是「结构上存在 ≠ 已经成立」的又一例，与 BLOCK-06 报位的修正同类。",
+          "branch_id": "evidence_missing"
+        },
+        {
+          "elif": "BILL-06.blocker_reason == awaiting_billing_period",
+          "then": "unknown",
+          "requires_recheck": true,
+          "note": "账期未到属外部时序，归一为 unknown 但**必须打 requires_recheck**：到期后重新求值，不得永久停在 unknown（规格 L2080）。若缺这个标记，「账期未到」会变成永久无法判定——与「供应商拖着不给」的结局相同，只是原因不同。",
+          "branch_id": "awaiting_billing_period"
+        },
+        {
+          "elif": "BILL-06 in {blocked, undefined, not_tested, pending}",
+          "then": "unknown",
+          "branch_id": "bill06_not_usable"
+        },
+        {
+          "elif": "any(ref 不可判定 for ref in refs)",
+          "then": "unknown",
+          "branch_id": "any_ref_undecidable"
+        },
+        {
+          "else": "",
+          "then": "miss",
+          "branch_id": "fallthrough_miss"
+        }
+      ],
+      "decision_rule_source": "docs/12 §2.13.4.1 判定式（与原文 p135 三项并列相符）",
+      "status": "active",
+      "report_section": "未触发",
+      "decision_rule_note": "第二分支是关键：原文 p135 把「用量无法对账」列为缺陷之一，所以**供应商侧不提供账单本身就是命中**，不能一律 unknown——否则「供应商拖着不给账单」在系统里没有终点，只能永远「无法判定」，运营最后会手工绕过。而平台侧原因（未跑 / 预算耗尽 / 账单未到账期）才是 unknown。",
+      "blocker_reason_requirements": "需要平台侧 blocker_reason 枚举新增两个值：`supplier_evidence_missing`（供应商未提供/未回执）与 `supplier_evidence_refused`（供应商明确拒绝提供）。现有枚举（injection_point_missing / budget_exhausted / gate_failed / executor_not_implemented_for_adapter / payload_below_declared_limit / fence_conflict / task_interrupted / awaiting_ttl / awaiting_human / missing_dependency）全是平台侧原因，无法表达「供应商侧缺证据」。**这两个值必须与平台侧原因分开**，否则本规则无法区分 hit 与 unknown。",
+      "unknown_message_template": "账单证据未到位（{undecidable_refs}）：{reason_kind}，无法确认缓存计量是否正确；不得读成「计量正确」",
+      "tier": "A",
+      "report_label_when_miss": "未触发（该项判定能力不足，未触发不代表无风险）",
+      "tier_rule": "能命中，命中按 severity 生效；**未命中时报告也必须打印 caveat 原文**，标签固定",
+      "requires_recheck_policy": "BLOCK-03 的 unknown 分两种：① 可再求值的（awaiting_billing_period）→ 必须带 requires_recheck，到期重算；② 需补证据的（供应商未提供）→ unknown 并跟踪证据。两者都阻断达标，但前者不应触发人工催办，后者应该。混为一谈会让「正常账期滞后」被当成「供应商不配合」去催。",
+      "unknown_reason_kinds": {
+        "supplier_evidence_missing": "供应商答应提供但尚未提供 → 给履行机会，到期/催办后重查",
+        "supplier_evidence_refused": "（不应出现在 unknown；拒绝即 hit）",
+        "awaiting_billing_period": "外部时序未到 → 到期自动重新求值，不应催办",
+        "platform_side": "平台侧未执行/预算/注入缺失 → 修前置条件后重跑"
+      },
+      "order_policy": {
+        "order_is_normative": true,
+        "expected_branch_order": [
+          "any_ref_fail",
+          "evidence_refused",
+          "evidence_missing",
+          "awaiting_billing_period",
+          "bill06_not_usable",
+          "any_ref_undecidable",
+          "fallthrough_miss"
+        ],
+        "why": "7 支各自返回不同状态，且 blocker_reason 分流依赖「先判 reason 再判 ref 不可判定」。顺序错会让上一轮修掉的 bug 复活：把 evidence_missing 与 evidence_refused 对调，「答应提供但还没给」会被判 hit，即在供应商还没违约时宣布它有缺陷；把 evidence_refused 与 any_ref_undecidable 对调，已拒绝提供证据的供应商降为 unknown，逃出阻断。",
+        "ci_assertion": {
+          "name": "test_block03_branch_order",
+          "expr": "[b['branch_id'] for b in decision_rule] == order_policy['expected_branch_order']",
+          "failure_is": "semantic_change",
+          "message_template": "BLOCK-03 分支顺序与 expected_branch_order 不符：位置 {i} 期望 {expected}，实际 {actual}。这是**语义变更**，不是排版变更——checksum 只能发现字节变了，发现不了判定含义变了。受影响行为：evidence_refused 与 any_ref_undecidable 对调 → 已拒绝提供证据的供应商由 hit 降为 unknown，逃出阻断；evidence_missing 与 evidence_refused 对调 → 上一轮修掉的「未违约先判缺陷」bug 复活。请对照 decision_rule_source 复核判定式；**不得**把 expected_branch_order 改成实际顺序来自证通过。"
+        },
+        "semantic_vs_byte_note": "checksum 是文件级的，只能证明字节变了；分支顺序变了但 checksum 没变是不可能的，反过来——checksum 变了但没人知道变的是语义还是排版——才是本轮反复吃亏的地方。"
+      }
+    },
+    {
+      "code": "BLOCK-04",
+      "level": "fatal",
+      "requires_recheck": false,
+      "exception": null,
+      "original_text": "流式输出不完整却标记成功。",
+      "source": "p132 第 4 条（正文 p136）",
+      "trigger_text": "下列任一断言 fail：正文未完整却给出了正常结束信号（[DONE] / message_stop / finish_reason=stop），或把错误事件、异常断流当作成功",
+      "trigger": {
+        "any_of": [
+          {
+            "item": "ch1:STREAM-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch1:STREAM-04",
+            "status": "fail"
+          },
+          {
+            "item": "ch1:STREAM-05",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:SSE-02",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:SSE-03",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:SSE-04",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:SSE-06",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:CLAUDE-REG-04",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:SSE-05",
+            "status": "fail"
+          },
+          {
+            "item": "ch2:SSE-01",
+            "status": "fail"
+          }
+        ]
+      },
+      "evidence_needed": "原始 SSE 事件流（逐事件）+ 拼接后的正文 + finish_reason + usage。判定「不完整却标记成功」必须能同时看到「缺内容」和「有正常结束标记」两件事",
+      "notes": "STREAM-05 的后半（流开始后错误）在故障注入点落地前为 blocked；此时本条对该分支记 blocked，不得因前半通过就算未命中。",
+      "caveat": "B0 前不可求值：STREAM-04/05 判据恒真（平台合成 `finish_reason=\"eof\"`，D11 F1/F2），本规则**结构上无法命中**；报告不得显示「未触发流式不完整阻断」，只能显示「不可求值（requires_b0）」。",
+      "requires_b0": true,
+      "status": "disabled",
+      "status_reason": "B0 未合并前 STREAM-04/05 恒 pass（合成 finish_reason），本规则结构上不可能命中；active 会让报告打印「未触发流式不完整阻断」= 假绿灯。故 B0 前 status=disabled（不求值），报告中写「该规则 B0 前不可用」。B0 合并后改回 active。",
+      "report_section": "不可求值",
+      "status_rationale": "主理人裁定：`caveat` 与 `disabled` 适用对象不同，不构成冲突——`caveat` 给「能命中、但未命中不足以证明没问题」的规则（BLOCK-01/02/03），`disabled` 给「结构上不可能命中」的规则（本条）。本条 B0 前不求值，报告只显示「不可求值（requires_b0）」，不进「未触发」列表。",
+      "tier": "B",
+      "tier_rule": "不求值；**不得出现在「未触发」列表**，只能进「不可求值」并写原因（requires_b0）"
+    },
+    {
+      "code": "BLOCK-05",
+      "level": "fatal",
+      "requires_recheck": false,
+      "exception": null,
+      "original_text": "请求长期挂起，且平台无法通过超时、取消或切换控制影响。",
+      "source": "p132 第 5 条（正文 p137）",
+      "trigger_text": "两个条件同时成立才命中：(a) 存在长期挂起（连接后无响应 / 流式仅心跳 / 请求不能正常结束）；且 (b) 平台无法通过超时、取消或切换控制使其结束（取消不生效、超时不触发、无可用切换）。(a) 或 (b) 单独成立都不构成上架阻断",
+      "trigger": {
+        "all_of": [
+          {
+            "label": "a_长期挂起",
+            "any_of": [
+              {
+                "item": "ch1:TIME-02",
+                "status": "fail"
+              },
+              {
+                "item": "ch1:TIME-03",
+                "status": "fail"
+              },
+              {
+                "item": "ch1:REQ-03",
+                "status": "fail"
+              },
+              {
+                "item": "ch1:STREAM-02",
+                "status": "fail"
+              }
+            ],
+            "semantics": "语义：是否存在「长期挂起」现象。TIME-02/TIME-03 的超时结束后仍属挂起现象；STREAM-02 的 TTFT 超预算即流式形态的挂起；REQ-03 的持续挂起同理。"
+          },
+          {
+            "label": "b_平台无法控制",
+            "any_of": [
+              {
+                "item": "ch1:TIME-04",
+                "status": "fail"
+              },
+              {
+                "item": "ch1:TIME-01",
+                "status": "fail"
+              }
+            ],
+            "semantics": "语义：控制手段「是否存在」，不是「是否被触发」。TIME-01 归此组：连接失败若在预算内被识别，说明平台有控制手段；只有它本身也 fail（连不上且无超时兜底）才构成「无法控制」。TIME-04 是取消能力是否生效。"
+          }
+        ]
+      },
+      "evidence_needed": "请求耗时曲线或超时日志 + 平台取消状态记录 + 超时配置与切换配置。要证明「无法控制」，需要取消后平台仍继续读取/等待的日志证据，不能只凭一次超时",
+      "notes": "原文用的是「且」，所以这是合取条件。**最容易做错的一条**：实现方若写成 any_of，会把「TIME-02 超时结束」这种正确行为误判为阻断上架（因为超时本身就证明平台能控制）；若写成 all_of 但没有 TIME-04 的可执行检查（TIME-04 目前是 auto 且依赖主动断开），又会永远不触发。建议 TIME-04 设为本规则的 gate：TIME-04 = block/not_tested 时本条整体记 blocked。",
+      "grouping_invariant": "不要把 (b) 组任何一项挪进 (a) 组：结构同构测试只能验证「分组形状一致」，验证不了「语义归属正确」。挪动会让「超时正常工作」被判成「控制失效」——即把 TIME-02 的 pass 误读为阻断证据。",
+      "caveat": "触发项（TIME-01~04、REQ-03、STREAM-02）为中等覆盖；本条是合取，单组不成立即不命中，**未命中不足以证明不存在长期挂起**。",
+      "status": "active",
+      "report_section": "未触发",
+      "decision_rule": [
+        {
+          "if": "any(a == fail) and any(b == fail)",
+          "then": "hit",
+          "branch_id": "both_ref_fail"
+        },
+        {
+          "elif": "all(a == pass)",
+          "then": "miss",
+          "branch_id": "a_all_pass"
+        },
+        {
+          "elif": "any(a == fail) and all(b == pass)",
+          "then": "miss",
+          "branch_id": "a_fail_b_all_pass"
+        },
+        {
+          "else": "",
+          "then": "unknown",
+          "branch_id": "fallthrough_unknown"
+        }
+      ],
+      "decision_rule_note": "a=长期挂起组、b=平台无法控制组。只有「a 有 fail ∧ b 有 fail」才命中；a 全 pass 即无挂起现象，判 miss；a 有 fail 但 b 全 pass，说明平台能控制，判 miss。其余（含 a 或 b 存在不可判定）一律 unknown——不能因为「b 组没测出来」就说「平台能控制」。",
+      "unknown_message_template": "挂起组或控制组存在不可判定项（{undecidable_refs}），无法确认平台能否通过超时/取消/切换控制；不得读成「不存在长期挂起」",
+      "tier": "A",
+      "report_label_when_miss": "未触发（该项判定能力不足，未触发不代表无风险）",
+      "tier_rule": "能命中，命中按 severity 生效；**未命中时报告也必须打印 caveat 原文**，标签固定",
+      "order_policy": {
+        "order_is_normative": false,
+        "why": "四支条件两两互斥，换序不改变返回值，因此**不设** expected_branch_order 断言——对不受顺序影响的规则断言顺序，只会制造假警报，而假警报的标准处置是「改期望值」，最终把断言改成恒真。真值来源：branch0 = ∃a fail ∧ ∃b fail；branch1 = ∀a pass；branch2 = ∃a fail ∧ ∀b pass。三者两两互斥（前者与被者分别就 a、b 互相否证）。",
+        "order_sensitivity_proof": "branch0 ∧ branch1、branch0 ∧ branch2、branch1 ∧ branch2 均为矛盾式",
+        "else_must_be_last": true,
+        "ci_assertion": {
+          "name": "test_block05_else_last",
+          "expr": "decision_rule[-1] 的 branch_id == 'fallthrough_unknown'",
+          "why": "else 是兜底，必须最后；这才是 BLOCK-05 唯一真实存在的顺序约束。",
+          "failure_is": "semantic_change",
+          "message_template": "BLOCK-05 的 else 分支不在末位：命中判定会把「无明确结论」挡在具体分支之前。请把 fallthrough_unknown 移回末位，**不要**改断言。"
+        },
+        "semantic_vs_byte_note": "checksum 是文件级的，只能证明字节变了；分支顺序变了但 checksum 没变是不可能的，反过来——checksum 变了但没人知道变的是语义还是排版——才是本轮反复吃亏的地方。"
+      }
+    },
+    {
+      "code": "BLOCK-06",
+      "level": "conditional",
+      "requires_recheck": true,
+      "exception": "可通过降低渠道并发、限流或缩小客户承接范围处理；必须在限制生效后重新验收（原文 p138）",
+      "original_text": "性能和容量不足，可以通过降低渠道并发、限流或缩小客户承接范围处理，必须在限制生效后重新验收。",
+      "source": "p132 第 6 条（正文 p138）",
+      "trigger_text": "性能或容量不满足承诺（第 5 章 BASE/LOAD/RATE/LIMIT/SOAK/BURST/MIX/FLUX 各项 fail），或在限制生效前无法证明满足",
+      "trigger": {
+        "any_of": [
+          {
+            "item": "ch5:BASE-*",
+            "status": "fail|blocked|not_tested",
+            "group": true
+          },
+          {
+            "item": "ch5:LOAD-*",
+            "status": "fail|blocked|not_tested",
+            "group": true
+          },
+          {
+            "item": "ch5:RATE-*",
+            "status": "fail|blocked|not_tested",
+            "group": true
+          },
+          {
+            "item": "ch5:LIMIT-*",
+            "status": "fail|blocked|not_tested",
+            "group": true
+          },
+          {
+            "item": "ch5:SOAK-*",
+            "status": "fail|blocked|not_tested",
+            "group": true
+          },
+          {
+            "item": "ch5:BURST-*",
+            "status": "fail|blocked|not_tested",
+            "group": true
+          },
+          {
+            "item": "ch5:MIX-*",
+            "status": "fail|blocked|not_tested",
+            "group": true
+          },
+          {
+            "item": "ch5:FLUX-*",
+            "status": "fail|blocked|not_tested",
+            "group": true
+          }
+        ]
+      },
+      "evidence_needed": "第 5 章性能实测数据（延迟分位、错误率、吞吐）+ 生效中的限制配置（并发/RPM/TPM）+ 限制落地后的复验记录",
+      "notes": "**本条目前不可能真正求值**：第 5 章 32 项（BASE/LOAD/RATE/LIMIT/SOAK/BURST/MIX/FLUX）在 config 里一条都没有建模。因此 trigger 里的 item 引用全部落空，规则会静默返回「未命中」，从而把「容量未知」当成「容量没问题」。这是全套规则里最危险的一条，详见 docs/16 §4。过渡处置：ch5 未建模时，本条应返回 blocked 并要求人工填写容量结论，不得返回「未命中」。",
+      "status": "out_of_scope",
+      "status_reason": "第 5 章 32 项（BASE/LOAD/RATE/LIMIT/SOAK/BURST/MIX/FLUX）未建模，本轮不纳入判定；运行时直接返回 out_of_scope，报告第十节显示「BLOCK-06 未覆盖（第 5 章 32 项未建模）」",
+      "runtime_behavior": "ch5 未建模时**直接返回 `out_of_scope`**（不求值、不产生 blocker_reason）；禁止返回 miss，也**不得降级为 blocked**——`blocked` 的含义是「本该跑但前置条件不满足」，会让它看起来像异常；`out_of_scope` 是范围声明。两者混淆会把「没纳入范围」说成「跑了但没跑成」。同时要求人工填写容量结论，作为 unresolved_limits 的一项。",
+      "caveat": "第 5 章 32 项未建模，本条无任何可求值触发项。报告必须显式写「BLOCK-06 未覆盖」，不得静默跳过。",
+      "report_section": "未覆盖",
+      "tier": "C",
+      "tier_rule": "本轮不纳入判定；进「未覆盖」并写明范围"
+    }
+  ],
+  "p139_conclusion_sheet": {
+    "original_text": "每个供应商最终应留下一个明确结论：哪些模型可上架、支持哪些协议和能力、并发／RPM／TPM 上限、超时设置、备用渠道，以及尚未解决的限制。",
+    "fields": [
+      {
+        "key": "admissible_models",
+        "label": "可上架模型",
+        "source": "platform_measured",
+        "derived_from": [
+          "ch1:MODEL-01"
+        ],
+        "note": "取 MODEL-01 通过的模型集合；逐模型记录，不得用「某模型通过」代表其他模型（p127 同源）"
+      },
+      {
+        "key": "protocol_capabilities",
+        "label": "支持的协议与能力",
+        "source": "supplier_declaration + platform_measured",
+        "derived_from": [
+          "ch2:MSG-*",
+          "ch2:CTX-*",
+          "ch2:PARAM-*",
+          "ch2:TOOL-*",
+          "ch2:MEDIA-*",
+          "ch2:STRUCT-*",
+          "ch2:THINK-*",
+          "ch2:SSE-*"
+        ],
+        "note": "声明来自 capability_matrix 参数；实测来自第二章各项；两者不一致时以实测为准并记差异"
+      },
+      {
+        "key": "limits_rpm_tpm_concurrency",
+        "label": "并发 / RPM / TPM 上限",
+        "source": "supplier_declaration + platform_measured",
+        "derived_from": [
+          "ch5:LIMIT-01..07",
+          "ch5:RATE-*",
+          "ch5:LOAD-*"
+        ],
+        "note": "第 5 章未建模时此字段只能填供应商声明值，必须标注「未经实测」"
+      },
+      {
+        "key": "timeout_settings",
+        "label": "超时设置",
+        "source": "platform_config + platform_measured",
+        "derived_from": [
+          "ch1:TIME-01",
+          "ch1:TIME-02",
+          "ch1:TIME-03",
+          "ch1:TIME-04"
+        ],
+        "note": "连接超时 / 首个有效内容超时 / 总超时三项分别记录；p14 已明确总超时不得当作首内容超时"
+      },
+      {
+        "key": "fallback_channels",
+        "label": "备用渠道",
+        "source": "platform_config",
+        "derived_from": [
+          "ch4:ROUTE-02",
+          "ch4:ROUTE-03"
+        ],
+        "note": "来自 providers/渠道配置；需注明切换条件与是否同模型"
+      },
+      {
+        "key": "unresolved_limits",
+        "label": "尚未解决的限制",
+        "source": "manual + auto_aggregated",
+        "derived_from": [
+          "status in (blocked, undefined, not_tested)",
+          "BLOCK-06"
+        ],
+        "note": "自动汇入 blocked/undefined/未测项 + 人工补充；每条须含 code、描述、缓解措施、复验期限"
+      }
+    ],
+    "unresolved_limits_linkage": "「未解决限制」与 conditional 规则联动：BLOCK-06 命中的每条 capacity 缺口自动进入 unresolved_limits，并要求填写 mitigation（降并发/限流/缩小承接范围）与 recheck_due；mitigation 为空时 admission_verdict 不得为「可带限制上架」，只能为「不可上架」。即：conditional 允许上架的前提是「限制已经明确且可执行」，不是「问题先放着」。"
+  },
+  "admission_verdict": {
+    "recommendation": "不改现有四结论，另加一个 admission_verdict 字段（四值）",
+    "values": [
+      "可上架",
+      "可带限制上架",
+      "不可上架",
+      "无法判定"
+    ],
+    "rationale": "现有 conclusion（达标/不达标/无法判定/部分完成待人工确认）回答的是「测试完成度」，上架判定回答的是「能不能上架」，两者不是同一个问题：一个批次可能「达标」（测试都做完了都通过）但同时命中 BLOCK-06 而只能「可带限制上架」。若把「可带限制上架」塞进 conclusion 做第五个值，会破坏前端与 PDF 对四值的穷举分支，且历史批次不可比。",
+    "alternative_if_single_field": "若必须单一字段，则新增第五值「达标（附限制）」，并在所有 switch 处补分支；不推荐，因为「达标」与「达标附限制」在页面上的提示强度不同，合并到同一字段容易被读成同一件事。"
+  },
+  "red_lines": [
+    {
+      "paragraph": "p126",
+      "original_text": "未设置环境变量自动 skip，适用于普通 CI；供应商验收时 skip 不算通过。",
+      "rule": "套件的 skip 不得映射为 pass，也不得映射为 not_applicable",
+      "mapping": [
+        {
+          "skip_reason": "env_missing（如 CHANNEL_ACCEPT_* 未设置）",
+          "target": "blocked",
+          "why": "原文「未设置环境变量自动 skip，适用于普通 CI」——CI 里可以不跑，但供应商验收时没跑就是没测，且原因在平台侧可修复"
+        },
+        {
+          "skip_reason": "injection_missing（模拟上游未配置，如 STREAM-05 后半 / SSE-06 / SSE-07）",
+          "target": "blocked",
+          "why": "适用但缺执行条件"
+        },
+        {
+          "skip_reason": "upstream_unreachable / permission_missing / prerequisite_failed",
+          "target": "blocked",
+          "why": "前置条件不满足"
+        },
+        {
+          "skip_reason": "param_missing",
+          "target": "undefined",
+          "why": "缺供应商参数属「标准未定义」，与 blocked 分开，便于向供应商要参数"
+        },
+        {
+          "skip_reason": "case_not_selected / budget_exhausted / 无 reason",
+          "target": "not_tested",
+          "why": "没有产出证据，保守记未测"
+        },
+        {
+          "skip_reason": "any → not_applicable",
+          "target": "禁止",
+          "why": "not_applicable 只允许用于「原文/渠道声明该能力不适用」，不允许用 skip 冒充，否则静默退出分母"
+        }
+      ],
+      "observability": "报告须列出每个 skip 的 skip_reason 与映射结果，便于审计「有没有把该跑的跳掉了」"
+    },
+    {
+      "paragraph": "p128",
+      "original_text": "缓存 token 数量、命中比例和延迟阈值，按模型及供应商协议配置；修改阈值必须记录理由，不能为通过测试而放宽。",
+      "rule": "阈值必须是按模型/协议配置的数据，不得是代码常量；阈值变更必须留痕且不得为通过而放宽",
+      "data_source": {
+        "location": "按 (model_id, protocol, threshold_key) 三维键的配置表，如 config/thresholds.json",
+        "forbidden": "代码内的字面量常量、跨模型复用同一实测值（p204 已明确禁止）",
+        "snapshot": "每次批次开始时，把本次实际生效的全部阈值快照写入 run 记录；报告须显示所用阈值，否则读者无法判断结论是按什么标准得出的"
+      },
+      "change_trail": {
+        "table": "threshold_changes(id, model_id, protocol, key, old_value, new_value, reason, operator, changed_at, standard_version_id, run_id)",
+        "constraints": [
+          "reason 非空且不得为「为使测试通过」类表述",
+          "批次执行中禁止变更；变更只能在批次之间",
+          "变更后受影响的项必须在新版本中重跑，不得沿用旧结论",
+          "若某阈值被放宽后该项由 fail 转 pass，须在同一版本说明中显式标注，供审计抽查"
+        ]
+      }
+    }
+  ],
+  "ref_resolution": {
+    "sources": [
+      "config/standards_ch1.json",
+      "config/standards_ch234.json",
+      "config/hard_assertions.json",
+      "config/assertions_claude.json",
+      "config/assertions_billing.json"
+    ],
+    "rule": "trigger 与 coverage_matrix 里的 item 必须在上述文件的 **item 级 id 空间**并集中解析到（当前贡献 item 级 id 的是 standards_ch1 ∪ standards_ch234 ∪ hard_assertions；两个 assertions_* 文件贡献的是 assertion 级 id，经 assertion_ref 关联，当前为 null）。解析失败不得静默忽略，必须 config_invalid 中止。",
+    "why": "BLOCK-01 引 ch2:CLAUDE-REG-03、BLOCK-03 引 ch2:CLAUDE-REG-02 与 ch3:CH3-REG-01、BLOCK-04 引 ch2:CLAUDE-REG-04。这些不在 standards_*.json 内。若解析器只认 standards，这 4 条会被当作未知编号静默丢弃——而它们恰好是 Claude 渠道下 system 完整性、重复写入、首写规模、流式用量唯一的阻断入口，四条一起丢会让 Claude 渠道阻断面少一半且不报错。"
+  },
+  "chapter_convention": "chapter 一律按物理位置：CLAUDE-REG-* 位于第 2 章末的无编号一级标题「Claude 兼容上游固定回归测试」→ ch2；CH3-REG-* 位于 3.12 → ch3。hard_assertions.json 每条另有 chapter 字段，两者必须一致。",
+  "coverage_matrix": {
+    "note": "关键项 → 规则 的必须覆盖关系。测试断言：矩阵中每一对都存在（方向为「关键项 fail 必须能触发该规则」）。新增 trigger 不得破坏这些对。",
+    "required": [
+      {
+        "block": "BLOCK-01",
+        "items": [
+          "ch2:MSG-04",
+          "ch2:MSG-05",
+          "ch2:MSG-07",
+          "ch2:MEDIA-01",
+          "ch2:MEDIA-02",
+          "ch2:MEDIA-05",
+          "ch2:TOOL-01",
+          "ch2:CTX-01",
+          "ch2:CTX-02",
+          "ch2:CTX-03",
+          "ch2:CONV-03",
+          "ch2:ERR-05",
+          "ch3:CTRL-02",
+          "ch4:LIMIT-03",
+          "ch2:CLAUDE-REG-03"
+        ]
+      },
+      {
+        "block": "BLOCK-02",
+        "items": [
+          "ch1:MODEL-02",
+          "ch1:MODEL-03",
+          "ch1:REQ-05",
+          "ch2:PARAM-07",
+          "ch4:ID-01",
+          "ch4:ID-02",
+          "ch4:ROUTE-01",
+          "ch4:ROUTE-02",
+          "ch4:ROUTE-03",
+          "ch4:ID-04"
+        ],
+        "note": "ID-04 原与 ROUTE-01 共用 check_model_reported，列与不列等价；规格要求拆分后必须列入，故提前补，避免拆分时漏一条"
+      },
+      {
+        "block": "BLOCK-03",
+        "items": [
+          "ch3:CACHE-02",
+          "ch3:CACHE-05",
+          "ch3:PREFIX-01",
+          "ch3:PREFIX-02",
+          "ch3:PREFIX-04",
+          "ch3:BILL-01",
+          "ch3:BILL-05",
+          "ch3:BILL-06",
+          "ch3:FAIL-01",
+          "ch3:FAIL-03",
+          "ch3:MODE-04",
+          "ch3:CH3-REG-01",
+          "ch2:CLAUDE-REG-02"
+        ]
+      },
+      {
+        "block": "BLOCK-04",
+        "items": [
+          "ch1:STREAM-03",
+          "ch1:STREAM-04",
+          "ch1:STREAM-05",
+          "ch2:SSE-01",
+          "ch2:SSE-02",
+          "ch2:SSE-03",
+          "ch2:SSE-04",
+          "ch2:SSE-05",
+          "ch2:SSE-06",
+          "ch2:CLAUDE-REG-04"
+        ]
+      },
+      {
+        "block": "BLOCK-05",
+        "structure": "all_of",
+        "all_of": [
+          {
+            "label": "a_长期挂起",
+            "items": [
+              "ch1:TIME-02",
+              "ch1:TIME-03",
+              "ch1:REQ-03",
+              "ch1:STREAM-02"
+            ],
+            "semantics": "语义：是否存在「长期挂起」现象。TIME-02/TIME-03 的超时结束后仍属挂起现象；STREAM-02 的 TTFT 超预算即流式形态的挂起；REQ-03 的持续挂起同理。"
+          },
+          {
+            "label": "b_平台无法控制",
+            "items": [
+              "ch1:TIME-01",
+              "ch1:TIME-04"
+            ],
+            "semantics": "语义：控制手段「是否存在」，不是「是否被触发」。TIME-01 归此组：连接失败若在预算内被识别，说明平台有控制手段；只有它本身也 fail（连不上且无超时兜底）才构成「无法控制」。TIME-04 是取消能力是否生效。"
+          }
+        ],
+        "note": "原扁平写法有误：TIME-02 单独 fail 并不触发 BLOCK-05（还差 b 组），照扁平矩阵实现 CI 会把 all_of 写回 any_of。矩阵结构必须与 trigger 结构同构。",
+        "grouping_invariant": "不要把 (b) 组任何一项挪进 (a) 组：结构同构测试只能验证「分组形状一致」，验证不了「语义归属正确」。挪动会让「超时正常工作」被判成「控制失效」——即把 TIME-02 的 pass 误读为阻断证据。"
+      },
+      {
+        "block": "BLOCK-06",
+        "items": [],
+        "note": "out_of_scope，无可指向判定"
+      }
+    ],
+    "structure_rule": "矩阵必须与 trigger 同构：trigger 为 any_of 的，矩阵给扁平 items（任一 fail 即可触发）；trigger 为 all_of 的，矩阵给 all_of 分组（每组各需至少一项 fail 才触发）。tests/test_blocking_rules.py 第 4 条应断言「矩阵结构与 trigger 结构同构」，而不是「每个 item 单独能触发」。 注意：结构同构是必要非充分——能拦住「矩阵比 trigger 松」，拦不住「把某项挪到错误的组」。BLOCK-05 的 (a)/(b) 语义已写入每组的 semantics 字段与 grouping_invariant，挪组前必须读它。"
+  },
+  "provisional_threshold_policy": {
+    "allowed_to_judge_fail": true,
+    "why": "80% / 10% / 50% / ±30% 四个阈值原文未给数值、anthropic_channel_accept_test.go 也不在仓库，但若因此不许判 fail，BLOCK-01/03/04 在 Claude 渠道将全空，比现状更糟",
+    "provisional_codes": [
+      "CLAUDE-REG-01",
+      "CLAUDE-REG-02",
+      "CH3-REG-01",
+      "CH3-REG-02",
+      "CH3-REG-03"
+    ],
+    "non_provisional_codes": [
+      "CLAUDE-REG-03",
+      "CLAUDE-REG-04",
+      "CH3-REG-04",
+      "CH3-REG-05"
+    ],
+    "hit_downgrade_rule": "若某 BLOCK 的全部命中来源都落在 provisional_codes 内 → 该 BLOCK 记 pending（阻断待确认），不得记 hit；只要存在任一条非 provisional 的 ref fail → 记 hit。",
+    "admission_effect": "pending 状态的 BLOCK 不得单独构成 admission_verdict=不可上架 的最终依据；报告中列为「阻断待确认」并附需复核的套件常量",
+    "report_note": "逐项标注「基于拟定阈值，待套件常量复核」，并列出所用阈值与 source=provisional_pending_upstream_script",
+    "b1_gate": "source 以 provisional_ 开头的条目只进 draft 版本，不进 standard_items 正式版本；拿到套件常量后重出正式版",
+    "affected_blocks": [
+      "BLOCK-03"
+    ],
+    "note": "BLOCK-01/02/04/05 的 ref 均不依赖 provisional 阈值，不受降级规则影响；实际只有 BLOCK-03 会走 pending 路径"
+  },
+  "revision": "v21",
+  "revision_note": "v21：BLOCK-02/03/05 每支加 branch_id；BLOCK-02/03 加 order_policy.expected_branch_order + CI 断言（顺序变化报「语义变更」，报错文案携带后果）；BLOCK-05 判定为顺序无关（四支两两互斥），只断言 else 在末位——对顺序无关的规则断言顺序只会制造假警报，而假警报会逼人改期望值直到断言恒真。另补 snapshot_fields_registry.scope 作用域声明。",
+  "status_semantics": {
+    "active": {
+      "meaning": "正常求值",
+      "report_section": "未触发 / 命中",
+      "note": "未命中可能只是「测不准」，必须同时打印 caveat",
+      "evaluated": true
+    },
+    "disabled": {
+      "meaning": "不求值，结构上不可能命中或依赖未合并的前置修复",
+      "report_section": "不可求值",
+      "note": "禁止出现在「未触发」列表；必须显示原因（requires_b0 等）",
+      "evaluated": false
+    },
+    "out_of_scope": {
+      "meaning": "本轮不纳入判定（范围声明，不是异常）",
+      "report_section": "未覆盖",
+      "evaluated": false,
+      "note": "必须显示「BLOCK-06 未覆盖（第 5 章 32 项未建模）」，不得静默跳过；也不得降级为 blocked——blocked 表示「该跑没跑成」，out_of_scope 表示「不在本轮范围」"
+    }
+  },
+  "status_tiers_policy": "报告分三节呈现，不得混入同一「未触发」列表：active→「未触发」、disabled→「不可求值（原因）」、out_of_scope→「未覆盖」。理由：三者对读者的含义完全不同——「未触发」被读成「验过且没问题」，「不可求值」是「没验」，「未覆盖」是「不在本轮范围」。混在一起会把后两者伪装成前者。",
+  "default_decision_rule": [
+    {
+      "if": "any(ref == fail for ref in refs)",
+      "then": "hit"
+    },
+    {
+      "elif": "any(ref in {blocked, undefined, not_tested, pending} for ref in refs)",
+      "then": "unknown"
+    },
+    {
+      "else": "",
+      "then": "miss"
+    }
+  ],
+  "default_decision_rule_rationale": "没有显式 decision_rule 的规则一律继承本式。理由：只写「任一 fail → hit，否则 miss」会让「全部 ref 都 blocked/pending」的批次判 miss，报告打印「未触发某阻断」——而那可能是「根本没法验」。BLOCK-02 最典型：它的 identity 类 ref（ROUTE-01~03、PARAM-07、ID-04）是终局 L1，常态就是 pending（等供应商回执），若判 miss 会出现「最弱的一条规则给出最强的 all-clear」。",
+  "decision_rule_precedence": "`status != active` 的规则**一律不求值**，直接返回其 `status`（`disabled` / `out_of_scope` 同此）。只有 `status == active` 的规则才走 decision_rule（自身声明优先，未声明继承 default_decision_rule）。",
+  "undecidable_states": [
+    "blocked",
+    "undefined",
+    "not_tested",
+    "pending"
+  ],
+  "undecidable_note": "这四态对「未命中」都是不可判定；`not_applicable` 不算（它是有依据的排除）。**`pending` 必须在内**：BLOCK-02 的 identity 类引用项（ROUTE-01~03、PARAM-07、ID-04）是终局 L1，其常态就是 `pending`（等供应商回执）。若只按 blocked/undefined/not_tested 三态判 unknown，「全 pending 无一 fail」这个最常见的情形仍会落到 miss——等于 bug 只修了一半。",
+  "unknown_must_be_explained": "任何 unknown 必须携带原因模板渲染出的文本，禁止在报告里只显示空白 unknown——否则它与「没查」在版面上无法区分，读者会默认当成没事。模板须含 `{undecidable_refs}`，让读者看到具体是哪几项没结论。",
+  "supplier_evidence_policy": {
+    "principle": "按值定判定，不按「供应商侧」大类一刀切；同一值在所有规则上判定一致，不按规则分流",
+    "mapping": {
+      "supplier_evidence_refused": {
+        "verdict": "hit",
+        "rules": [
+          "BLOCK-03"
+        ],
+        "basis": "p135「或用量无法对账」字面成立；拒绝即终态",
+        "other_rules": "BLOCK-01/02/05 仍为 unknown——p134 等条文要求正面证据，「拒绝提供」不是「已替换」的证据"
+      },
+      "supplier_evidence_missing": {
+        "verdict": "unknown",
+        "rules": "所有规则统一",
+        "why": "答应提供但还没给。判 hit 等于在供应商还没违约时宣布它有缺陷；unknown 的终局是不放行，所以「一直拖着」仍有终点"
+      },
+      "awaiting_billing_period": {
+        "verdict": "unknown",
+        "rules": "所有规则统一",
+        "extra": "requires_recheck，到期重新求值"
+      }
+    },
+    "terminal_condition": "两条路径终点都是「不可上架」：hit → 不达标；unknown → 无法判定。按 p269「供应商无法提供必要证据则不能按该定位验收通过」，unknown 不会无限挂起，而是「等不到就不放行」。",
+    "blocker_reason_required": [
+      "supplier_evidence_missing",
+      "supplier_evidence_refused",
+      "awaiting_billing_period"
+    ],
+    "why_not_per_rule": "v13 曾按规则分流（missing 在 BLOCK-03 判 hit）。主理人裁定改为统一 unknown：同一事实在不同规则上给出相反结论，运营侧无法解释；且 hit 的语义是「已确认缺陷」，而 missing 只是「还没给」。"
+  },
+  "decision_rule_precedence_rationale": "写成「status != active」而非逐个列举，是为了将来加第三、第四种状态时不踩同一个坑。若只豁免 disabled，out_of_scope 的规则会走 default_decision_rule——而它的 ref 往往整体不可解析，会落 unknown，报告按状态分流时就被归进「未触发」，读者看到「验过且没问题」。这正是三档分节要防的事。",
+  "blocked_vs_out_of_scope": "`blocked` = 适用但前置条件不满足（必须有 blocker_reason）；`out_of_scope` = 不在本轮范围（无 blocker_reason）。两者在报告中的分节不同（不可求值 / 未覆盖），混用会让读者无法区分「平台没跑成」和「本轮没安排」。",
+  "enum_dependencies": [
+    {
+      "id": "supplier_evidence",
+      "required_values": [
+        "supplier_evidence_missing",
+        "supplier_evidence_refused",
+        "awaiting_billing_period"
+      ],
+      "field": "blocker_reason",
+      "used_by": [
+        "BLOCK-03.decision_rule[1]"
+      ],
+      "status": "pending_spec",
+      "impact_if_missing": "BLOCK-03 的「明确拒绝 → hit」分支不可达，拒绝提供账单时只能落 unknown。后果不是假绿（unknown 仍阻断达标），但「拒供无结论」原样存在。",
+      "interim_behavior": {
+        "applies_when": "branch_reachability 计算为 dead 时**才**生效",
+        "behavior": "若 BILL-06 的 blocker_reason 为 general/missing_dependency 且人工标注为「供应商未提供」，报告须在 unknown_message 后追加「（hit 分支不可用：blocker_reason 枚举缺失 supplier_evidence_missing）」",
+        "must_disappear_when": "枚举落地、branch_reachability 计算为 reachable 时，该标注**必须自动消失**。若写成静态文本，枚举落地后报告会一直打「hit 分支不可用」，读者会以为规则废弃了——这是同一个「静态文本描述动态事实」问题的第二处。"
+      },
+      "ci_assertion": "CI 须校验三条：① `decision_rule` 里每个 `requires_enum.values` 及 `contrast_values` 都存在于规格 blocker_reason 枚举表；② 每个把枚举值映射为 `hit` 的分支都必须带非空 `hit_basis`（原文段落号）；③ `awaiting_billing_period` 不得出现在任何 hit 分支的 values 里。任一不满足 → 该分支标 dead 并在测试输出列出，**不得只报「decision_rule 存在」就算过**。",
+      "value_semantics": {
+        "supplier_evidence_missing": "答应提供但还没给（须有 request_log）→ 所有规则统一 unknown，给履行机会；账期未到不得用本值",
+        "supplier_evidence_refused": "明确拒绝（须有 refusal_log）→ BLOCK-03 hit（p135），其余规则 unknown",
+        "awaiting_billing_period": "所需账单尚未进入可对账账期（外部时序，不归因任何一方）；**任何规则都不得据此判 hit**，一律 unknown，且到期须重新求值（requires_recheck: true）"
+      },
+      "why_three": "只加 missing / refused 两个值会留一个坑：BILL-06 因「账期未到」而 blocked 时，实现方只能在现有枚举里挑，挑到 missing 就会误判 hit——把正常的月度账单滞后当成「计量错误」。第三个值是**为这两个值划边界**用的，不是可有可无。"
+    }
+  ],
+  "enum_dependency_policy": "凡 decision_rule / checks 引用了平台枚举值的，必须在数据里声明 requires_enum 并登记到 enum_dependencies；引入未落地枚举的规则，其对应分支应显式标 dead，而不是看起来已实现。这轮已出现多起「声明了但未生效」（40→23 的跨章错配、CACHE-REG 命名、caveat 字段缺失、三类状态缺席），共同点是**数据看起来对、行为没变**——本条登记就是把它变成可见项。",
+  "status_self_check": {
+    "BLOCK-06": {
+      "status": "out_of_scope",
+      "precedence_covers": true,
+      "runtime_returns": "out_of_scope",
+      "note": "v8 已把 runtime_behavior 改为返回 out_of_scope、precedence 泛化为 status != active；v7 的「返回 blocked」措辞已清除"
+    },
+    "BLOCK-04": {
+      "status": "disabled",
+      "precedence_covers": true,
+      "runtime_returns": null,
+      "note": "disabled，不求值"
+    }
+  },
+  "hit_mapping_policy": "枚举值 → hit 的映射必须逐规则显式声明，不得设全局默认。p134（需正面证据）与 p135（并列缺陷）的谓语不同，一刀切必错一半。且每个 hit 分支必须带 `hit_basis`（原文段落号），缺则视为配置错误：判 hit 是宣布「供应商有缺陷」的结论，必须有原文依据。\n\ncontrast_values 的用途：凡「某个值必须不映射为 hit」的分支都要显式声明该值。例：BLOCK-03 的 awaiting_billing_period 必须不判 hit——若不显式声明，将来有人把它并进 hit 集合时没有任何字段能拦住。该字段与 values 分开，是为了让反向约束有独立落点；只写正向集合，删掉反向约束时分支仍然「看起来对」。",
+  "blocker_reason_audit_requirement": "每个 blocked 项必须可审计地记录「谁、何时、以什么形式请求过、对方如何回应」（evidence_artifact.request_log / refusal_log）。缺请求记录 → 不得用 supplier_evidence_missing（那是平台没要，属平台侧原因）；缺拒绝记录 → 不得用 supplier_evidence_refused。无法区分 missing / refused / 平台没要，就无法决定 hit 还是 unknown。",
+  "three_tier_rule_classes": {
+    "A_active_caveat": {
+      "tier": "A",
+      "rules": [
+        "BLOCK-01",
+        "BLOCK-02",
+        "BLOCK-03"
+      ],
+      "meaning": "能命中，但未命中不足以证明无风险",
+      "report_section": "未触发",
+      "miss_label": "未触发（该项判定能力不足，未触发不代表无风险）",
+      "why_label": "不能只显示「未触发」四个字。读者会把「未触发」读成「验过且没问题」，而这三条规则恰恰是「命中可信、未命中不足」——只说未触发，等于把「测不准」说成「没问题」。固定措辞把 caveat 的语义压进标签本身。"
+    },
+    "B_disabled_requires_b0": {
+      "tier": "B",
+      "rules": [
+        "BLOCK-04"
+      ],
+      "meaning": "结构上不可能命中",
+      "report_section": "不可求值",
+      "why": "必须在「不可求值」列表并写 requires_b0；若落进「未触发」，读者会认为「流式不完整这项验过了」"
+    },
+    "C_out_of_scope": {
+      "tier": "C",
+      "rules": [
+        "BLOCK-06"
+      ],
+      "meaning": "本轮不纳入判定",
+      "report_section": "未覆盖",
+      "why": "必须显示「BLOCK-06 未覆盖（第 5 章 32 项未建模）」"
+    }
+  },
+  "report_rule_count_invariant": {
+    "expected": 6,
+    "rule": "报告的阻断规则小节恒为 6 条，**disabled / out_of_scope 不得被过滤掉**",
+    "why": "少一条会让读者以为上架判定只有 5 条，而原文是 6 条。过滤掉 disabled 最隐蔽——它在数据上\"没结论\"，在报告上就\"不存在\"，读者无从察觉少了一条。",
+    "ci": "`test_report_rule_count`：任意批次报告解析出的规则条目数 == 6"
+  },
+  "snapshot_policy": "所有快照字段遵守三段规则（规格 §9.1.1）：① 加载时一律重算，字段值 = 当前计算结果；② 保留上一次的 snapshot_at + snapshot_value，仅用于发现「结论变了」；③ 判定时只读重算值，禁止读 snapshot_value。原因：「引得到」不等于「引到的东西不会变」——可达性/存在性/适用性/执行器就绪都可能过期，而过期值在 review 时读起来完全自洽。",
+  "recompute_policy": "凡字段值由其他事实派生（如 branch_reachability 由枚举成员关系算、executor_ready 由 plan_ref 注册状态算），必须在每次加载时重算；snapshot_value 只是某一时点的快照，不是配置事实。存储值必须等于重算值，不等即 config_invalid。新增派生字段时本策略自动适用，不得只给新字段单独写一遍——漏写不会报错，这正是要防的。",
+  "contrast_value_policy": {
+    "what": "hit 分支除 `values` 外可声明 `contrast_values`：一组**必须存在、且不得映射为 hit** 的枚举值。它与 `values` 分开，是为了让「反向约束」有独立落点——只写正向集合时，删掉反向约束分支仍然「看起来对」。",
+    "how_to_use": "凡某分支把「缺证据」映射为 hit，就应同时声明哪些相邻值**不**算缺陷。例：BLOCK-03 的 values=[refused]、contrast_values=[missing, awaiting_billing_period]。",
+    "what_it_catches": "若有人把 contrast 里的值挪进 values（或直接加进 hit 集合），该字段会先炸——它查的是值的**角色**，而 §9.1 的 test_enum_closure 只查值**存在**，前者更严一格。",
+    "what_it_misses": "它拦不住「values 里放了个本来就不该判 hit 的值，且 contrast 也没覆盖到它」。那一层要靠 hit_basis 的条文依据判断，而那是语义判断，机器只能做形式校验（见 hit_basis_quality_note）。",
+    "generalization": "本字段不限于 BLOCK-03。任何「某值必须不判 hit」的分支都可声明；与 recompute_policy 提升到文件层同一理由：**漏写不会报错，所以要把机制放在默认路径上**。"
+  },
+  "hit_basis_quality_note": "规格 V51 要求 hit_basis 指向的条文把「该情形本身」列为缺陷，而不是把「它的后果」列为缺陷。注意这条要求的可机器化程度：① 可机器校验的部分：hit_basis 非空、段落号存在、引用的原句片段确实出现在该段落文本中（docx 可解析）；② **不可机器校验的部分**：「该情形本身 vs 它的后果」是语义判断，CI 只能校验到 ①。因此该 gate 必须以「形式校验 + 具名人工复核」两段呈现，不得报成「依据已自动验证合格」——否则它会成为本轮一直在堵的那种「看起来验了、其实只验了格式」的绿灯。建议字段形态：hit_basis（段落号）+ hit_basis_quote（原句片段，可与 docx 比对）+ hit_basis_reviewed_by（人）。",
+  "snapshot_fields_registry": {
+    "source": "规格 §9.1.1 五类快照字段",
+    "purpose": "登记全部五类，供对称比较断言使用：assert set(本文件 keys) == set(规格 §9.1.1 的字段名)。逐元素检查对不存在的字段恒真，只有对称比较能发现「少一类」——本文件 v17 就是被它逼出来的。",
+    "fields": {
+      "branch_reachability": {
+        "class": 1,
+        "judges": "分支可达性（依赖枚举值是否存在）",
+        "invalidated_by": "枚举落地、判定式改写",
+        "derived_in": "config",
+        "formula": "dead = NOT ( (values ∪ contrast_values) ⊆ enum(blocker_reason) )",
+        "landed_at": "BLOCK-03.decision_rule[1].requires_enum.branch_reachability"
+      },
+      "value_present": {
+        "class": 2,
+        "judges": "枚举值是否存在",
+        "invalidated_by": "枚举表扩展",
+        "derived_in": "config",
+        "formula": "present(v) = v ∈ enum(blocker_reason)",
+        "landed_at": "enum_dependencies[*].required_values",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "all_present",
+        "snapshot_explains": "三个值已于规格 §2.3 落地（现 13 值）",
+        "note": "本字段此前没落——是「对称比较」断言第一次跑出来发现的。它和 branch_reachability 判的是不同的事：后者判「分支能不能执行」，前者判「值本身在不在」。枚举被删掉某个值时，value_present 先红；值在但分支条件写错时，branch_reachability 不红（因为成员关系仍成立）。"
+      },
+      "applicability": {
+        "class": 3,
+        "judges": "某项是否适用",
+        "invalidated_by": "协议升级、declared_* 参数录入",
+        "derived_in": "config",
+        "formula": "applicable = (channel_protocol == anthropic-messages)",
+        "landed_at": "assertions[*].applicability（本次补齐）",
+        "snapshot_at": "2026-10-22T18:55:14+08:00",
+        "snapshot_value": "conditional",
+        "snapshot_explains": "仅 Claude 兼容上游适用；非该协议一律 not_applicable，理由固定",
+        "note": "此前只在 group.applicability 写了一句散文，没有逐断言字段——散文无法被对称比较看到。这条也是本次检查发现的。"
+      },
+      "executor_ready": {
+        "class": 4,
+        "judges": "L2/L1 项落 pass 还是 blocked",
+        "invalidated_by": "批次施工完成",
+        "derived_in": "config",
+        "formula": "ready = (plan_ref ∈ registered_templates) AND (len(assertions)>0) AND (all(reads) ⊆ signals)",
+        "landed_at": "assertions[*].executor_ready"
+      },
+      "has_evidence": {
+        "class": 5,
+        "judges": "证据是否已上传",
+        "invalidated_by": "上传 / 删除 / 重传",
+        "derived_in": "runtime",
+        "formula": "has = exists(evidence where item_id = this AND sha256 未失效)",
+        "landed_at": "run_items / evidence 表（不在 config）",
+        "snapshot_value": "runtime_state",
+        "note": "config 侧只能声明契约，不能伪造快照值——写一个假的 has_evidence=false 会让对称比较通过，但那个值没有任何意义，且会掩盖「运行时根本没实现这个字段」。因此本字段登记为 derived_in=runtime，其断言落在 B0.5/B6 的运行时校验，不在此处。"
+      }
+    },
+    "scope": {
+      "applies_to": "assertion-level files only",
+      "in_scope": [
+        "config/blocking_rules.json",
+        "config/assertions_claude.json",
+        "config/assertions_billing.json"
+      ],
+      "not_in_scope": [
+        "config/hard_assertions.json",
+        "config/criteria_original.json",
+        "config/automation_levels.json"
+      ],
+      "not_in_scope_reason": "hard_assertions 的 9 行是映射行不是断言；criteria_original 是原文比对清单；automation_levels 是迁移素材。三者都不产生判定，给它们填五类快照字段等于给不判定的记录编造判定状态。",
+      "in_scope_last_reviewed": "v21：blocking_rules 加入 in_scope。依据：唯一一处真实 branch_reachability 实例就在本文件（BLOCK-03 的 evidence_refused 分支）。若把它排除在作用域外，作用域内反而一条真实实例都查不到，等于「登记了字段却没人真用」——这种 registry 会在下一次检查时被当成形式主义删掉。",
+      "ci_assertion": {
+        "name": "test_snapshot_scope_agrees",
+        "expr": "三处 scope 深度相等（含 in_scope / not_in_scope / not_in_scope_reason）",
+        "why": "作用域声明若三处不一致，下一个人仍会得到假警报。他不需要相信哪一处，他只需要跑一次比较。"
+      }
+    }
+  },
+  "write_time_rule": "任何写入 automation_level / automation_level 相关字段的迁移脚本，必须同时重算该文件的全部快照字段（branch_reachability / value_present / applicability / executor_ready / has_evidence），不得沿用旧快照。理由：快照是某一时点的计算结果，不是配置事实；而「只写级别不算就绪」会让执行器未实现的项显示 pass，那是假绿换了个字段名。本规则写在此处而非只挂在单条断言上——迁移脚本作者不一定会读单条断言的元数据。",
+  "hit_basis_three_field_note": "hit_basis 拆三段：① hit_basis（段落号）② hit_basis_quote（原句片段，须与 docx 该段落逐字匹配）③ hit_basis_reviewed_by（人）。前两段机检；第三段是语义判断（「该情形本身」vs「它的后果」），机器做不了。报告措辞只能写「形式已验（段落号 + 原文片段比对通过）、语义已由 <某人> 复核」，不得写「依据已自动验证合格」——那是把形式校验冒充成语义校验。",
+  "review_state_policy": {
+    "state_token": "pending_named_reviewer",
+    "why_not_a_fourth_status": "状态机是「通过 / 不通过 / 无法判定」，本态不属于其中任何一个：落「通过」会冒充语义已验；落「不通过」会冤枉（形式是对的，只是没人签字）；落「无法判定」说得过去，但读者会以为是「证据不足」，而实际是「流程未完成」。因此不新增第四态（那要动状态机，代价大于收益），而是作为**报告标注**存在。",
+    "must_be_greppable": "报告正文必须原样出现 token `pending_named_reviewer`，便于终裁一眼筛出「语义部分还没人签字」的结论，而不是混在「已验」里。禁止改写为「部分完成」「待确认」等既有状态词——那些词已有别的含义。",
+    "forbidden_mappings": {
+      "pass": "冒充语义已验",
+      "fail": "形式是对的，只是无人签字，判不通过属冤枉",
+      "unknown": "会被读成「证据不足」，与「流程未完成」不同",
+      "not_applicable": "完全不适用，语义上错得最远"
+    },
+    "resolution_action": "由流程指定一名具名复核人填入 `hit_basis_reviewed_by`，状态才可转为 verified。这是流程动作，不是数据动作——数据侧只能标记空缺，不能解决谁来做。",
+    "applies_to": [
+      "BLOCK-03.decision_rule[1].hit_basis_three_field",
+      "凡 hit_basis_reviewed_by 为 null 的 hit 分支（当前仅 BLOCK-03 一处）"
+    ],
+    "report_render": {
+      "template": "依据形式已验；语义复核待指派（pending_named_reviewer）",
+      "mutable": true,
+      "note": "供报告渲染；可随文案调整，调整时不触发校验失败"
+    },
+    "ci_assertion": {
+      "assert_token_present": "pending_named_reviewer",
+      "assert_token_not_rewritten": true,
+      "forbidden_rewrites": [
+        "部分完成",
+        "待确认",
+        "待办",
+        "未完成"
+      ],
+      "must_not_assert_whole_sentence": true,
+      "note": "CI 只断言 token 原样出现且未被改写成既有状态词；**不得断言整句**——措辞微调是无害的，断言整句会逼人改断言，最终把断言改废。"
+    },
+    "render_ci_split": {
+      "why_split": "整句会被润色——改版、精简、统一语气，每一次都是删掉语义的机会。但整句也会被**无害地微调**（如「待指派」改「待指定」），若 CI 断言整句，这种改动会红；红了之后人会去改断言，改着改着断言就废了。所以 CI 只守不可变的那部分。",
+      "token_is_invariant": true,
+      "template_is_mutable": true,
+      "on_template_change": "只改模板，不动 token 与断言；token 变更须走规格评审",
+      "analogy": "与「阈值必须是数据」同理：把易变的部分与判定锚点分离，锚点不动，易变部分随文案走。"
+    }
+  },
+  "checksum_algo": "sha256(json.dumps(内容, ensure_ascii=False, sort_keys=True)) 取前 16 位十六进制；内容 = 本文件去掉 checksum 字段后的整体。与 backend/standards.py 的 _checksum() 同族（同为 sha256+前16位+sorted keys），但覆盖范围不同：那边只覆盖 items 的 as_payload()，这边覆盖整文件。**两者不可互换比较**，只能各自与自己比。",
+  "revision_is_label_not_authority": "`revision` / `revision_note` 是**人类可读的变更标签，不是机器权威**——代码里没有任何地方读它（已 grep 确认）。判断「这份数据是不是我以为的那份」只能看 checksum。这与 standards_*.json 里 `version` 成为装饰字段是同一类问题，此处明示以免重复踩。",
+  "checksum": "750c7ad31db68d2f",
+  "checksum_history": [
+    {
+      "revision": "v20",
+      "checksum": "15007d4062cd65fd",
+      "superseded_by": "v21",
+      "reason": "分支加 branch_id 与顺序策略（顺序承载语义但此前无任何校验）；补快照字段作用域声明。"
+    }
+  ],
+  "checksum_history_note": "只追加不重写：每次 checksum 变化都留一行「旧值 + 为什么」，因为本轮的真正问题从来不是「文件变了」，是「变了没人知道」。时间戳刻意不写在这里——手写会造出不存在的时点，该由 CI 在提交时写入；本字段只保证可追溯，不保证可定日。"
+}

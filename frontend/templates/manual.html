@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block title %}操作手册 · 接入测试平台{% endblock %}
+
+{% block content %}
+<div class="page-head" data-testid="t-manual-root">
+  <div>
+    <h1>操作手册</h1>
+    <p class="sub">第一章「连通性与鉴权」的用例定义、平台自动化范围与需人工执行的步骤。</p>
+  </div>
+  <div class="actions"><a class="btn btn-sm" href="/">返回接口测试</a></div>
+</div>
+
+<div class="grid-2">
+  <section class="panel" data-testid="t-manual-section" data-section="workflow" data-source="平台说明">
+    <div class="panel-head"><h2>执行流程</h2><span class="meta">WORKFLOW</span></div>
+    <div class="panel-body">
+      <ol class="steps">
+        <li><strong>准备端点与凭证</strong>：填写供应商基础地址、完整协议路径前缀、有效 Key、错误 Key 与拟上架模型 ID。</li>
+        <li><strong>确认链路</strong>：先测上游直连，再测转发链路；两条链路分别独立判定，不能互相替代。</li>
+        <li><strong>运行验收套件</strong>：默认每模型每条链路连续 3 次普通请求 + 3 次流式请求，鉴权与模型边界用例各 1 次。</li>
+        <li><strong>处理 FAIL</strong>：先看证据中的状态码与错误码，再决定重测、换模型或联系供应商；补跑单次成功不能替换失败记录。</li>
+        <li><strong>留存记录</strong>：导出 Markdown / CSV，与供应商沟通记录、上游日志一并归档。</li>
+      </ol>
+      <div class="alert info mt-12">
+        <div>
+          <p><strong>判定口径</strong>：某模型通过不代表其他模型通过；某条链路通过不代表另一条链路通过；某个协议通过不代表其他协议通过。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" data-testid="t-manual-section" data-section="scope" data-source="平台说明">
+    <div class="panel-head"><h2>平台自动化的边界</h2><span class="meta">SCOPE</span></div>
+    <div class="panel-body">
+      <p class="small">以下用例需要供应商控制台或平台侧配置权限，平台只能记录人工结论，不会伪造通过结果：</p>
+      <ul class="small list-plain">
+        <li><code>AUTH-05</code> 已撤销 Key：需在供应商控制台创建并撤销测试 Key，记录撤销生效时间。</li>
+        <li><code>MODEL-05</code> 权限边界：需供应商侧模型级权限与受限 Key。</li>
+        <li><code>AUTH-06 / AUTH-07 / AUTH-08</code> 已于 2026-10-24 升为自动：「有返回即通过」「声明与实发鉴权头一致」「目标模型可用」都可直接判真假，见下方 1～4.2 自动行。</li>
+        <li><code>MODEL-04</code> 转发映射：需对照 Fluxlane 渠道日志确认实际选中的上游模型。</li>
+        <li><code>TIME-02 / TIME-03</code>：需要可控模拟上游；平台已附带 <code>tools/mock_upstream.py</code>。</li>
+        <li>Claude 固定回归（Go 套件 <code>tests/anthropic_channel_accept_test.go</code>）不在本平台内实现，仍需在代码仓库执行。</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<section class="panel mt-16 manual" data-testid="t-manual-section" data-section="chapter1-cases" data-source="1.3–1.8">
+  <div class="panel-head"><h2>用例定义</h2><span class="meta">CHAPTER 1</span></div>
+  <div class="panel-body">
+    <h3 id="manual-gate" data-testid="t-manual-heading" data-section="gate" data-source="平台新增">1.0 前置必测（GATE）</h3>
+    <table class="table" data-testid="t-manual-table" data-group="GATE">
+      <thead><tr><th>编号</th><th>测试方法</th><th>通过标准</th><th>平台执行</th></tr></thead>
+      <tbody>
+        <tr data-testid="t-manual-row" data-item-id="GATE-01" data-execution="auto"><td class="mono">GATE-01</td><td>1 次非流式（须返回 G1_OK）+ 1 次流式（须有内容且正常结束）</td><td>两次都正常才通过；任一次失败、被截断或未返回 G1_OK 即不通过</td><td>自动（优先执行）</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="GATE-02" data-execution="auto"><td class="mono">GATE-02</td><td>先由第 1 次请求写入缓存（Claude 用 cache_control，约 3000 token 前缀），再用相同输入连发 5 次</td><td>首次写入不计；后 5 次必须全部命中（命中率 = 1）；未返回缓存用量字段按未命中计</td><td>自动（优先执行）</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="GATE-03" data-execution="auto"><td class="mono">GATE-03</td><td>连发 20 次相同短输入，逐次记录耗时并计算 P5 / 中位 / P95</td><td>20 次必须全部成功且中位 ≤ 10s；任一次失败或中位 &gt; 10s 不通过（分位随任务保存作渠道权重）</td><td>自动（优先执行）</td></tr>
+      </tbody>
+    </table>
+    <h3 id="manual-net" data-testid="t-manual-heading" data-section="net" data-source="1.3">1.3 端点与网络连通性（NET）</h3>
+    <table class="table" data-testid="t-manual-table" data-group="NET">
+      <thead><tr><th>编号</th><th>测试方法</th><th>通过标准</th><th>平台执行</th></tr></thead>
+      <tbody>
+        <tr data-testid="t-manual-row" data-item-id="NET-01" data-execution="auto"><td class="mono">NET-01</td><td>从实际测试机解析供应商域名，记录解析结果</td><td>域名可正常解析，无持续性解析失败</td><td>自动（dig）</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="NET-02" data-execution="auto"><td class="mono">NET-02</td><td>通过正常 HTTPS 校验连接端点，不关闭证书校验</td><td>TLS 握手成功，证书有效且与域名匹配</td><td>自动（复用首个请求）</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="NET-03" data-execution="auto"><td class="mono">NET-03</td><td>使用文档规定的完整路径发送最小有效请求</td><td>请求到达正确 API，无路径重复、404 或网页</td><td>自动</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="NET-04" data-execution="auto"><td class="mono">NET-04</td><td>不跟随重定向发起一次请求，只检查状态码</td><td>状态码不是 3xx</td><td>自动</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="NET-05" data-execution="auto"><td class="mono">NET-05</td><td>从实际运行环境发起同类请求</td><td>运行环境可访问，不以个人电脑测试成功为结论</td><td>平台即运行环境</td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="manual-req" data-testid="t-manual-heading" data-section="req" data-source="1.4">1.4 普通请求（REQ）</h3>
+    <table class="table" data-testid="t-manual-table" data-group="REQ">
+      <thead><tr><th>编号</th><th>检查内容</th><th>通过标准</th></tr></thead>
+      <tbody>
+        <tr data-testid="t-manual-row" data-item-id="REQ-01" data-execution="auto"><td class="mono">REQ-01</td><td>HTTP 状态码及响应体</td><td>返回协议约定成功状态，响应体可解析</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="REQ-02" data-execution="auto"><td class="mono">REQ-02</td><td>模型是否输出与提示词相符的内容</td><td>返回有效文本，不为空、仅空白或只有元数据</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="REQ-03" data-execution="auto"><td class="mono">REQ-03</td><td>请求是否完整结束</td><td>在总超时预算内返回完整响应，无持续挂起</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="REQ-04" data-execution="auto"><td class="mono">REQ-04</td><td>Content-Type 与实际内容</td><td>返回 API 数据，不得是登录页、验证码页或代理错误页</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="REQ-05" data-execution="manual"><td class="mono">REQ-05</td><td>请求模型、配置映射与上游日志</td><td>路由到目标模型与渠道；model 字段差异有明确映射说明</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted">执行方法：每个拟上架模型，在两条链路上分别连续发送 3 次非流式请求。</p>
+
+    <h3 id="manual-stream" data-testid="t-manual-heading" data-section="stream" data-source="1.5">1.5 流式请求（STREAM）</h3>
+    <table class="table" data-testid="t-manual-table" data-group="STREAM">
+      <thead><tr><th>编号</th><th>测试方法</th><th>通过标准</th></tr></thead>
+      <tbody>
+        <tr data-testid="t-manual-row" data-item-id="STREAM-01" data-execution="auto"><td class="mono">STREAM-01</td><td>开启流式参数，检查响应头与事件格式</td><td>按约定协议返回流式响应，无解析错误</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="STREAM-02" data-execution="auto"><td class="mono">STREAM-02</td><td>从请求发出计时，记录首个实际内容到达时间</td><td>在首个有效内容预算内收到内容</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="STREAM-03" data-execution="auto"><td class="mono">STREAM-03</td><td>持续读取事件并拼接正文</td><td>得到有效回答，无空流或仅心跳</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="STREAM-04" data-execution="auto"><td class="mono">STREAM-04</td><td>检查协议结束事件/标记与连接收尾</td><td>收到正常结束信号，并在总超时内完成</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="STREAM-05" data-execution="auto"><td class="mono">STREAM-05</td><td>流开始前后的错误能否被识别</td><td>不得把错误事件或异常断流当作正常成功</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted">首内容计时不含 HTTP 响应头、SSE 心跳与空事件；平台按内容增量计时。</p>
+
+    <h3 id="manual-auth" data-testid="t-manual-heading" data-section="auth" data-source="1.6">1.6 鉴权（AUTH）</h3>
+    <table class="table" data-testid="t-manual-table" data-group="AUTH">
+      <thead><tr><th>编号</th><th>测试场景</th><th>通过标准</th><th>平台执行</th></tr></thead>
+      <tbody>
+        <tr data-testid="t-manual-row" data-item-id="AUTH-01" data-execution="auto"><td class="mono">AUTH-01</td><td>有效 Key</td><td>请求成功</td><td>自动（复用 REQ）</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="AUTH-02" data-execution="auto"><td class="mono">AUTH-02</td><td>缺少鉴权头</td><td>明确拒绝，无模型输出</td><td>自动</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="AUTH-03" data-execution="auto"><td class="mono">AUTH-03</td><td>鉴权值为空</td><td>明确拒绝，无模型输出</td><td>自动</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="AUTH-04" data-execution="auto"><td class="mono">AUTH-04</td><td>格式合理但随机的错误 Key</td><td>明确拒绝，无模型输出</td><td>自动</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="AUTH-05" data-execution="manual"><td class="mono">AUTH-05</td><td>成功后撤销专用 Key</td><td>在声明生效时间内被拒绝</td><td>人工</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="AUTH-06" data-execution="auto"><td class="mono">AUTH-06</td><td>用无效（等价过期）Key 发起请求</td><td>只要有 HTTP 返回即通过（是否明确拒绝由 AUTH-04 判）</td><td>自动</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="AUTH-07" data-execution="auto"><td class="mono">AUTH-07</td><td>比对声明的鉴权方式与请求实际发出的鉴权头</td><td>一致即通过，不一致不通过</td><td>自动</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="AUTH-08" data-execution="auto"><td class="mono">AUTH-08</td><td>用提供的 Key 请求目标模型</td><td>2xx 且有正文即通过</td><td>自动</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="AUTH-09" data-execution="auto"><td class="mono">AUTH-09</td><td>已禁用的平台 Key</td><td>平台拒绝且不向上游发起调用</td><td>人工（Fluxlane 侧）</td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="manual-model" data-testid="t-manual-heading" data-section="model" data-source="1.7">1.7 模型 ID 与权限边界（MODEL）</h3>
+    <table class="table" data-testid="t-manual-table" data-group="MODEL">
+      <thead><tr><th>编号</th><th>测试方法</th><th>通过标准</th></tr></thead>
+      <tbody>
+        <tr data-testid="t-manual-row" data-item-id="MODEL-01" data-execution="auto"><td class="mono">MODEL-01</td><td>对清单中每个拟上架模型分别请求</td><td>所有模型均可用，单个成功不能代替其他</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="MODEL-02" data-execution="auto"><td class="mono">MODEL-02</td><td>请求明确不存在的模型 ID</td><td>返回明确错误，不得静默改用默认模型</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="MODEL-03" data-execution="auto"><td class="mono">MODEL-03</td><td>修改模型 ID 一个字符或使用未配置别名</td><td>返回明确错误；支持别名需记录映射</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="MODEL-04" data-execution="manual"><td class="mono">MODEL-04</td><td>通过对外 ID 请求，核对实际渠道与上游 ID</td><td>映射正确，日志可关联目标渠道</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="MODEL-05" data-execution="auto"><td class="mono">MODEL-05</td><td>受限 Key 请求未授权模型</td><td>平台拒绝，不绕过模型限制调用上游</td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="manual-time" data-testid="t-manual-heading" data-section="time" data-source="1.8">1.8 超时与失败返回（TIME）</h3>
+    <table class="table" data-testid="t-manual-table" data-group="TIME">
+      <thead><tr><th>编号</th><th>测试方法</th><th>通过标准</th></tr></thead>
+      <tbody>
+        <tr data-testid="t-manual-row" data-item-id="TIME-01" data-execution="auto"><td class="mono">TIME-01</td><td>隔离配置中使用不可达端点</td><td>在连接超时预算内失败，错误可识别</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="TIME-02" data-execution="auto"><td class="mono">TIME-02</td><td>模拟端点接受连接但不返回内容</td><td>在首内容或总超时预算内结束</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="TIME-03" data-execution="auto"><td class="mono">TIME-03</td><td>模拟端点仅发送心跳或空事件</td><td>心跳不能使请求无限存活</td></tr>
+        <tr data-testid="t-manual-row" data-item-id="TIME-04" data-execution="auto"><td class="mono">TIME-04</td><td>请求发出后主动取消</td><td>客户端及时退出，平台停止读取并记录取消</td></tr>
+      </tbody>
+    </table>
+
+    <h3>1.9 记录字段</h3>
+    <p class="small">每条用例至少记录：测试对象（供应商、渠道、协议、模型 ID）、测试链路、用例编号、带时区的执行时间、执行结果（PASS / FAIL / 不适用 / 未执行）、响应信息（状态码、脱敏错误、请求 ID）、耗时（连接、首内容、总耗时）、定位证据。平台的导出文件已按该结构组织。</p>
+
+    <div class="alert info mt-12">
+      <div>
+        <p><strong>不得为测试而撤销生产 Key</strong>；模拟端点只用于验证平台超时与取消机制，不能据此宣称供应商具备相同行为。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel mt-16 manual" data-testid="t-manual-section" data-section="auto-task" data-source="平台说明">
+  <div class="panel-head"><h2>自动验收任务</h2><span class="meta">AUTO TASK</span></div>
+  <div class="panel-body">
+    <h3>1. 新建任务</h3>
+    <p class="small">进入「自动验收」页，填写接口 Base URL、API Key、模型 ID，选择接口协议（不确定时点「识别」，
+    平台会探测 <code>/models</code>；仍无法确定时必须手动选择，不会猜测）。其余参数有默认值，一般无需修改。</p>
+    <ul class="small list-plain">
+      <li>「该端点无需鉴权」仅用于确实不校验凭证的私有化端点。</li>
+      <li>「同时测试 Fluxlane 转发链路」需要填写真实转发地址与 Key；不填就只跑直连，
+        报告里会明确写「测试链路 = 上游直连」，不会把直连结果当成转发结果。</li>
+      <li>「最大请求数 / 最大时长」是任务预算，用尽后不再发请求，剩余项记为未测试。</li>
+    </ul>
+
+    <h3>2. 执行与查看</h3>
+    <p class="small">任务在后台执行，页面每 3 秒刷新进度；关闭页面或重新登录后仍可继续查看。
+    执行顺序固定为第一章 → 第二章 → 第三章 → 第四章；第一章关键项全部未通过时，
+    后续章节直接标「阻塞」，避免继续产生费用。</p>
+
+    <h3>3. 人工确认与证据</h3>
+    <p class="small">无法自动判定的测试项状态为「待确认」。在测试项行点「人工确认」，填写实际结果与说明，
+    可附一张 ≤ 2 MB 的截图/日志/PDF；平台记录上传人、时间与文件 SHA-256，PDF 报告第六节会列出。
+    标记「不通过 / 不适用 / 阻塞」时必须填写说明。</p>
+
+    <h3>4. 重测</h3>
+    <ul class="small list-plain">
+      <li>单个自动项：「立即测试」，需重新输入 API Key，旧判定写入重测日志。</li>
+      <li>某一章 / 整个任务：「重测某章」「重测整个任务」，会创建新任务并保留原任务记录。</li>
+      <li>第一章用例依赖整批执行状态，只能按章或整任务重测。</li>
+    </ul>
+
+    <h3>5. 凭证</h3>
+    <p class="small">API Key 只在任务执行期间存在于服务端内存，任务结束、取消或异常时立即清空；
+    不写数据库、不写日志、不写报告，页面也没有任何接口可以读回原始 Key，所以重测时必须重新输入。
+    服务重启后运行中的任务会标记为「已中断」，不会用残留凭证继续执行。</p>
+  </div>
+</section>
+
+<section class="panel mt-16 manual" data-testid="t-manual-section" data-section="chapter1-4" data-source="第 2～4 章用例表 / 平台说明">
+  <div class="panel-head"><h2>第 1～4 章与 PDF 报告</h2><span class="meta">CHAPTER 1–4</span></div>
+  <div class="panel-body">
+    <h3>1～4.1 标准从哪里来</h3>
+    <p class="small">第一章「连通性与鉴权」共 36 个用例：原文 33 个（NET 5、REQ 5、STREAM 5、AUTH 9、MODEL 5、TIME 4）
+    已按原文 1.3–1.8 的用例表建立结构化定义，编号与验收套件完全一致，由套件真实执行；
+    另有 3 条平台新增前置必测（GATE-01 连通性（非流式 + 流式）、GATE-02 缓存命中率、GATE-03 延时分位），
+    优先执行，任一不通过即直接判不达标，不再执行后续测试。
+    第 2～4 章（接口兼容性、缓存正确性、模型与能力真实性）的用例表以 Excel 对象嵌入原文，
+    原文以 33 张内嵌 Excel 表（Worksheet9–41）为载体，平台按文档流顺序解析出 133 个测试项，其中有测试项的表为 23 张。两部分的测试方法、通过标准与章节归属都不可修改。</p>
+
+    <h3>1～4.2 哪些自动、哪些人工（122 自动 / 47 需外部证据）</h3>
+    <table class="table" data-testid="t-manual-table" data-group="CLAIMS">
+      <thead><tr><th>编号</th><th>平台执行方式</th><th>判定依据</th></tr></thead>
+      <tbody>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-ids="NET-01~04,REQ-01~04,STREAM-01~05"><td class="mono">NET-01~04、REQ-01~04、STREAM-01~05</td><td>自动（第一章）</td><td>dig 解析、TLS 握手、完整路径、非 3xx、连续 3 次请求与流式事件解析</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-ids="AUTH-01~04,AUTH-06,AUTH-08,MODEL-02,MODEL-03,TIME-01~04"><td class="mono">AUTH-01~04、AUTH-06/08、MODEL-02/03、TIME-01~04</td><td>自动（第一章）</td><td>无效鉴权必须被拒、无效 Key 有返回即可、目标模型可用、不存在的模型 ID 与单字符变更必须报错、超时与取消可在预算内结束</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-ids="MSG-01,MSG-04"><td class="mono">MSG-01 / MSG-04</td><td>自动</td><td>随机标记是否原样返回 / system 规则是否被执行</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-ids="PARAM-04"><td class="mono">PARAM-04</td><td>自动</td><td>同一任务开关流式，两种响应格式是否都正确</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-ids="SSE-01,SSE-02"><td class="mono">SSE-01 / SSE-02</td><td>自动</td><td>事件流是否可解析、增量拼接是否丢字或乱码</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-ids="ERR-01,ERR-02"><td class="mono">ERR-01 / ERR-02</td><td>自动</td><td>非法 JSON、缺少必填字段是否返回 4xx</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-ids="MSG-02,MSG-03,MSG-06,MSG-07,CTX-01~03"><td class="mono">MSG-02/03/06/07、CTX-01~03</td><td>自动</td><td>多轮引用、assistant 历史、内容块顺序、长上下文首/中/尾标记提取</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-ids="PARAM-01,PARAM-02,PARAM-03,PARAM-06,TOOL-01,TOOL-06,MEDIA-03,STRUCT-01~03"><td class="mono">PARAM-01/02/03/06、TOOL-01/06、MEDIA-03、STRUCT-01~03</td><td>自动</td><td>参数边界、工具定义与多调用、多图区分、JSON 与 Schema</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-ids="ID-04,CAP-01,CAP-02,CONS-02,CACHE-02"><td class="mono">ID-04、CAP-01/02、CONS-02、CACHE-02</td><td>自动</td><td>模型标识一致性、基础能力、会话一致性、缓存命中</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-ids="MSG-05,MSG-08,PARAM-05,TOOL-03,TOOL-04,TOOL-05,TOOL-08,MEDIA-02,MEDIA-05,SSE-04,SSE-05,ERR-03,ERR-04,ERR-06"><td class="mono">MSG-05/08、PARAM-05、TOOL-03/04/05/08、MEDIA-02/05、SSE-04/05、ERR-03/04/06</td><td>自动</td><td>2026-10-22 口径校正：这 14 项此前被并进下方“人工确认”行，实际由平台自动执行，不需要人工复核（PARAM-07 已于 B0.5a 降为人工项，见下一行）</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-executor-state="ready" data-claim-ids="GATE-01,GATE-02,GATE-03"><td class="mono">GATE-01~03</td><td>自动（前置必测，优先执行）</td><td>三条必测先跑：非流式 + 流式都正常、缓存命中率为 1、20 次全部成功且中位 ≤ 10s；任一不过即判不达标并停止后续测试（延时分位随任务保存，作为渠道权重依据）</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-executor-state="ready" data-claim-ids="AUTH-07,AUTH-09,MODEL-01,MODEL-05,NET-05,CTX-04,CTX-05,PARAM-08,TOOL-02,TOOL-07"><td class="mono">AUTH-07、AUTH-09、MODEL-01、MODEL-05、NET-05、CTX-04~05、PARAM-08、TOOL-02/07</td><td>自动（B0.5b 分级）</td><td>按原文可在机器上判定，平台已有对应检查器，会直接进入本次结论（TOOL 全组支持 OpenAI / Anthropic 双协议，CTX-04/05 需先配置上下文上限）</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="auto" data-claim-executor-state="pending" data-claim-ids="BILL-05,CACHE-01,CACHE-03,CACHE-04,CACHE-05,CAP-03,CAP-04,CAP-05,CONC-01,CONS-01,CONV-03,CTRL-01,CTRL-02,CTRL-04,ERR-05,LIMIT-02,LIMIT-03,LIMIT-04,LIMIT-05,LIMIT-06,MEDIA-01,MEDIA-04,MEDIA-06,MODE-01,MODE-02,MODE-03,MODE-04,PREFIX-01,PREFIX-04,PREFIX-05,PREFIX-06,SCOPE-01,SSE-03,THINK-01,THINK-02,THINK-03,THINK-04,TTL-01,TTL-02,TTL-03,TTL-05"><td class="mono">BILL-05、CACHE-01/03~05、CAP-03~05、CONC-01、CONS-01、CONV-03、CTRL-01~02/04、ERR-05、LIMIT-02~06、MEDIA-01/04/06、MODE-01~04、PREFIX-01/04~06、SCOPE-01、SSE-03、THINK-01~04、TTL-01~03/05</td><td>自动（B0.5b 分级）</td><td>这 41 项按原文可在机器上判定，但平台尚无对应检查器：执行时落 <code>blocked(executor_not_implemented)</code>，不计入通过，报告「L2 就绪率」会把这批算作未实现</td></tr>
+        <tr data-testid="t-manual-claim" data-claim-execution="manual" data-claim-ids="AUTH-05,MODEL-04,PARAM-07,REQ-05,ROUTE-01"><td class="mono">AUTH-05、MODEL-04、PARAM-07、REQ-05、ROUTE-01 等，第 1～4 章非 L2 项合计 47 项（L1 42 + L0 5）</td><td>人工确认</td><td>需供应商控制台权限、书面证据、账单、TTL 等待、公网图床、故障注入或转发日志，平台只记录人工结论</td></tr>
+      </tbody>
+    </table>
+
+    <h3>1～4.3 判定与版本</h3>
+    <ul class="small list-plain">
+      <li>单项状态：通过 / 不通过 / 未测试 / 待确认 / 标准未定义 / 不适用；没有记录的一律是“未测试”，不会默认通过。</li>
+      <li>第一章同一用例在直连与转发链路上各执行一次，判定取最差结果：任一条链路不通过即为不通过。</li>
+      <li>整体结论：任一不通过 → <strong>不达标</strong>；存在未测试/待确认/标准未定义 → <strong>无法判定</strong>；全部适用项通过 → <strong>达标</strong>。</li>
+      <li>修改标准（启用状态、必测级别、供应商侧参数）会生成新版本；历史批次仍绑定原版本，报告不受影响。</li>
+      <li>原文要求按供应商配置的参数（缓存最小长度、TTL、上下文长度、最大输出）未填时，相关项显示“标准未定义”，不计入通过。</li>
+    </ul>
+
+    <h3>1～4.4 导出 PDF 报告</h3>
+    <p class="small">在“验收记录”选中批次 → 查看整体结论与逐项状态 → “导出 PDF 报告”。
+    报告含报告编号、被测对象、标准版本与校验值、分章汇总、第一章执行记录、逐项预期/实际/判定、问题清单与限制说明，页脚有页码。
+    导出时后端会重算判定并校验标准快照，未绑定标准的批次、标准校验不一致或无权访问的记录都会被拒绝并给出原因。
+    若批次绑定的标准版本早于第一章合并，报告仍会列出当时的用例执行记录，但标注“不参与本次结论”。
+    报告中不含 AK/SK、API Key、Authorization 头或 Cookie。</p>
+  </div>
+</section>
+{% endblock %}

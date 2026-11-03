@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}验收记录 · 接入测试平台{% endblock %}
+
+{% block content %}
+<div class="page-head" data-testid="t-records-root">
+  <div>
+    <h1>验收记录</h1>
+    <p class="sub">记录仅包含请求元数据与用例判定，不含任何凭证、提示词或响应正文。</p>
+  </div>
+  <div class="actions">
+    <select id="record-limit" class="mono" aria-label="显示条数" data-testid="t-records-select-limit">
+      <option value="30">最近 30 条</option>
+      <option value="100">最近 100 条</option>
+      <option value="200">最近 200 条</option>
+    </select>
+    <button class="btn btn-sm" id="reload-records" type="button" data-testid="t-records-btn-refresh">刷新</button>
+  </div>
+</div>
+
+{# 加载失败提示区：静态锚点，脚本可区分“加载失败”与“没有记录”（规格 §6.2.1） #}
+<div class="alert danger hidden" id="records-error" role="alert" data-testid="t-records-error"></div>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>测试批次</h2>
+    <span class="meta" id="record-count" data-testid="t-records-count">—</span>
+  </div>
+  <div class="table-wrap">
+    <table class="table" id="records-table" data-testid="t-records-table">
+      <thead>
+        <tr>
+          <th class="num">ID</th>
+          <th>执行时间</th>
+          <th>供应商</th>
+          <th>模型</th>
+          <th>链路</th>
+          <th>适配器</th>
+          <th class="num">PASS</th>
+          <th class="num">FAIL</th>
+          <th class="num">SKIP</th>
+          <th>标准版本</th>
+          <th>判定</th>
+          <th>备注</th>
+        </tr>
+      </thead>
+      <tbody id="records-body" data-testid="t-records-table-body">
+        <tr><td colspan="12" class="table-empty" data-testid="t-records-empty">加载中…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel mt-16 hidden" id="detail-panel" data-testid="t-records-detail">
+  <div class="panel-head">
+    <h2>批次明细 <span class="mono small muted" id="detail-id" data-testid="t-records-cell-run-id"></span></h2>
+    <span class="flex gap-8">
+      <a class="btn btn-sm btn-primary" id="detail-pdf" href="#" aria-disabled="true" data-testid="t-records-btn-export-pdf">导出 PDF 报告</a>
+      <a class="btn btn-sm" id="detail-md" href="#" data-testid="t-records-btn-export-md">导出 Markdown</a>
+      <a class="btn btn-sm" id="detail-csv" href="#" data-testid="t-records-btn-export-csv">导出 CSV</a>
+      <button class="btn btn-sm btn-danger hidden" id="detail-delete" type="button" data-testid="t-records-btn-delete">删除记录</button>
+    </span>
+  </div>
+  <div class="panel-body">
+    <dl class="kv">
+      <dt>供应商 / 渠道</dt><dd id="d-provider">—</dd>
+      <dt>端点主机</dt><dd id="d-host">—</dd>
+      <dt>模型 ID</dt><dd id="d-model">—</dd>
+      <dt>链路 / 适配器</dt><dd id="d-link">—</dd>
+      <dt>执行时间</dt><dd id="d-time">—</dd>
+      <dt>测试标准</dt><dd id="d-standard">—</dd>
+      <dt>备注</dt><dd id="d-note">—</dd>
+    </dl>
+  </div>
+  <div class="panel-body" id="report-summary">
+    <div class="conclusion-bar">
+      <span class="muted">整体结论</span>
+      <span class="verdict undecided" id="d-verdict" data-testid="t-records-cell-verdict" data-verdict="undecided">—</span>
+      <span class="small muted" id="d-verdict-reason" data-testid="t-records-cell-verdict-reason"></span>
+      <span class="counts" id="d-verdict-counts" data-testid="t-records-cell-counts"></span>
+    </div>
+    <p class="hint" id="d-report-hint" data-testid="t-records-status-report"></p>
+  </div>
+  <div class="table-wrap">
+    <table class="table" id="detail-table" data-testid="t-records-table-cases">
+      <thead>
+        <tr>
+          <th>用例编号</th>
+          <th>检查项</th>
+          <th>结果</th>
+          <th>HTTP</th>
+          <th class="num">耗时</th>
+          <th>证据</th>
+        </tr>
+      </thead>
+      <tbody id="detail-body" data-testid="t-records-table-cases-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel mt-16 hidden" id="standard-panel" data-testid="t-records-standard">
+  <div class="panel-head">
+    <h2>标准判定明细 <span class="mono small muted" id="std-panel-version" data-testid="t-records-cell-standard-version"></span></h2>
+    <span class="meta" id="std-panel-meta" data-testid="t-records-status-items">—</span>
+  </div>
+  <div class="panel-body">
+    <p class="hint">
+      “自动”项由平台对被测端点发起真实请求后判定；“人工”项需由授权人员依据实际观察确认。
+      未确认的项目保持“未测试”，不会被计为通过。标记为不通过或不适用时必须填写说明。
+    </p>
+  </div>
+  <div class="table-wrap">
+    <table class="table item-table" id="std-table" data-testid="t-records-table-items">
+      <thead>
+        <tr>
+          <th>编号</th>
+          <th>测试项</th>
+          <th>方式</th>
+          <th>预期结果</th>
+          <th>实际结果</th>
+          <th>判定</th>
+          <th>确认</th>
+        </tr>
+      </thead>
+      <tbody id="std-body" data-testid="t-records-table-items-body"></tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/records.js"></script>
+{% endblock %}

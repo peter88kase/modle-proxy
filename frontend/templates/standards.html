@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}测试标准 · 接入测试平台{% endblock %}
+
+{% block content %}
+<div class="page-head" data-testid="t-standards-root">
+  <div>
+    <h1>测试标准</h1>
+  </div>
+  <div class="actions">
+    <label class="label inline" for="std-version">版本</label>
+    <select id="std-version" class="mono" aria-label="标准版本" data-testid="t-standards-version"></select>
+    <button class="btn btn-sm" id="std-reload" type="button" data-testid="t-standards-btn-reload">重新载入</button>
+    {% if user and user.role == 'admin' %}
+    <button class="btn btn-sm" id="std-sync-def" type="button" data-testid="t-standards-btn-sync">同步包内定义</button>
+    <button class="btn btn-sm btn-primary" id="std-save" type="button" data-testid="t-standards-btn-save">另存为新版本</button>
+    {% endif %}
+  </div>
+</div>
+
+{# 包内定义比库里最新版本新时提示：否则升级后仍看到旧版本，会以为新增项没生效 #}
+<div class="alert warn hidden" id="std-sync-hint" role="status" data-testid="t-standards-sync-hint"></div>
+
+{# 加载失败提示区：静态锚点，脚本可区分“加载失败”与“没有内容”（规格 §6.2.1） #}
+<div class="alert danger hidden" id="standards-error" role="alert" data-testid="t-standards-error"></div>
+
+<div id="std-chapters" data-testid="t-standards-table"></div>
+
+{% if user and user.role == 'admin' %}
+<section class="panel mt-16">
+  <div class="panel-head"><h2>保存修改</h2></div>
+  <div class="panel-body">
+    <div class="field">
+      <label class="label" for="std-change-note">本次变更说明</label>
+      <input type="text" id="std-change-note" maxlength="200" placeholder="例如：为 Claude 渠道启用工具类用例，并填写缓存最小长度" data-testid="t-standards-input-note">
+      <p class="hint">保存后会生成一个新版本，历史测试记录仍绑定原版本，不受影响。</p>
+    </div>
+    <button class="btn btn-primary" id="std-save-2" type="button" data-testid="t-standards-btn-save-note">另存为新版本</button>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/standards.js"></script>
+{% endblock %}
